@@ -11,10 +11,28 @@ Api Specification
 
 ```ruby
 Hancock.configure do |c|
-  c.aws_credentials = {api_token: 'sdfsdfdsfds', secret_key: 'sdsdsfdsfdsfdsf'}
-  c.logging_enabled = true|false
+  c.event_notification = {
+    :logging_enabled => true,
+    :uri => 'http://callback.com', 
+    :envelope => [:delivered, :completed], 
+    :recepient => [:completed]
+  }
 end
 ```
+
+##### Description
+
+DocuSign has the ability to make callbacks to a specified URI and provide status on an envelope and recepient.
+This method will allow the client to register a callback uri and select which event to listen to. 
+[See eventNotification for details](https://www.docusign.com/p/RESTAPIGuide/RESTAPIGuide.htm#REST%20API%20References/Send%20an%20Envelope.htm%3FTocPath%3DREST%20API%20References%7CSend%20an%20Envelope%20or%20Create%20a%20Draft%20Envelope%7C_____0)
+
+Key               | Description
+---               | ---
+event_notifcation | `logging_enabled`: (default: false) Flag on eventNotification to enable logging to DocuSign console.
+                  | Register event notification callback uri, and events of interest.
+                  | `uri`: Endpoint where DocuSign will call upon changes in envelope status
+                  | `envelope`: a list of events to register for each envelope.  `possible values`: sent, delivered, sigend, completed, declined, voided
+                  | `recepient`: a list of events to register for each recepient. `possible values`: authentication_failed, auto_responded, completed, declined, delivered, sent
 
 ___
 <a name="#submit_for_signature" />
@@ -128,38 +146,4 @@ The method should return the following JSON structure
 }
 ```
 
----
 
-#### 3. Processing DocuSign Notification Callback 
-DocuSign has the ability to make callbacks to a specified URI and provide status on an envelope and recepient.
-This method will allow the client to register a callback uri and select which event to listen to. 
-[See eventNotification for details](https://www.docusign.com/p/RESTAPIGuide/RESTAPIGuide.htm#REST%20API%20References/Send%20an%20Envelope.htm%3FTocPath%3DREST%20API%20References%7CSend%20an%20Envelope%20or%20Create%20a%20Draft%20Envelope%7C_____0)
-
-```ruby
-register_notifications(uri, events) 
-```
-------
-
-##### Description
-
-Key               | Description
----               | ---
-uri               | Endpoint where DocuSign will call upon changes in envelope status
-envelope_events   | a list of events to register for each envelope.
-                  | `possible values`: sent, delivered, sigend, completed, declined, voided
-recepient_events  | a list of events to register for each recepient.
-                  | `possible values`: authentication_failed, auto_responded, completed, declined, delivered, sent
-
-##### Return Value
-
-The method should return the following JSON structure
-
-```json
-{
-  "status" : "success|failure",
-  "message": "failure message",
-  "metadata": {
-
-  }
-}
-```
