@@ -64,24 +64,26 @@ documents    | collection of [Document](#documents)
 
 ```json
 {
-  "name"     : "Sally Drew",
-  "email"    : "sally@drew.com",
-  "id_check" : "true",
-  "media"    : "online",
-  "tabs"     : [Tab],
+  "name"         : "Sally Drew",
+  "email"        : "sally@drew.com",
+  "id_check"     : "true",
+  "media"        : "online",
+  "routing_order : "1",
+  "tabs"         : [Tab],
 }
 ```
 
-Key      | Description
----      | ---
-namei    | Name of signer
-email    | Email address of signer
-id_check | (default true) true to enable [ID Check functionality](http://www.docusign.com/partner/docusign-id-check-powered-by-lexisnexis-risk-solutions)
-media    | (online) media for delivery;
-         | online: send through email and sign online
-         | offline: sign offline on tablet
-         | print: print physical copy and snail-mail
-tabs     | collection of [Tab](#tabs)
+Key           | Description
+---           | ---
+name          | Name of signer
+email         | Email address of signer
+id_check      | (default true) true to enable [ID Check functionality](http://www.docusign.com/partner/docusign-id-check-powered-by-lexisnexis-risk-solutions)
+media         | (default online) media for delivery;
+              | online: send through email and sign online
+              | offline: sign offline on tablet
+              | print: print physical copy and snail-mail
+routing_order | (default 1) routing order of recepient in the envelope.  If missing, then all recepients have the same routing order
+tabs          | collection of [Tab](#tabs)
 
 
 <a name="documents"></a>
@@ -146,4 +148,5 @@ The method should return the following JSON structure
 }
 ```
 
+---
 
