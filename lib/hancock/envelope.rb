@@ -60,14 +60,14 @@ module Hancock
       uri = build_uri("/accounts/#{Hancock.account_id}/envelopes/#{envelope_id}/documents")
       content_headers = { 'Content-Type' => 'application/json' }
 
-      get_request(uri, headers)
+      get_request(uri, get_headers(content_headers))
     end
 
     def recipients
       uri = build_uri("/accounts/#{Hancock.account_id}/envelopes/#{envelope_id}/recipients")
       content_headers = { 'Content-Type' => 'application/json' }
 
-      get_request(uri, headers)
+      get_request(uri, get_headers(content_headers))
     end
 
     def status
@@ -80,16 +80,14 @@ module Hancock
 
         request = Net::HTTP::Post.new(uri.request_uri, headers)
         request.body = body_post
-        response = http.request(request)
-        response
+        http.request(request) # return response
       end
 
       def get_request(uri, headers)
         http = initialize_http(uri)
 
-        rrequest = Net::HTTP::Get.new(uri.request_uri, headers)
-        response = http.request(request)
-        response
+        request = Net::HTTP::Get.new(uri.request_uri, headers)
+        http.request(request) # return response
       end
 
       def build_uri(url)
@@ -123,33 +121,37 @@ module Hancock
       end
 
       def get_tabs(tabs, type, document_id)
-        tab_array = []
-        tabs_by_type = tabs.select{ |h| h.values_at('type', type) }
-
-        tabs_by_type.map do |tab|
-          tab_hash = {}
-
-          if tab.is_a? Hancock::AnchoredTab
-            tab_hash[:anchorString] = tab[:anchor_string]
-            tab_hash[:anchorXOffset] = tab[:offset][0] || '0'
-            tab_hash[:anchorYOffset]  = tab[:offset][1] || '0'
-          else
-            tab_hash[:xPosition]  = tab[:coordinates][0] || '0'
-            tab_hash[:yPosition]  = tab[:coordinates][1] || '0'          
-          end
-
-          tab_hash[:documentId] = document_id || '0'
-          tab_hash[:scaleValue] = tab[:scaleValue] || 1
-
-          tab_hash[:name]       = tab[:name] if tab[:name]
-          tab_hash[:tabLabel]   = tab[:label] || 'Signature 1'
-          tab_hash[:width]      = tab[:width] if tab[:width]
-          tab_hash[:height]     = tab[:height] if tab[:width]
-          tab_hash[:value]      = tab[:value] if tab[:value]
-
-          tab_array << tab_hash
+        tabs_by_type(tabs, type).each_with_object([]) do |tab, tab_array|
+          tab_array << generate_tab(tab, document_id)
         end
-        tab_array
+      end
+
+      def tabs_by_type(tabs, type)
+        tabs.select{ |h| h.values_at('type', type) }
+      end
+
+      def generate_tab(tab, document_id)
+        tab_hash = {}
+
+        if tab.is_a? Hancock::AnchoredTab
+          tab_hash[:anchorString] = tab[:anchor_string]
+          tab_hash[:anchorXOffset] = tab[:offset][0] || '0'
+          tab_hash[:anchorYOffset]  = tab[:offset][1] || '0'
+        else
+          tab_hash[:xPosition]  = tab[:coordinates][0] || '0'
+          tab_hash[:yPosition]  = tab[:coordinates][1] || '0'          
+        end
+
+        tab_hash[:documentId] = document_id || '0'
+        tab_hash[:scaleValue] = tab[:scaleValue] || 1
+
+        tab_hash[:name]       = tab[:name] if tab[:name]
+        tab_hash[:tabLabel]   = tab[:label] || 'Signature 1'
+        tab_hash[:width]      = tab[:width] if tab[:width]
+        tab_hash[:height]     = tab[:height] if tab[:width]
+        tab_hash[:value]      = tab[:value] if tab[:value]
+
+        tab_hash
       end
   end
 end
