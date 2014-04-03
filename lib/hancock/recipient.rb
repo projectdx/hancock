@@ -1,5 +1,6 @@
 module Hancock
-  class Recipient
+  class Recipient < Hancock::TemplateBase
+
     #
     # name: 'Owner 1',
     # email: 'whoever@whereever.com',
@@ -8,9 +9,9 @@ module Hancock
     # routing_order: 1
     #
 
-    ATTRIBUTES = [:name, :email, :id_check, :delivery_method, :routing_order]
+    ATTRIBUTES = [:name, :email, :id_check, :delivery_method, :routing_order, :identifier]
 
-    attr_reader :name, :email, :id_check, :delivery_method, :routing_order
+    attr_reader :name, :email, :id_check, :delivery_method, :routing_order, :identifier
 
     def name= name
       raise Hancock::ArgumentError.new() unless name
@@ -45,6 +46,11 @@ module Hancock
         raise Hancock::ArgumentUnvalidError.new(routing_order.class, Integer) 
       end
       @routing_order = routing_order
+    end
+
+    def identifier= identifier
+      @identifier = identifier 
+      @identifier ||= generate_identifier
     end
 
     def initialize(attributes = {})
