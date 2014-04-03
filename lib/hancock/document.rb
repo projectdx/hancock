@@ -14,26 +14,35 @@ module Hancock
     attr_reader :file, :data, :name, :extension, :identifier
 
     def file= file
-      raise 'error' unless data.is_a? File
+      raise Hancock::ArgumentUnvalidError.new(file.class, File) unless file.is_a? File
       @file = file
     end
 
     def data= data
-      raise 'error' unless @attributes[:file] && data
-      raise 'error' if data.is_a? File
+      if @attributes[:file] && data
+        message = "required if no file, invalid if file"
+        raise Hancock::NonadjacentArgumentError.new(message) 
+      end
+      raise Hancock::ArgumentUnvalidError.new(file.class, String) if data.is_a? File
       @data = data
     end
 
     def name= name
-      raise 'error' unless @attributes[:file] && name
+      unless @attributes[:file] && name
+        message = 'optional if file'
+        raise Hancock::NonadjacentArgumentError.new(message) 
+      end
       @name = name
       @name ||= File.basename(@attributes[:file])
     end
 
     def extension= extension
-      raise 'error' unless @attributes[:file] && extension
-      @name = name
-      @name ||= File.basename(@attributes[:file])
+      unless @attributes[:file] && extension
+        message = 'optional if file'
+        raise Hancock::NonadjacentArgumentError.new(message) 
+      end
+      @extension = name
+      @extension ||= File.basename(@attributes[:file])
     end
 
     def identifier= identifier
@@ -44,7 +53,7 @@ module Hancock
     def initialize(attributes = {})
       @attributes = attributes
       ATTRIBUTES.each do |attr|
-        self.send(attr, attributes[attr])
+        self.send("#{attr}=", attributes[attr])
       end
     end
 
@@ -52,5 +61,6 @@ module Hancock
       def generate_identifier
         0
       end
+
   end
 end
