@@ -2,11 +2,12 @@ module Hancock
   class Recipient < Hancock::TemplateBase
 
     #
-    # name: 'Owner 1',
-    # email: 'whoever@whereever.com',
-    # id_check: true,
+    # name:            'Owner 1',
+    # email:           'whoever@whereever.com',
+    # id_check:        true/false,
     # delivery_method: email, # email, embedded, offline, paper
-    # routing_order: 1
+    # routing_order:   1
+    # identifier:      optional, generates if not given
     #
 
     ATTRIBUTES = [:name, :email, :id_check, :delivery_method, :routing_order, :identifier]
@@ -26,7 +27,7 @@ module Hancock
     def id_check= id_check
       id_check ||= true
       unless [true, false].include?(id_check)
-        message = 'must be type of True or False'
+        message = 'must be type of True/False'
         raise Hancock::ArgumentError.new(message)
       end
       @id_check = id_check

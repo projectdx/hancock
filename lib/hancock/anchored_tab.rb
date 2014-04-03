@@ -1,10 +1,11 @@
 module Hancock
   class AnchoredTab < Hancock::TemplateBase
     #
-    # type: 'sign_here',
-    # label: '{{recipient.name}} Signature',
-    # offset: [2, 100]
+    # type:        'sign_here',
+    # label:       '{{recipient.name}} Signature',
+    # offset:      [2, 100]
     # anchor_text: 'Owner 1 Signature', # defaults to label
+    # page_number: default 1
     #
 
     ATTRIBUTES = [:type, :label, :offset, :anchor_text, :page_number]
