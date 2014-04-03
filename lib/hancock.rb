@@ -1,4 +1,5 @@
 require 'hancock/version'
+require 'hancock/exceptions'
 require 'hancock/envelope'
 require 'hancock/document'
 require 'hancock/anchored_tab'

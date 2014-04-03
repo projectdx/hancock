@@ -4,8 +4,8 @@ module Hancock
     def initialize
       @documents = []
       @recipients = {
-          signers: []
-        }
+        signers: []
+      }
 
       @docusign_headers = {
         'X-DocuSign-Authentication' => {
@@ -29,8 +29,8 @@ module Hancock
 
       doc_signer[:tabs] = {
         #here we can add more types
-        initialHereTabs:      get_tabs( tabs, "initial_here", document.identifier),
-        signHereTabs:         get_tabs( tabs, "sign_here" , document.identifier),
+        initialHereTabs: get_tabs( tabs, "initial_here", document.identifier),
+        signHereTabs:    get_tabs( tabs, "sign_here" , document.identifier),
       }
 
       @recipients[:signers] << doc_signer
@@ -41,7 +41,10 @@ module Hancock
       uri = build_uri("/accounts/#{Hancock.account_id}/envelopes")
       body_post = get_post_body("sent")     
       
-      content_headers = { 'Content-Type' => 'multipart/form-data', 'Content-Length' => "#{body_post.length}" }
+      content_headers = { 
+        'Content-Type' => 'multipart/form-data', 
+        'Content-Length' => "#{body_post.length}" 
+      }
 
       post_request(uri, body_post, get_headers(content_headers))
     end
@@ -50,7 +53,10 @@ module Hancock
       uri = build_uri("/accounts/#{Hancock.account_id}/envelopes")
       body_post = get_post_body("created")     
 
-      content_headers = { 'Content-Type' => 'multipart/form-data', 'Content-Length' => "#{body_post.length}" }
+      content_headers = { 
+        'Content-Type' => 'multipart/form-data', 
+        'Content-Length' => "#{body_post.length}" 
+      }
 
       post_request(uri, body_post, get_headers(content_headers))
     end
@@ -134,9 +140,9 @@ module Hancock
         tab_hash = {}
 
         if tab.is_a? Hancock::AnchoredTab
-          tab_hash[:anchorString] = tab[:anchor_string]
+          tab_hash[:anchorString]  = tab[:anchor_string]
           tab_hash[:anchorXOffset] = tab[:offset][0] || '0'
-          tab_hash[:anchorYOffset]  = tab[:offset][1] || '0'
+          tab_hash[:anchorYOffset] = tab[:offset][1] || '0'
         else
           tab_hash[:xPosition]  = tab[:coordinates][0] || '0'
           tab_hash[:yPosition]  = tab[:coordinates][1] || '0'          
