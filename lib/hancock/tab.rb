@@ -5,6 +5,7 @@ module Hancock
     # type: 'initial_here',
     # label: 'Absolutely Positioned Initials',
     # coordinates: [160, 400]
+    # page_number: default 1
     #
 
     ATTRIBUTES = [:type, :label, :coordinates, :page_number]
