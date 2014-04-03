@@ -4,8 +4,8 @@ module Hancock
 
   # Exception raised when Input file missing
   class ArgumentUnvalidError < Error
-    def initialize arg, exspected
-      message = "Unvalid argument. Exspected #{exspected}, got #{arg}"
+    def initialize arg, expected
+      message = "Invalid argument. Exspected #{expected}, got #{arg}"
       super(message)
     end
   end
