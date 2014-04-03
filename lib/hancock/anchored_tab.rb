@@ -1,5 +1,5 @@
 module Hancock
-  class AnchoredTab
+  class AnchoredTab < Hancock::TemplateBase
     #
     # type: 'sign_here',
     # label: '{{recipient.name}} Signature',
@@ -7,9 +7,13 @@ module Hancock
     # anchor_text: 'Owner 1 Signature', # defaults to label
     #
 
-    ATTRIBUTES = [:type, :label, :offset, :anchor_text]
+    ATTRIBUTES = [:type, :label, :offset, :anchor_text, :page_number]
 
-    attr_reader :type, :label, :offset, :anchor_text
+    attr_reader :type, :label, :offset, :anchor_text, :page_number
+
+    def page_number= page_number
+      @page_number = page_number || 1
+    end
 
     def type= type
       raise Hancock::ArgumentError.new() unless type
@@ -29,7 +33,7 @@ module Hancock
     end
 
     def anchor_text= anchor_text
-      @anchor_text = attributes[:label]
+      @anchor_text = @attributes[:label]
     end
 
     def initialize(attributes = {})

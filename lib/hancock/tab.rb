@@ -1,5 +1,5 @@
 module Hancock
-  class Tab
+  class Tab < Hancock::TemplateBase
 
     #
     # type: 'initial_here',
@@ -7,9 +7,13 @@ module Hancock
     # coordinates: [160, 400]
     #
 
-    ATTRIBUTES = [:type, :label, :coordinates]
+    ATTRIBUTES = [:type, :label, :coordinates, :page_number]
 
-    attr_reader :type, :label, :coordinates
+    attr_reader :type, :label, :coordinates, :page_number
+
+    def page_number= page_number
+      @page_number = page_number || 1
+    end
 
     def type= type
       raise Hancock::ArgumentError.new() unless type
