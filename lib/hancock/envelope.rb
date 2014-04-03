@@ -1,24 +1,19 @@
 module Hancock
-  class Envelope
+  class Envelope < Hancock::TemplateBase
     
     BOUNDARY = 'AAA'
 
-    def self.find
-      ###
+    def self.find(envelope_id)
+      uri = build_uri("/accounts/#{Hancock.account_id}/envelopes/#{envelope_id}")
+      content_headers = { 'Content-Type' => 'application/json' }
+
+      get_request(uri, get_headers(content_headers))
     end
 
     def initialize
       @documents = []
       @recipients = {
         signers: []
-      }
-
-      @docusign_headers = {
-        'X-DocuSign-Authentication' => {
-          'Username' => Hancock.username,
-          'Password' => Hancock.password,
-          'IntegratorKey' => Hancock.integrator_key
-        }.to_json
       }
 
       @files_array = []
@@ -46,7 +41,7 @@ module Hancock
     end
 
     #################need refactor    
-    def form_post_body status     
+    def form_post_body(status)     
       post_body = ''
       post_body << "\r\n"
       post_body << "--#{BOUNDARY}\r\n"
@@ -108,7 +103,7 @@ module Hancock
     end
 
     #
-    #for test request from console
+    # for test request from console
     #
     # def self.test
     #   envelope = Hancock::Envelope.new
@@ -122,25 +117,7 @@ module Hancock
     # end
 
     private
-      def post_request(uri, body_post, headers)
-        http = initialize_http(uri)
-
-        request = Net::HTTP::Post.new(uri.request_uri, headers)
-        request.body = body_post
-        http.request(request) # return response
-      end
-
-      def get_request(uri, headers)
-        http = initialize_http(uri)
-
-        request = Net::HTTP::Get.new(uri.request_uri, headers)
-        http.request(request) # return response
-      end
-
-      def build_uri(url)
-        URI.parse("#{Hancock.endpoint}/#{Hancock.api_version}#{url}")
-      end
-
+      
       def get_post_params(status)
         { 
           emailBlurb:   "emailBlurb",
@@ -149,22 +126,6 @@ module Hancock
           documents: @documents,
           recipients: @recipients,
         }
-      end
-
-      def get_headers(user_defined_headers={})
-        default = {
-          'Accept' => 'json' 
-        }
-
-        default.merge!(user_defined_headers) if user_defined_headers
-        @docusign_headers.merge(default)
-      end
-
-      def initialize_http(uri)
-        http = Net::HTTP.new(uri.host, uri.port)
-        http.use_ssl = true
-        http.verify_mode = OpenSSL::SSL::VERIFY_NONE
-        http
       end
 
       def get_tabs(tabs, type, document_id)
