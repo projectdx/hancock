@@ -12,7 +12,7 @@ module Hancock
       uri = build_uri("/accounts/#{Hancock.account_id}/envelopes/#{envelope_id}")
       content_headers = { 'Content-Type' => 'application/json' }
 
-      response = get_request(uri, get_headers(content_headers))
+      response = send_get_request(uri, get_headers(content_headers))
       envelope_params = JSON.parse(response.body)
 
       envelope = self.new(status: envelope_params["status"], identifier: envelope_params["envelopeId"])
@@ -27,8 +27,6 @@ module Hancock
       @documents = [] unless attributes[:documents]
       @signature_requests = [] unless attributes[:signature_requests]
       @email = {} unless attributes[:email]
-
-      @files_array = []
     end
 
     def add_document(document) 
@@ -44,50 +42,26 @@ module Hancock
     end
 
     def send!
-      uri = build_uri("/accounts/#{Hancock.account_id}/envelopes")
-      content_headers = { 
-        'Content-Type' => "multipart/form-data, boundary=#{BOUNDARY}" 
-      }
-
-      post_request(uri, form_post_body("sent"), get_headers(content_headers))
+      send_envelope("sent")      
     end
 
     def save
-      uri = build_uri("/accounts/#{Hancock.account_id}/envelopes")
-      content_headers = { 
-        'Content-Type' => "multipart/form-data, boundary=#{BOUNDARY}" 
-      }
-
-      response = post_request(uri, form_post_body("created"), get_headers(content_headers))
-      envelope_params = JSON.parse(response.body)
-
-      self.status = envelope_params["status"]
-      self.identifier = envelope_params["envelopeId"]
-      self
+      send_envelope("created")
     end
 
     def documents
-      uri = build_uri("/accounts/#{Hancock.account_id}/envelopes/#{identifier}/documents")
-      content_headers = { 'Content-Type' => 'application/json' }
-
-      get_request(uri, get_headers(content_headers))
+      get_response("/accounts/#{Hancock.account_id}/envelopes/#{identifier}/documents")
     end
 
     def recipients
-      uri = build_uri("/accounts/#{Hancock.account_id}/envelopes/#{identifier}/recipients")
-      content_headers = { 'Content-Type' => 'application/json' }
-
-      get_request(uri, get_headers(content_headers))
+      get_response("/accounts/#{Hancock.account_id}/envelopes/#{identifier}/recipients")
     end
 
     def status
-      uri = build_uri("/accounts/#{Hancock.account_id}/envelopes/#{identifier}")
-      content_headers = { 'Content-Type' => 'application/json' }
-
-      response = get_request(uri, get_headers(content_headers))
+      response = get_response("/accounts/#{Hancock.account_id}/envelopes/#{identifier}")
       JSON.parse(response.body)["status"]
     end
-    
+
     # #
     # ##########################################################################
     # #
@@ -130,17 +104,31 @@ module Hancock
     # #
     # ##########################################################################
     # #
-
+    
     private
+      def send_envelope(status)
+        uri = build_uri("/accounts/#{Hancock.account_id}/envelopes")
+        content_headers = { 
+          'Content-Type' => "multipart/form-data, boundary=#{BOUNDARY}" 
+        }
+
+        response = send_post_request(uri, form_post_body(status), get_headers(content_headers))
+        envelope_params = JSON.parse(response.body)
+
+        self.status = envelope_params["status"]
+        self.identifier = envelope_params["envelopeId"]
+        self
+      end
+
       def form_post_body(status)     
         post_body =  "\r\n--#{BOUNDARY}\r\n"
         post_body << get_content_type_for(:json)
         post_body << get_post_params(status).to_json
         post_body << "\r\n--#{BOUNDARY}\r\n"
 
-        @documents.each do |f|
-          post_body << get_content_type_for(:pdf, f)
-          post_body << IO.read(f.file) 
+        @documents.each do |doc|
+          post_body << get_content_type_for(:pdf, doc)
+          post_body << doc.data_for_request
           post_body << "\r\n"
         end
 
