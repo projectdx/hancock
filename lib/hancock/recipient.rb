@@ -43,6 +43,7 @@ module Hancock
     end
 
     def routing_order= routing_order
+      routing_order ||= 1
       unless routing_order.is_a? Integer
         raise Hancock::ArgumentUnvalidError.new(routing_order.class, Integer) 
       end
