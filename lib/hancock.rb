@@ -1,5 +1,9 @@
 require_relative 'hancock/configuration'
 
+unless defined?(Rails)
+  require 'active_support/concern'
+end
+
 require 'hancock/helpers'
 
 require 'openssl'
