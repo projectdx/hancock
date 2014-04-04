@@ -37,6 +37,8 @@ module Hancock
           'IntegratorKey' => Hancock.integrator_key
         }.to_json 
       }
+
+      default.merge!(user_defined_headers) if user_defined_headers
     end
   end
 end
