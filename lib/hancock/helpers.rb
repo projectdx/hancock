@@ -2,7 +2,7 @@ module Hancock
   module Helpers
     extend ActiveSupport::Concern
 
-    def post_request(uri, body_post, headers)
+    def send_post_request(uri, body_post, headers)
       http = initialize_http(uri)
 
       request = Net::HTTP::Post.new(uri.request_uri, headers)
@@ -10,11 +10,18 @@ module Hancock
       http.request(request) # return response
     end
 
-    def get_request(uri, headers)
+    def send_get_request(uri, headers)
       http = initialize_http(uri)
 
       request = Net::HTTP::Get.new(uri.request_uri, headers)
       http.request(request) # return response
+    end
+
+    def get_response(url)
+      uri = build_uri(url)
+      content_headers = { 'Content-Type' => 'application/json' }
+
+      send_get_request(uri, get_headers(content_headers))
     end
 
     def build_uri(url)
@@ -65,14 +72,14 @@ module Hancock
       recipients
     end
 
-    def get_content_type_for format, file={}
+    def get_content_type_for format, document={}
       case format
       when :json
         "Content-Type: application/json\r\n"\
         "Content-Disposition: form-data\r\n\r\n"
       when :pdf
         "Content-Type: application/pdf\r\n"\
-        "Content-Disposition: file; filename=#{file.name}; documentid=#{file.identifier}\r\n\r\n"
+        "Content-Disposition: file; filename=#{document.name}; documentid=#{document.identifier}\r\n\r\n"
       end
     end
   end

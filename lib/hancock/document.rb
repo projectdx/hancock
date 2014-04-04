@@ -66,5 +66,9 @@ module Hancock
       { documentId: identifier, name: name }
     end
 
+    def data_for_request
+      file.nil? ? data : IO.read(file)      
+    end
+
   end
 end
