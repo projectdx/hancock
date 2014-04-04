@@ -1,5 +1,5 @@
 module Hancock
-  class TemplateBase
+  class Base
     include Hancock::Helpers
     extend Hancock::Helpers
       

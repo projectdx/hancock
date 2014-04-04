@@ -1,5 +1,5 @@
 module Hancock
-  class AnchoredTab < Hancock::TemplateBase
+  class AnchoredTab < Hancock::Base
     #
     # type:        'sign_here',
     # label:       '{{recipient.name}} Signature',
