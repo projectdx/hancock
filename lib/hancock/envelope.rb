@@ -2,17 +2,31 @@ module Hancock
   class Envelope < Hancock::Base
     
     BOUNDARY = 'AAA'
+    ATTRIBUTES = [:identifier, :status]
+
+    ATTRIBUTES.each do |attr|
+      self.send(:attr_accessor, attr)
+    end
+
 
     def self.find(envelope_id)
       uri = build_uri("/accounts/#{Hancock.account_id}/envelopes/#{envelope_id}")
       content_headers = { 'Content-Type' => 'application/json' }
 
-      get_request(uri, get_headers(content_headers))
+      response = get_request(uri, get_headers(content_headers))
+      envelope_params = JSON.parse(response.body)
+
+      envelope = self.new(status: envelope_params["status"], identifier: envelope_params["envelopeId"])
+      envelope
     end
 
-    def initialize
-      @documents = []
-      @recipients = {
+    def initialize(attributes = {})
+      ATTRIBUTES.each do |attr|
+        self.send("#{attr}=", attributes[attr])
+      end
+
+      @documents_for_send = []
+      @recipients_for_send = {
         signers: []
       }
 
@@ -20,7 +34,7 @@ module Hancock
     end
 
     def add_document(document) 
-      @documents << { documentId: document.identifier, name: document.name }
+      @documents_for_send << { documentId: document.identifier, name: document.name }
       @files_array << document
     end
 
@@ -37,7 +51,7 @@ module Hancock
         signHereTabs:    get_tabs( tabs, "sign_here" , document.identifier),
       }
 
-      @recipients[:signers] << doc_signer
+      @recipients_for_send[:signers] << doc_signer
     end
 
     def send!
@@ -76,19 +90,19 @@ module Hancock
       #
     end
 
-    #
+    
     # for test request from console
-    #
-    def self.test
-      envelope = Hancock::Envelope.new
-      doc1 = File.open("test.pdf")
-      document1 = Hancock::Document.new(file: doc1, name: "test", extension: "pdf", identifier: "123")
-      recipient1 = Hancock::Recipient.new(name: "Owner", email: "kolya.bokhonko@gmail.com", routing_order: 1)
-      envelope.add_document(document1)
-      tab1 = Hancock::Tab.new(type: "sign_here", label: "Vas", coordinates: [2, 100], page_number: 1)
-      envelope.add_signature_request(recipient1, document1, [tab1])
-      envelope.save
-    end
+
+    # def self.test
+    #   envelope = Hancock::Envelope.new
+    #   doc1 = File.open("test.pdf")
+    #   document1 = Hancock::Document.new(file: doc1, name: "test", extension: "pdf", identifier: "123")
+    #   recipient1 = Hancock::Recipient.new(name: "Owner", email: "kolya.bokhonko@gmail.com", routing_order: 1)
+    #   envelope.add_document(document1)
+    #   tab1 = Hancock::Tab.new(type: "sign_here", label: "Vas", coordinates: [2, 100], page_number: 1)
+    #   envelope.add_signature_request(recipient1, document1, [tab1])
+    #   envelope.save
+    # end
 
     private
 
@@ -112,8 +126,8 @@ module Hancock
           emailBlurb:   "emailBlurb",
           emailSubject: "emailSubject",
           status: "#{status}",
-          documents: @documents,
-          recipients: @recipients,
+          documents: @documents_for_send,
+          recipients: @recipients_for_send,
         }
       end
 
