@@ -2,12 +2,11 @@ module Hancock
   class Envelope < Hancock::Base
     
     BOUNDARY = 'AAA'
-    ATTRIBUTES = [:identifier, :status]
+    ATTRIBUTES = [:identifier, :status, :documents, :signature_requests, :email]
 
     ATTRIBUTES.each do |attr|
       self.send(:attr_accessor, attr)
     end
-
 
     def self.find(envelope_id)
       uri = build_uri("/accounts/#{Hancock.account_id}/envelopes/#{envelope_id}")
@@ -25,33 +24,23 @@ module Hancock
         self.send("#{attr}=", attributes[attr])
       end
 
-      @documents_for_send = []
-      @recipients_for_send = {
-        signers: []
-      }
+      @documents = [] unless attributes[:documents]
+      @signature_requests = [] unless attributes[:signature_requests]
+      @email = {} unless attributes[:email]
 
       @files_array = []
     end
 
     def add_document(document) 
-      @documents_for_send << { documentId: document.identifier, name: document.name }
-      @files_array << document
+      @documents << document
     end
 
-    def add_signature_request(recepient, document, tabs) 
-      doc_signer = {
-        email: recepient.email,
-        name: recepient.name,
-        recipientId:  recepient.identifier
-      }
-
-      doc_signer[:tabs] = {
-        #here we can add more types
-        initialHereTabs: get_tabs( tabs, "initial_here", document.identifier),
-        signHereTabs:    get_tabs( tabs, "sign_here" , document.identifier),
-      }
-
-      @recipients_for_send[:signers] << doc_signer
+    def add_signature_request(recipient, document, tabs)
+      @signature_requests << {
+        recipient: recipient,
+        document: document,
+        tabs: tabs
+      } 
     end
 
     def send!
@@ -89,10 +78,11 @@ module Hancock
     def status
       #
     end
-
     
-    # for test request from console
-
+    # #
+    # ##########################################################################
+    # #
+    # # for test request from console
     # def self.test
     #   envelope = Hancock::Envelope.new
     #   doc1 = File.open("test.pdf")
@@ -104,15 +94,42 @@ module Hancock
     #   envelope.save
     # end
 
-    private
+    # # One call does it all
+    # def self.test_init
+    #   doc1 = File.open("test.pdf")
+    #   document1 = Hancock::Document.new(file: doc1, name: "test", extension: "pdf", identifier: "123")
+    #   recipient1 = Hancock::Recipient.new(name: "Owner", email: "kolya.bokhonko@gmail.com", routing_order: 1)
+    #   tab1 = Hancock::Tab.new(type: "sign_here", label: "Vas", coordinates: [2, 100], page_number: 1)
+      
+    #   envelope = Hancock::Envelope.new({
+    #     documents: [document1],
+    #     signature_requests: [
+    #       {
+    #         recipient: recipient1,
+    #         document: document1,
+    #         tabs: [tab1],
+    #       },
+    #     ],
+    #     email: {
+    #       subject: 'Hello there',
+    #       blurb: 'Please sign this!'
+    #     }
+    #   })
 
+    #   envelope.save
+    # end
+    # #
+    # ##########################################################################
+    # #
+
+    private
       def form_post_body(status)     
         post_body =  "\r\n--#{BOUNDARY}\r\n"
         post_body << get_content_type_for(:json)
         post_body << get_post_params(status).to_json
         post_body << "\r\n--#{BOUNDARY}\r\n"
 
-        @files_array.each do |f|
+        @documents.each do |f|
           post_body << get_content_type_for(:pdf, f)
           post_body << IO.read(f.file) 
           post_body << "\r\n"
@@ -126,8 +143,8 @@ module Hancock
           emailBlurb:   "emailBlurb",
           emailSubject: "emailSubject",
           status: "#{status}",
-          documents: @documents_for_send,
-          recipients: @recipients_for_send,
+          documents: @documents.map{|d| d.to_request},
+          recipients: get_recipients_for_request(@signature_requests)
         }
       end
 
@@ -158,18 +175,6 @@ module Hancock
         tab_hash[:documentId] = document_id || '0'
         tab_hash[:pageNumber] = tab.page_number
         tab_hash
-      end
-
-      
-      def get_content_type_for format, file={}
-        case format
-        when :json
-          "Content-Type: application/json\r\n"\
-          "Content-Disposition: form-data\r\n\r\n"
-        when :pdf
-          "Content-Type: application/pdf\r\n"\
-          "Content-Disposition: file; filename=#{file.name}; documentid=#{file.identifier}\r\n\r\n"
-        end
       end
   end
 end
