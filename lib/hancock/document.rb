@@ -62,5 +62,9 @@ module Hancock
       end
     end
 
+    def to_request
+      { documentId: identifier, name: name }
+    end
+
   end
 end
