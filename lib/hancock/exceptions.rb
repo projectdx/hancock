@@ -10,5 +10,7 @@ module Hancock
     end
   end
 
+  class ArgumentError < Error; end
+
   class NonadjacentArgumentError < Error; end
 end

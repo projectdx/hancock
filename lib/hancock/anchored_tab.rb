@@ -1,5 +1,5 @@
 module Hancock
-  class AnchoredTab < Hancock::TemplateBase
+  class AnchoredTab < Hancock::Base
     #
     # type:        'sign_here',
     # label:       '{{recipient.name}} Signature',
@@ -30,11 +30,17 @@ module Hancock
       unless offset.is_a? Array
         raise Hancock::ArgumentUnvalidError.new(offset.class, Array) 
       end
+      offset.each do |c|
+        unless c.is_a? Integer
+          raise Hancock::ArgumentUnvalidError.new(c.class, Integer)
+        end 
+      end
       @offset = offset
     end
 
     def anchor_text= anchor_text
-      @anchor_text = @attributes[:label]
+      anchor_text = anchor_text
+      @anchor_text ||= @attributes[:label]
     end
 
     def initialize(attributes = {})

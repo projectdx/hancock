@@ -1,5 +1,5 @@
 module Hancock
-  class Recipient < Hancock::TemplateBase
+  class Recipient < Hancock::Base
 
     #
     # name:            'Owner 1',
