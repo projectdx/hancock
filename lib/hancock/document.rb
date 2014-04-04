@@ -1,5 +1,5 @@
 module Hancock
-  class Document < Hancock::TemplateBase
+  class Document < Hancock::Base
 
     #
     # file:       #<File:/tmp/whatever.pdf>,

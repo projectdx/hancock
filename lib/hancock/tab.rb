@@ -1,5 +1,5 @@
 module Hancock
-  class Tab < Hancock::TemplateBase
+  class Tab < Hancock::Base
 
     #
     # type: 'initial_here',
