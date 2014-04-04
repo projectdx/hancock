@@ -1,5 +1,5 @@
 module Hancock
-  class Tab < Hancock::TemplateBase
+  class Tab < Hancock::Base
 
     #
     # type: 'initial_here',
@@ -10,7 +10,7 @@ module Hancock
 
     ATTRIBUTES = [:type, :label, :coordinates, :page_number]
 
-    attr_reader :type, :label, :coordinates, :page_number
+    attr_reader :type, :label, :page_number, :coordinates
 
     def page_number= page_number
       @page_number = page_number || 1
@@ -29,6 +29,11 @@ module Hancock
     def coordinates= coordinates
       unless coordinates.is_a? Array
         raise Hancock::ArgumentUnvalidError.new(coordinates.class, Array) 
+      end
+      coordinates.each do |c|
+        unless c.is_a? Integer
+          raise Hancock::ArgumentUnvalidError.new(c.class, Integer)
+        end 
       end
       @coordinates = coordinates
     end

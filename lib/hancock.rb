@@ -9,7 +9,7 @@ require 'uri'
 require 'openssl'
 require 'json'
 
-require 'hancock/template_base'
+require 'hancock/base'
 require 'hancock/version'
 require 'hancock/exceptions'
 require 'hancock/envelope'
