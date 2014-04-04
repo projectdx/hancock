@@ -14,16 +14,18 @@ module Hancock
     attr_reader :file, :data, :name, :extension, :identifier
 
     def file= file
-      unless file || file.is_a?(File)
+      if file && !file.is_a?(File)
         raise Hancock::ArgumentUnvalidError.new(file.class, File)
       end
       @file = file
     end
 
     def data= data
-      if !@attributes[:file] && !data
-        message = '"data" required if no file, invalid if file'
+      message = '"data" required if no file, invalid if file'
+      if @attributes[:file] && data
         raise Hancock::NonadjacentArgumentError.new(message) 
+      elsif !@attributes[:file] && !data
+        raise Hancock::NonadjacentArgumentError.new(message)
       elsif data.is_a? File
         raise Hancock::ArgumentUnvalidError.new(file.class, String) 
       end
