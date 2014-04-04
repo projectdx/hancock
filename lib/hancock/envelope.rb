@@ -58,25 +58,34 @@ module Hancock
         'Content-Type' => "multipart/form-data, boundary=#{BOUNDARY}" 
       }
 
-      post_request(uri, form_post_body("created"), get_headers(content_headers))
+      response = post_request(uri, form_post_body("created"), get_headers(content_headers))
+      envelope_params = JSON.parse(response.body)
+
+      self.status = envelope_params["status"]
+      self.identifier = envelope_params["envelopeId"]
+      self
     end
 
     def documents
-      uri = build_uri("/accounts/#{Hancock.account_id}/envelopes/#{envelope_id}/documents")
+      uri = build_uri("/accounts/#{Hancock.account_id}/envelopes/#{identifier}/documents")
       content_headers = { 'Content-Type' => 'application/json' }
 
       get_request(uri, get_headers(content_headers))
     end
 
     def recipients
-      uri = build_uri("/accounts/#{Hancock.account_id}/envelopes/#{envelope_id}/recipients")
+      uri = build_uri("/accounts/#{Hancock.account_id}/envelopes/#{identifier}/recipients")
       content_headers = { 'Content-Type' => 'application/json' }
 
       get_request(uri, get_headers(content_headers))
     end
 
     def status
-      #
+      uri = build_uri("/accounts/#{Hancock.account_id}/envelopes/#{identifier}")
+      content_headers = { 'Content-Type' => 'application/json' }
+
+      response = get_request(uri, get_headers(content_headers))
+      JSON.parse(response.body)["status"]
     end
     
     # #
@@ -140,8 +149,8 @@ module Hancock
 
       def get_post_params(status)
         { 
-          emailBlurb:   "emailBlurb",
-          emailSubject: "emailSubject",
+          emailBlurb: @email[:blurb] || Hancock.email_template[:blurb],
+          emailSubject: @email[:subject]|| Hancock.email_template[:subject],
           status: "#{status}",
           documents: @documents.map{|d| d.to_request},
           recipients: get_recipients_for_request(@signature_requests)

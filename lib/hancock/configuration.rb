@@ -1,7 +1,7 @@
 module Hancock
   module Configuration
     VALID_CONNECTION_KEYS  = [:endpoint, :api_version, :user_agent, :method].freeze
-    VALID_OPTIONS_KEYS     = [:access_token, :username, :password, :integrator_key, :account_id, :format, :ca_file].freeze
+    VALID_OPTIONS_KEYS     = [:access_token, :username, :password, :integrator_key, :account_id, :format, :ca_file, :email_template].freeze
     VALID_CONFIG_KEYS      = VALID_CONNECTION_KEYS + VALID_OPTIONS_KEYS
 
     DEFAULT_ENDPOINT       = 'https://demo.docusign.net/restapi'
@@ -17,6 +17,7 @@ module Hancock
     DEFAULT_ACCOUNT_ID     = nil
     DEFAULT_CA_FILE        = nil 
     DEFAULT_FORMAT         = :json
+    DEFAULT_EMAIL_TEMPLATE = nil
 
     attr_accessor *VALID_CONFIG_KEYS
 
@@ -36,6 +37,7 @@ module Hancock
       self.account_id     = DEFAULT_ACCOUNT_ID
       self.format         = DEFAULT_FORMAT
       self.ca_file        = DEFAULT_CA_FILE
+      self.email_template = DEFAULT_EMAIL_TEMPLATE
     end
 
     def configure
