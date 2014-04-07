@@ -115,9 +115,14 @@ module Hancock
         response = send_post_request(uri, form_post_body(status), get_headers(content_headers))
         envelope_params = JSON.parse(response.body)
 
-        self.status = envelope_params["status"]
-        self.identifier = envelope_params["envelopeId"]
-        self
+        if response.is_a? Net::HTTPSuccess
+          self.status = envelope_params["status"]
+          self.identifier = envelope_params["envelopeId"]
+          self
+        else
+          message = envelope_params["message"]
+          raise Hancock::DocusignError.new(message) 
+        end
       end
 
       def form_post_body(status)     

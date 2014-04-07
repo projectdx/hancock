@@ -1,4 +1,4 @@
-shared_context "configs" do
+shared_context "incorrect_configs" do
   before(:all) do 
     Hancock.configure do |config|
       config.username       = ***REMOVED***
