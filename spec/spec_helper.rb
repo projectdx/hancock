@@ -2,7 +2,6 @@ require 'hancock'
 require_relative 'support/configs'
 require_relative 'support/incorrect_configs'
 require_relative 'support/variables'
-require_relative 'support/callbacks_config'
 
 SPEC_ROOT = File.expand_path '../', __FILE__
 
