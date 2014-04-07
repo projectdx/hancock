@@ -2,7 +2,7 @@ require_relative '../spec_helper'
 
 describe Hancock::Envelope do
   include_context "configs"
-  include_context "lets"
+  include_context "variables"
 
   it "should send envelope with status 'created'" do
     envelope.add_document(document)
