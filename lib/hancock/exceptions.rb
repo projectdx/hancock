@@ -13,4 +13,7 @@ module Hancock
   class ArgumentError < Error; end
 
   class NonadjacentArgumentError < Error; end
+
+  class DocusignError < Error; 
+  end
 end
