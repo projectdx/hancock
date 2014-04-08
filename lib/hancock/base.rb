@@ -13,7 +13,7 @@ module Hancock
 
     private
       def generate_identifier
-        Random.rand(1234)
+        Random.rand(1..1234)
       end
   end
 end

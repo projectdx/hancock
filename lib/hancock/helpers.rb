@@ -72,6 +72,27 @@ module Hancock
       recipients
     end
 
+    def get_event_notification
+      {
+        url: Hancock.event_notification[:url],
+        loggingEnabled: Hancock.event_notification[:logging_enabled],
+        includeDocuments: Hancock.event_notification[:include_documents],
+        useSoapInterface: "false",
+        # @todo move out a definition of following events
+        envelopeEvents: [
+            {envelopeEventStatusCode: "Delivered", includeDocuments: "true"},
+            {envelopeEventStatusCode: "Sent", includeDocuments: "true"},
+            {envelopeEventStatusCode: "Completed", includeDocuments: "true"}
+        ],
+        recipientEvents: [
+            {recipientEventStatusCode: "delivered", includeDocuments: "true"},
+            {recipientEventStatusCode: "sent", includeDocuments: "true"},
+            {recipientEventStatusCode: "completed", includeDocuments: "true"},
+        ]
+      }
+
+    end
+
     def get_content_type_for format, document={}
       case format
       when :json
