@@ -18,6 +18,11 @@ module Hancock
     DEFAULT_CA_FILE        = nil 
     DEFAULT_FORMAT         = :json
     DEFAULT_EMAIL_TEMPLATE = nil
+    DEFAULT_EVENT_NOTIFICATION = {
+        :logging_enabled => false,
+        :uri => 'http://domain.com/hancock/process_callback',
+        :include_documents => false,
+    }
 
     attr_accessor *VALID_CONFIG_KEYS
 
@@ -38,6 +43,7 @@ module Hancock
       self.format         = DEFAULT_FORMAT
       self.ca_file        = DEFAULT_CA_FILE
       self.email_template = DEFAULT_EMAIL_TEMPLATE
+      self.event_notification = DEFAULT_EVENT_NOTIFICATION
     end
 
     def configure
