@@ -10,38 +10,18 @@ module Hancock
 
     ATTRIBUTES = [:type, :label, :coordinates, :page_number]
 
-    attr_reader :type, :label, :page_number, :coordinates
+    attr_accessor :type, :label, :page_number, :coordinates
 
-    def page_number= page_number
-      @page_number = page_number || 1
-    end
-
-    def type= type
-      raise Hancock::ArgumentError.new() unless type
-      @type = type
-    end
-
-    def label= label
-      raise Hancock::ArgumentError.new() unless label
-      @label = label
-    end
-
-    def coordinates= coordinates
-      unless coordinates.is_a? Array
-        raise Hancock::ArgumentUnvalidError.new(coordinates.class, Array) 
-      end
-      coordinates.each do |c|
-        unless c.is_a? Integer
-          raise Hancock::ArgumentUnvalidError.new(c.class, Integer)
-        end 
-      end
-      @coordinates = coordinates
-    end
+    validates_presence_of :type, :label, :coordinates
+    validates_type_of :coordinates, type: [Array]
+    supplies_default_value_for :page_number, value: 1
 
     def initialize(attributes = {})
       ATTRIBUTES.each do |attr|
         self.send("#{attr}=", attributes[attr])
       end
+      self.validate!
+      self.supply_defaults!
     end
   end
 end

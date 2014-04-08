@@ -11,55 +11,21 @@ module Hancock
 
     ATTRIBUTES = [:file, :data, :name, :extension, :identifier]
 
-    attr_reader :file, :data, :name, :extension, :identifier
+    attr_accessor :file, :data, :name, :extension, :identifier
 
-    def file= file
-      if file && !file.is_a?(File)
-        raise Hancock::ArgumentUnvalidError.new(file.class, File)
-      end
-      @file = file
-    end
-
-    def data= data
-      message = '"data" required if no file, invalid if file'
-      if @attributes[:file] && data
-        raise Hancock::NonadjacentArgumentError.new(message) 
-      elsif !@attributes[:file] && !data
-        raise Hancock::NonadjacentArgumentError.new(message)
-      elsif data.is_a? File
-        raise Hancock::ArgumentUnvalidError.new(file.class, String) 
-      end
-      @data = data
-    end
-
-    def name= name
-      if !@attributes[:file] && !name
-        message = '"name" optional if file'
-        raise Hancock::NonadjacentArgumentError.new(message) 
-      end
-      @name = name
-      @name ||= File.basename(@attributes[:file], '.*')
-    end
-
-    def extension= extension
-      if !@attributes[:file] && !extension
-        message = '"extension" optional if file'
-        raise Hancock::NonadjacentArgumentError.new(message) 
-      end
-      @extension = extension
-      @extension ||= File.basename(@attributes[:file]).split('.').last
-    end
-
-    def identifier= identifier
-      @identifier = identifier 
-      @identifier ||= generate_identifier
-    end
+    supplies_default_value_for :identifier, value: :random
+    supplies_default_value_for(:name, value: :file){ |file| File.basename(file, '.*') }
+    supplies_default_value_for(:extension, value: :file){ |file| File.basename(file).split('.').last }
+    validates_type_of :file, type: [File], allow_nil: true
+    validates_type_of :data, type: [String], allow_nil: true
+    validates_presence_of :data, :name, :extension, unless: :file
 
     def initialize(attributes = {})
-      @attributes = attributes
       ATTRIBUTES.each do |attr|
         self.send("#{attr}=", attributes[attr])
       end
+      self.supply_defaults!
+      self.validate!
     end
 
     def to_request

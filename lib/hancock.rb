@@ -4,6 +4,8 @@ unless defined?(Rails)
   require 'active_support/concern'
 end
 
+require 'hancock/defaults'
+require 'hancock/validations'
 require 'hancock/helpers'
 
 require 'openssl'

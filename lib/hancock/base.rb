@@ -1,5 +1,7 @@
 module Hancock
   class Base
+    include Hancock::Validations
+    include Hancock::Defaults
     include Hancock::Helpers
     extend Hancock::Helpers
       
@@ -10,10 +12,5 @@ module Hancock
         raise NoMethodError.new(attr)
       end
     end
-
-    private
-      def generate_identifier
-        Random.rand(1234)
-      end
   end
 end

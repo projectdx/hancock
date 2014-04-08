@@ -24,13 +24,13 @@ describe Hancock::Document do
       name: 'test',
       extension: 'pdf'
     }
-   lambda { Hancock::Document.new(params) }.should raise_error(Hancock::NonadjacentArgumentError)
+   lambda { Hancock::Document.new(params) }.should raise_error(Hancock::ArgumentError)
 
     params = {
       name: 'test',
       extension: 'pdf'
     }
-    lambda { Hancock::Document.new(params) }.should raise_error(Hancock::NonadjacentArgumentError)
+    lambda { Hancock::Document.new(params) }.should raise_error(Hancock::ArgumentError)
   end
 
   it 'data should not be file' do 
@@ -39,13 +39,13 @@ describe Hancock::Document do
       name: 'test',
       extension: 'pdf'
     }
-    lambda { Hancock::Document.new(params) }.should raise_error(Hancock::ArgumentUnvalidError)
+    lambda { Hancock::Document.new(params) }.should raise_error(Hancock::ArgumentError)
   end
 
   it 'name, extension must be optional if file' do
     params = {
       data: 'string'
     }
-    lambda { Hancock::Document.new(params) }.should raise_error(Hancock::NonadjacentArgumentError)
+    lambda { Hancock::Document.new(params) }.should raise_error(Hancock::ArgumentError)
   end
 end
