@@ -50,11 +50,33 @@ module Hancock
     end
 
     def documents
-      get_response("/accounts/#{Hancock.account_id}/envelopes/#{identifier}/documents")
+      if identifier
+        @documents = []
+        response = get_response("/accounts/#{Hancock.account_id}/envelopes/#{identifier}/documents").body
+        doc_array = JSON.parse(response)["envelopeDocuments"]
+
+        doc_array.each do |doc|
+          document = Hancock::Document.new(identifier: doc["documentId"], name: doc["name"])
+          add_document(document) 
+        end
+      end
+      @documents
     end
 
     def recipients
-      get_response("/accounts/#{Hancock.account_id}/envelopes/#{identifier}/recipients")
+      if identifier
+        response = get_response("/accounts/#{Hancock.account_id}/envelopes/#{identifier}/recipients").body
+        signers_array = JSON.parse(response)["signers"]
+
+        recipients_array = []
+
+        signers_array.each do |signer|
+          recipient = Hancock::Recipient.new(name: signer["name"], identifier: signer["recipientId"], 
+                                            email: signer["email"], routing_order: signer["routingOrder"].to_i)
+          recipients_array << recipient
+        end
+        recipients_array
+      end
     end
 
     def status
@@ -103,7 +125,7 @@ module Hancock
     # end
     # #
     # ##########################################################################
-    # #
+    #
     
     private
       def send_envelope(status)
@@ -148,35 +170,6 @@ module Hancock
           documents: @documents.map{|d| d.to_request},
           recipients: get_recipients_for_request(@signature_requests)
         }
-      end
-
-      def get_tabs(tabs, type, document_id)
-        tabs_by_type(tabs, type).each_with_object([]) do |tab, tab_array|
-          tab_array << generate_tab(tab, document_id)
-        end
-      end
-
-      def tabs_by_type(tabs, type)
-        tabs.select{ |h| h.type == type }
-      end
-
-      def generate_tab(tab, document_id)
-        tab_hash = {}
-
-        if tab.is_a? Hancock::AnchoredTab
-          tab_hash[:anchorString]  = tab.anchor_text
-          tab_hash[:anchorXOffset] = tab.offset[0]
-          tab_hash[:anchorYOffset] = tab.offset[1]
-          tab_hash[:IgnoreIfNotPresent] = 1
-        else
-          tab_hash[:tabLabel]   = tab.label
-          tab_hash[:xPosition]  = tab.coordinates[0]
-          tab_hash[:yPosition]  = tab.coordinates[1]
-        end
-
-        tab_hash[:documentId] = document_id || '0'
-        tab_hash[:pageNumber] = tab.page_number
-        tab_hash
-      end
+      end      
   end
 end
