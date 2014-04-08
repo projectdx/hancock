@@ -28,7 +28,8 @@ describe Hancock::Recipient do
 
      params = {
       name:            'name',
-      email:           'email'
+      email:           'email',
+      delivery_method: :email
      }
      lambda { Hancock::Recipient.new(params) }.should_not raise_error()
   end
@@ -39,7 +40,7 @@ describe Hancock::Recipient do
       email:           'email', 
       routing_order:   '1'
      }
-     lambda { Hancock::Recipient.new(params) }.should raise_error(Hancock::ArgumentUnvalidError)
+     lambda { Hancock::Recipient.new(params) }.should raise_error(Hancock::ArgumentError)
   end
 
   it 'should raise if delivery_method is not inclusion of [:email, :embedded, :offline, :paper]' do 

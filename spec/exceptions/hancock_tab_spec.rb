@@ -20,21 +20,6 @@ describe Hancock::Tab do
     lambda { Hancock::Tab.new(params) }.should raise_error(Hancock::ArgumentError)
   end
 
-  it 'offset must be an array of integers' do 
-    params = {
-      label:       'label',
-      type:        'type',
-      coordinates: [2, '1234']
-    }
-    lambda { Hancock::Tab.new(params) }.should raise_error(Hancock::ArgumentUnvalidError)
-    params = {
-      label:       'label',
-      type:        'type',
-      coordinates: :unvalid_type
-    }
-    lambda { Hancock::Tab.new(params) }.should raise_error(Hancock::ArgumentUnvalidError)
-  end
-
   it 'should not raise an exception if valid params given' do 
     params = {
       label:       'label',
@@ -42,6 +27,16 @@ describe Hancock::Tab do
       coordinates: [2, 1234]
     }
     lambda { Hancock::Tab.new(params) }.should_not raise_error()
+  end
+
+  it 'page_number should have default value of 1 it not supplied' do 
+    params = {
+      label:       'label',
+      type:        'type',
+      coordinates: [2, 1234]
+    }
+    h = Hancock::Tab.new(params)
+    h.page_number.should eq(1)
   end
 
 end
