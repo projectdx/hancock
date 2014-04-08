@@ -151,9 +151,8 @@ module Hancock
         envelope_params = JSON.parse(response.body)
 
         if response.is_a? Net::HTTPSuccess
-          self.status = envelope_params["status"]
           self.identifier = envelope_params["envelopeId"]
-          self
+          reload!
         else
           message = envelope_params["message"]
           raise Hancock::DocusignError.new(message) 
