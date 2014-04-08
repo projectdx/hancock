@@ -72,6 +72,27 @@ module Hancock
       recipients
     end
 
+    def get_event_notification
+      {
+        url: Hancock.event_notification[:url],
+        loggingEnabled: Hancock.event_notification[:logging_enabled],
+        includeDocuments: Hancock.event_notification[:include_documents],
+        useSoapInterface: "false",
+        # @todo move out a definition of following events
+        envelopeEvents: [
+            {envelopeEventStatusCode: "Delivered", includeDocuments: "true"},
+            {envelopeEventStatusCode: "Sent", includeDocuments: "true"},
+            {envelopeEventStatusCode: "Completed", includeDocuments: "true"}
+        ],
+        recipientEvents: [
+            {recipientEventStatusCode: "delivered", includeDocuments: "true"},
+            {recipientEventStatusCode: "sent", includeDocuments: "true"},
+            {recipientEventStatusCode: "completed", includeDocuments: "true"},
+        ]
+      }
+
+    end
+
     def get_content_type_for format, document={}
       case format
       when :json
@@ -81,6 +102,35 @@ module Hancock
         "Content-Type: application/pdf\r\n"\
         "Content-Disposition: file; filename=#{document.name}; documentid=#{document.identifier}\r\n\r\n"
       end
+    end
+
+    def get_tabs(tabs, type, document_id)
+      tabs_by_type(tabs, type).each_with_object([]) do |tab, tab_array|
+        tab_array << generate_tab(tab, document_id)
+      end
+    end
+
+    def tabs_by_type(tabs, type)
+      tabs.select{ |h| h.type == type }
+    end
+
+    def generate_tab(tab, document_id)
+      tab_hash = {}
+
+      if tab.is_a? Hancock::AnchoredTab
+        tab_hash[:anchorString]  = tab.anchor_text
+        tab_hash[:anchorXOffset] = tab.offset[0]
+        tab_hash[:anchorYOffset] = tab.offset[1]
+        tab_hash[:IgnoreIfNotPresent] = 1
+      else
+        tab_hash[:tabLabel]   = tab.label
+        tab_hash[:xPosition]  = tab.coordinates[0]
+        tab_hash[:yPosition]  = tab.coordinates[1]
+      end
+
+      tab_hash[:documentId] = document_id || '0'
+      tab_hash[:pageNumber] = tab.page_number
+      tab_hash
     end
   end
 end
