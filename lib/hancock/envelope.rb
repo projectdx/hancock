@@ -79,9 +79,22 @@ module Hancock
       end
     end
 
+    def reload!
+      if identifier
+        response = JSON.parse(get_response("/accounts/#{Hancock.account_id}/envelopes/#{identifier}").body)
+        @status = response["status"]
+        @email = {subject: response["emailSubject"], blurb: response["emailBlurb"]}
+        @documents = documents
+      end
+      self
+    end
+
     def status
-      response = get_response("/accounts/#{Hancock.account_id}/envelopes/#{identifier}")
-      JSON.parse(response.body)["status"]
+      if identifier
+        response = get_response("/accounts/#{Hancock.account_id}/envelopes/#{identifier}")
+        @status = JSON.parse(response.body)["status"]
+      end
+      @status
     end
 
     # #
