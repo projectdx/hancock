@@ -56,7 +56,7 @@ module Hancock
         doc_array = JSON.parse(response)["envelopeDocuments"]
 
         doc_array.each do |doc|
-          document = Hancock::Document.new(identifier: doc["documentId"], name: doc["name"])
+          document = Hancock::Document.new({identifier: doc["documentId"], name: doc["name"]}, false)
           add_document(document) 
         end
       end

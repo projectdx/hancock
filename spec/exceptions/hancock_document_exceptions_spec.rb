@@ -4,11 +4,15 @@ describe Hancock::Document do
   include_context "configs"
   include_context "variables"
 
-  it 'Is valid when file suplied' do
+  it 'Is valid when file supplied' do
      lambda { Hancock::Document.new({file: file}) }.should_not raise_error()
   end
 
-  it 'Is valid when data, name, extension suplied' do 
+  it 'Is valid when: file, name, extension, identifier supplied' do 
+    lambda { Hancock::Document.new( file: doc, name: "test", extension: "pdf", identifier: 123 )}.should_not raise_error()
+  end
+
+  it 'Is valid when data, name, extension supplied' do 
     params = {
       data: 'string',
       name: 'test',

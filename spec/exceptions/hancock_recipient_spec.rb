@@ -10,19 +10,7 @@ describe Hancock::Recipient do
       id_check:        true,
       delivery_method: :email, 
       routing_order:   1, 
-      identifier: 'identifier'
-     }
-     lambda { Hancock::Recipient.new(params) }.should_not raise_error()
-  end
-
-  it 'should not raise an exception if valid params given' do 
-     params = {
-      name:            'name',
-      email:           'email', 
-      id_check:        true,
-      delivery_method: :email, 
-      routing_order:   1, 
-      identifier: 'identifier'
+      identifier:      1234
      }
      lambda { Hancock::Recipient.new(params) }.should_not raise_error()
 
@@ -32,15 +20,6 @@ describe Hancock::Recipient do
       delivery_method: :email
      }
      lambda { Hancock::Recipient.new(params) }.should_not raise_error()
-  end
-
-  it 'should raise an error wher not integer routing_order suplied' do 
-    params = {
-      name:            'name',
-      email:           'email', 
-      routing_order:   '1'
-     }
-     lambda { Hancock::Recipient.new(params) }.should raise_error(Hancock::ArgumentError)
   end
 
   it 'should raise if delivery_method is not inclusion of [:email, :embedded, :offline, :paper]' do 

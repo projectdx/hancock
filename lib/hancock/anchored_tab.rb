@@ -12,18 +12,16 @@ module Hancock
 
     attr_accessor :type, :label, :offset, :anchor_text, :page_number
 
-    validates_presence_of :type, :label, :offset
-    validates_type_of :coordinates, type: [Array]
-    supplies_default_value_for :page_number, value: 1
-    supplies_default_value_for :anchor_text, value: :label
+    validates :type, :label, :offset, presence: true 
+    validates :offset, type: :array
+    validates :page_number, default: 1
+    validates :anchor_text, default: lambda{ |inst| inst.label }
 
     def initialize(attributes = {})
-      @attributes = attributes
       ATTRIBUTES.each do |attr|
         self.send("#{attr}=", attributes[attr])
       end
       self.validate!
-      self.supply_defaults!
     end
   end
 end

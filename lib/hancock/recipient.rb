@@ -14,19 +14,16 @@ module Hancock
 
     attr_accessor :name, :email, :id_check, :delivery_method, :routing_order, :identifier
 
-    supplies_default_value_for :identifier,      value: :random
-    supplies_default_value_for :id_check,        value: true
-    supplies_default_value_for :routing_order,   value: 1
-    validates_presence_of :name, :email
-    validates_type_of :id_check, type: [TrueClass, FalseClass]
-    validates_type_of :routing_order, type: [Fixnum]
-    validates_inclusion_of :delivery_method, inclusions: [:email, :embedded, :offline, :paper]
+    validates :identifier, default: lambda{ |inst| inst.generate_identifier }
+    validates :id_check, inclusion_of: [true, false], default: true
+    validates :routing_order, default: 1
+    validates :name, :email, presence: true
+    validates :delivery_method, inclusion_of: [:email, :embedded, :offline, :paper], default: :email
 
     def initialize(attributes = {})
       ATTRIBUTES.each do |attr|
         self.send("#{attr}=", attributes[attr])
       end
-      self.supply_defaults!
       self.validate!
     end
   end
