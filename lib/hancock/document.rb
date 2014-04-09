@@ -13,19 +13,18 @@ module Hancock
 
     attr_accessor :file, :data, :name, :extension, :identifier
 
-    supplies_default_value_for :identifier, value: :random
-    supplies_default_value_for(:name, value: :file){ |file| File.basename(file, '.*') }
-    supplies_default_value_for(:extension, value: :file){ |file| File.basename(file).split('.').last }
-    validates_type_of :file, type: [File], allow_nil: true
-    validates_type_of :data, type: [String], allow_nil: true
-    validates_presence_of :data, :name, :extension, unless: :file
+    validates :identifier, default: lambda{ |inst| inst.generate_identifier }
+    validates :name, default: lambda{ |inst| File.basename(inst.file, '.*') if inst.file}, presence: true
+    validates :extension, default: lambda{ |inst| File.basename(inst.file).split('.').last if inst.file}, presence: true
+    validates :file, type: :file, allow_nil: true
+    validates :data, type: :string, presence: lambda{ |inst| !inst.file }
 
-    def initialize(attributes = {})
+
+    def initialize attributes={}, run_validations=true 
       ATTRIBUTES.each do |attr|
         self.send("#{attr}=", attributes[attr])
       end
-      self.supply_defaults!
-      self.validate!
+      self.validate! if run_validations
     end
 
     def to_request

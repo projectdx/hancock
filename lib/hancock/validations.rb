@@ -5,19 +5,8 @@ module Hancock
     # class methods
     #
     module ClassMethods
-      
-      def validates_presence_of(*args)
-        @validations ||= []
-        args << { presence: true }
-        @validations << args
-      end
 
-      def validates_type_of(*args)
-        @validations ||= []
-        @validations << args
-      end
-
-      def validates_inclusion_of(*args)
+      def validates(*args, &block)
         @validations ||= []
         @validations << args
       end
@@ -42,32 +31,59 @@ module Hancock
         condition  = validation.select{ |i| i.is_a? Hash }.inject({}){|i, res| res.merge!(i)}
         attributes = validation.select{ |i| i.is_a? Symbol }
         attributes.each do |atr|
-          validate_attribute!( atr, self.send(atr), condition )
+          validate_attribute!( atr, condition )
         end
       end
     end
 
-    # TODO: Refactor this methos
-    def validate_attribute! attr_name, attr_val, option={}
-      return true if option[:allow_nil] && attr_val.nil?
-      return true if option[:unless]    && self.send(option[:unless])
-
-      if option[:presence]
-
-        message = "Invalid argument '#{attr_name}'. '#{attr_name}' is required"
-        raise Hancock::ArgumentError.new(message) unless attr_val
-
-      elsif option[:type] && !option[:type].include?( attr_val.class )
-
-        message = "Invalid argument '#{attr_name}'. Exspected #{option[:type]}, got #{attr_val.class}"
-        raise Hancock::ArgumentError.new(message)
-
-      elsif option[:inclusions] && !option[:inclusions].include?( attr_val )
-
-        message = "Invalid argument '#{attr_name}'. Exspected #{option[:inclusions]}, got #{attr_val}"
-        raise Hancock::ArgumentError.new(message)
-
+    #
+    # We need @presence instance variable to skip
+    # (type, inclusion_of, ..ect) validations if 
+    # value should not be present.
+    # For example if we are expecting inst.var_file 
+    # to be File, we will get an error if it is Nil.
+    #
+    def validate_attribute! attr_name, options={}
+      return  if options[:allow_nil]
+      
+      @presence = if options[:presence].is_a? Proc  
+        options[:presence].call(self)
+      else 
+        options[:presence]
       end
+
+      options.sort.to_h.each do |k, v|
+        v = v.call(self) if v.is_a? Proc
+        self.send("validate_#{k}!", attr_name, self.send(attr_name), v)
+      end
+    end
+
+    def validate_presence! attr_name, attr_val, presence
+      if !attr_val && presence
+        message = "Invalid argument '#{attr_name}'. '#{attr_name}' is required"
+        raise Hancock::ArgumentError.new(message)
+      elsif attr_val && !presence
+        message = "Invalid argument '#{attr_name}'. '#{attr_name}' is not required"
+        raise Hancock::ArgumentError.new(message)
+      end
+    end
+
+    def validate_type! attr_name, attr_val, type
+      if ![type].flatten.include?( attr_val.class.to_s.to_sym.downcase ) && @presence
+        message = "Invalid argument '#{attr_name}'. Exspected #{type}, got #{attr_val.class}"
+        raise Hancock::ArgumentError.new(message)
+      end
+    end
+
+    def validate_inclusion_of! attr_name, attr_val, inclusions
+      unless inclusions.include?( attr_val )
+        message = "Invalid argument '#{attr_name}'. Exspected #{inclusions}, got #{attr_val}"
+        raise Hancock::ArgumentError.new(message)
+      end
+    end
+
+    def validate_default! attr_name, attr_val, default
+      self.send( "#{attr_name}=", default ) unless attr_val
     end
 
   end
