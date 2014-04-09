@@ -1,5 +1,5 @@
 class HancockController < ApplicationController
-  around_filter :global_request_logging
+  #around_filter :global_request_logging
 
   require 'hancock'
   require 'nokogiri'
@@ -21,19 +21,19 @@ class HancockController < ApplicationController
 
   def process_callback
 
-    if params.keys.first.include? 'xml'
+    #payload = File.open("callback.xml", "r")
+    payload = request.raw_post
+    @envelope_status = Hancock::EnvelopeStatus.new(payload)
 
-      payload = params.keys.first + params.values.first
-      @envelope_status = Hancock::EnvelopeStatus.new(payload)
+    status = @envelope_status.status # here we got a status balue of a received evelope
 
-      logger.debug 'Got Envelope Status:'
-      logger.debug @envelope_status.status
+    recipient_statuses = @envelope_status.recipient_statuses # fetch a collection of recipient statuses
 
-    else
-      logger.debug 'No XML payload found. Skipping...'
-    end
+    logger.debug 'Recipient id:'
+    logger.debug recipient_statuses.first.recipient_id
 
-    # @recepient_status = Hancock::RecepientStatus.new(response.body)
+    logger.debug 'Recipient status:'
+    logger.debug recipient_statuses.first.status
 
     render :nothing => true
 
