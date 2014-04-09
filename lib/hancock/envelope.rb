@@ -99,6 +99,17 @@ module Hancock
     #   envelope.save
     # end
 
+    # This one for testing API's callbacks
+    def self.callback_test
+      envelope = Hancock::Envelope.new
+      doc1 = File.open("test.pdf")
+      document1 = Hancock::Document.new(file: doc1, name: "test", extension: "pdf", identifier: "123")
+      recipient1 = Hancock::Recipient.new(name: "Owner", email: "kolya.bokhonko@gmail.com", routing_order: 1, delivery_method: :email)
+      envelope.add_document(document1)
+      tab1 = Hancock::Tab.new(type: "sign_here", label: "Vas", coordinates: [2, 100], page_number: 1)
+      envelope.add_signature_request(recipient: recipient1, document: document1, tabs: [tab1])
+      envelope.send!
+    end
     # # One call does it all
     # def self.test_init
     #   doc1 = File.open("test.pdf")
