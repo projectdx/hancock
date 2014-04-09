@@ -2,7 +2,7 @@ module Hancock
   class Envelope < Hancock::Base
     
     BOUNDARY = 'AAA'
-    
+
     attr_accessor :identifier, :status, :documents, :signature_requests, :email
 
     def self.find(envelope_id)
@@ -13,11 +13,11 @@ module Hancock
       envelope_params = JSON.parse(response.body)
 
       envelope = self.new(status: envelope_params["status"], identifier: envelope_params["envelopeId"])
-      envelope
+      envelope.reload!
     end
 
     def initialize(attributes = {})
-      @identiifer = attributes[:identifier]
+      @identifier = attributes[:identifier]
       @status = attributes[:status]
       @documents = attributes[:documents] || []
       @signature_requests = attributes[:signature_requests] || []
