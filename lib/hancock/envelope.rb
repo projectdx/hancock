@@ -44,6 +44,7 @@ module Hancock
       send_envelope("created")
     end
 
+    #need revision
     def recipients
       if identifier
         response = get_response("/accounts/#{Hancock.account_id}/envelopes/#{identifier}/recipients").body
@@ -65,7 +66,7 @@ module Hancock
         response = JSON.parse(get_response("/accounts/#{Hancock.account_id}/envelopes/#{identifier}").body)
         @status = response["status"]
         @email = {subject: response["emailSubject"], blurb: response["emailBlurb"]}
-        @documents = get_documents
+        get_documents
       end
       self
     end
