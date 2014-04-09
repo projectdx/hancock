@@ -6,7 +6,7 @@ describe Hancock::Envelope do
   
   before do
     envelope.add_document(document)
-    envelope.add_signature_request(recipient, document, [tab])
+    envelope.add_signature_request(recipient: recipient, document: document, tabs: [tab])
   end
 
   it "should send envelope with status 'created'" do

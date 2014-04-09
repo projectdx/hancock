@@ -3,6 +3,7 @@ module Hancock
 
     VALID_CONNECTION_KEYS  = [:endpoint, :api_version, :user_agent, :method].freeze
     VALID_OPTIONS_KEYS     = [:access_token, :username, :password, :integrator_key, :account_id, :format, :ca_file, :email_template, :event_notification].freeze
+
     VALID_CONFIG_KEYS      = VALID_CONNECTION_KEYS + VALID_OPTIONS_KEYS
 
     DEFAULT_ENDPOINT       = 'https://demo.docusign.net/restapi'

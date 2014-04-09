@@ -101,6 +101,9 @@ module Hancock
       when :pdf
         "Content-Type: application/pdf\r\n"\
         "Content-Disposition: file; filename=#{document.name}; documentid=#{document.identifier}\r\n\r\n"
+      when :docx
+        "Content-Type: application/vnd.openxmlformats-officedocument.wordprocessingml.document\r\n"\
+        "Content-Disposition: file; filename=#{document.name}; documentid=#{document.identifier}\r\n\r\n"  
       end
     end
 
