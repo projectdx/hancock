@@ -24,7 +24,7 @@ require 'hancock/recipient'
 require 'hancock/anchored_tab'
 require 'hancock/tab'
 require 'hancock/envelope_status'
-require 'hancock/recepient_status'
+require 'hancock/recipient_status'
 
 module Hancock
   extend Configuration
