@@ -1,10 +1,10 @@
 require 'hancock'
 
 Hancock.configure do |config|
-  config.username       = 'gmhawash@gmail.com'
-  config.password       = 'WhatIs25*25'
-  config.integrator_key = 'RFXX-5e8080a0-88d3-4c41-94b6-d01674c2c4d8'
-  config.account_id     = '443799'
+  config.username       = 'hancock.docusign.test@gmail.com'
+  config.password       = 'qweqwe123123'
+  config.integrator_key = 'XXXX-72b4a74c-e8a2-4d59-82bf-c28219bf5ebb'
+  config.account_id     = '482411'
   config.endpoint       = 'https://demo.docusign.net/restapi'
   config.api_version    = 'v2'
 
