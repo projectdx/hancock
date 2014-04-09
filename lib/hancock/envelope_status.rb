@@ -1,39 +1,41 @@
 module Hancock
   class EnvelopeStatus
 
-    #require 'active_support/core_ext/hash/conversions'
-
     def initialize(xml)
 
       @noko_doc = Nokogiri::XML.parse xml
 
-      #@noko_doc_hash = Hash.from_xml(@noko_doc)
-
       @status = nil
-      @recipient_statuses = nil
-      @documents = nil
+      @recipient_statuses = []
+      @documents = []
 
       self
 
     end
 
+    #
+    # An accessor for Nokogiri parser
+    #
     def noko
       @noko_doc
     end
 
-    # @return a status of envelope
+    #
+    # Returns a status of envelope
+    #
     def status
       #@status = @noko_doc_hash["DocuSignEnvelopeInformation"]["EnvelopeStatus"]["Status"].to_s
       @status ||= noko.xpath("//xmlns:EnvelopeStatus/xmlns:Status").text.to_s
     end
 
-    # @return a collection of Hancock::RecipientStatus
+    #
+    # Returns collection of Hancock::RecipientStatus
+    #
     def recipient_statuses
-      #@reсipient_statuses = hash["DocuSignEnvelopeInformation"]["EnvelopeStatus"]["RecipientStatuses"].to_h
 
-      @recipient_statuses = Array.new
-      noko.css("RecipientStatuses RecipientStatus").each do |status_element|
-        @recipient_statuses.push(Hancock::RecipientStatus.new(status_element.to_s))
+      return @recipient_statuses unless @recipient_statuses.empty?
+      noko.css('RecipientStatuses > RecipientStatus').each do |status_element|
+        @recipient_statuses << Hancock::RecipientStatus.new(status_element.to_s)
 
         # recipient_id = @recipient_statuses[0].recipient_id
       end
@@ -41,9 +43,23 @@ module Hancock
       @recipient_statuses
     end
 
-    # @return a collection of Hancock::Document
+    #
+    # Returns a collection of Hancock::Document
+    #
     def documents
-      #@todo needs to be added
+
+      return @documents unless @documents.empty?
+      #noko.xpath("//xmlns:DocumentPDFs/xmlns:DocumentPDF").each do |document_element|
+      noko.css('DocumentPDFs > DocumentPDF').each do |document_element|
+        @documents.push(Hancock::Document.new(
+            data: document_element.css('PDFBytes').first.text,
+            name: document_element.css('Name').first.text,
+            extension: 'pdf'
+        ))
+      end
+
+      @documents
+
     end
 
   end
