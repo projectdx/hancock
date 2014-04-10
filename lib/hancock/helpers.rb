@@ -73,7 +73,7 @@ module Hancock
       recipients
     end
 
-    def docusign_recipient_type type
+    def docusign_recipient_type(type)
       type.to_s.camelize(:lower).pluralize
     end
 
@@ -98,7 +98,7 @@ module Hancock
 
     end
 
-    def get_content_type_for format, document={}
+    def get_content_type_for(format, document = {})
       case format
       when :json
         "Content-Type: application/json\r\n"\
@@ -139,6 +139,21 @@ module Hancock
       tab_hash[:documentId] = document_id || '0'
       tab_hash[:pageNumber] = tab.page_number
       tab_hash
+    end
+
+    def form_post_body(status)     
+      post_body =  "\r\n--#{Hancock.boundary}\r\n"
+      post_body << get_content_type_for(:json)
+      post_body << get_post_params(status).to_json
+      post_body << "\r\n--#{Hancock.boundary}\r\n"
+
+      @documents.each do |doc|
+        post_body << get_content_type_for(:pdf, doc)
+        post_body << doc.data_for_request
+        post_body << "\r\n"
+      end
+
+      post_body << "\r\n--#{Hancock.boundary}--\r\n"
     end
   end
 end
