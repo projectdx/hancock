@@ -2,7 +2,7 @@ shared_context "incorrect_configs" do
   before(:all) do 
     Hancock.configure do |config|
       config.username       = ***REMOVED***
-      config.password       = ***REMOVED***
+      config.password       = '--------'
       config.integrator_key = ***REMOVED***
       config.account_id     = ***REMOVED***
       config.endpoint       = 'https://demo.docusign.net/restapi'
