@@ -13,8 +13,6 @@ module Hancock
     def send_get_request(uri, headers)
       http = initialize_http(uri)
 
-      p http
-
       request = Net::HTTP::Get.new(uri.request_uri, headers)
       http.request(request) # return response
     end
