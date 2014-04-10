@@ -18,4 +18,7 @@ shared_context "variables" do
   let (:bad_header) { { 'Accept' => 'json', 'X-DocuSign-Authentication' => 
         { 'Username' => Hancock.username, 'Password' => "123456", 'IntegratorKey' => Hancock.integrator_key }.to_json 
       } }
+
+  let(:callback_xml) { File.open("#{SPEC_ROOT}/fixtures/callback.xml", "rb").read }
+
 end
