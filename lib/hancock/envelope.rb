@@ -65,8 +65,8 @@ module Hancock
     # def self.test
     #   envelope = Hancock::Envelope.new
     #   doc1 = File.open("test.pdf")
-    #   document1 = Hancock::Document.new(file: doc1, name: "test", extension: "pdf", identifier: "123")
-    #   recipient1 = Hancock::Recipient.new(identifier: 222, name: "Owner", email: "kolya.bokhonko@gmail.com", routing_order: 1, delivery_method: :email)
+    #   document1 = Hancock::Document.new({file: doc1, name: "test", extension: "pdf", identifier: "123"})
+    #   recipient1 = Hancock::Recipient.new({identifier: 222, name: "Owner", email: "kolya.bokhonko@gmail.com", routing_order: 1, delivery_method: :email, recipient_type: :signer})
     #   envelope.add_document(document1)
     #   tab1 = Hancock::Tab.new(type: "sign_here", label: "Vas", coordinates: [2, 100], page_number: 1)
     #   envelope.add_signature_request(recipient: recipient1, document: document1, tabs: [tab1])
@@ -79,8 +79,8 @@ module Hancock
     # def self.callback_test
     #   envelope = Hancock::Envelope.new
     #   doc1 = File.open("test.pdf")
-    #   document1 = Hancock::Document.new(file: doc1, name: "test", extension: "pdf", identifier: "123")
-    #   recipient1 = Hancock::Recipient.new(name: "Owner", email: "kolya.bokhonko@gmail.com", routing_order: 1, delivery_method: :email)
+    #   document1 = Hancock::Document.new({file: doc1, name: "test", extension: "pdf", identifier: "123"})
+    #   recipient1 = Hancock::Recipient.new({identifier: 222, name: "Owner", email: "kolya.bokhonko@gmail.com", routing_order: 1, delivery_method: :email, recipient_type: :signer})
     #   envelope.add_document(document1)
     #   tab1 = Hancock::Tab.new(type: "sign_here", label: "Vas", coordinates: [2, 100], page_number: 1)
     #   envelope.add_signature_request(recipient: recipient1, document: document1, tabs: [tab1])
@@ -89,8 +89,8 @@ module Hancock
     # # One call does it all
     # def self.test_init
     #   doc1 = File.open("test.pdf")
-    #   document1 = Hancock::Document.new(file: doc1, name: "test", extension: "pdf", identifier: "123")
-    #   recipient1 = Hancock::Recipient.new(name: "Owner", email: "kolya.bokhonko@gmail.com", routing_order: 1)
+    #   document1 = Hancock::Document.new({file: doc1, name: "test", extension: "pdf", identifier: "123"})
+    #   recipient1 = Hancock::Recipient.new({identifier: 222, name: "Owner", email: "kolya.bokhonko@gmail.com", routing_order: 1, delivery_method: :email, recipient_type: :signer})
     #   tab1 = Hancock::Tab.new(type: "sign_here", label: "Vas", coordinates: [2, 100], page_number: 1)
       
     #   envelope = Hancock::Envelope.new({
@@ -134,15 +134,15 @@ module Hancock
 
       def get_recipients
         if identifier
-          response = get_response("/accounts/#{Hancock.account_id}/envelopes/#{identifier}/recipients").body
-          signers_array = JSON.parse(response)["signers"]
-
+          response = JSON.parse(get_response("/accounts/#{Hancock.account_id}/envelopes/#{identifier}/recipients").body)
           @recipients = []
 
-          signers_array.each do |signer|
-            recipient = Hancock::Recipient.new({ name: signer["name"], identifier: signer["recipientId"], 
-                                              email: signer["email"], routing_order: signer["routingOrder"].to_i}, false)
-            @recipients << recipient
+          Hancock::Recipient::RECIPIENT_TYPES.each do |type|
+            response[docusign_recipient_type(type)].each do |r|
+              recipient = Hancock::Recipient.new({ name: r["name"], identifier: r["recipientId"], recipient_type: type,
+                                                email: r["email"], routing_order: r["routingOrder"].to_i})
+              @recipients << recipient
+            end
           end
           @recipients
         end
