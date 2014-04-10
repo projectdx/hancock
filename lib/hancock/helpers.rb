@@ -2,6 +2,9 @@ module Hancock
   module Helpers
     extend ActiveSupport::Concern
 
+    #
+    # send post request to set uri with post body and headers
+    #
     def send_post_request(uri, body_post, headers)
       http = initialize_http(uri)
 
@@ -10,24 +13,28 @@ module Hancock
       http.request(request) # return response
     end
 
-    def send_get_request(uri, headers)
+    #
+    # send get request to set url
+    #
+    def send_get_request(url)
+      uri = build_uri(url)
       http = initialize_http(uri)
+      content_headers = { 'Content-Type' => 'application/json' }
 
-      request = Net::HTTP::Get.new(uri.request_uri, headers)
+      request = Net::HTTP::Get.new(uri.request_uri, get_headers(content_headers))
       http.request(request) # return response
     end
 
-    def get_response(url)
-      uri = build_uri(url)
-      content_headers = { 'Content-Type' => 'application/json' }
-
-      send_get_request(uri, get_headers(content_headers))
-    end
-
+    #
+    # generate common uri to docusign service
+    #
     def build_uri(url)
       URI.parse("#{Hancock.endpoint}/#{Hancock.api_version}#{url}")
     end
 
+    #
+    # initialize instance of Net::HTTP(An HTTP client API)
+    #
     def initialize_http(uri)
       http = Net::HTTP.new(uri.host, uri.port)
       http.use_ssl = true
@@ -35,6 +42,9 @@ module Hancock
       http
     end
 
+    #
+    # get headers for requests with authentication parameters
+    #
     def get_headers(user_defined_headers={})
       default = {
         'Accept' => 'json',
@@ -48,6 +58,9 @@ module Hancock
       default.merge!(user_defined_headers) if user_defined_headers
     end
 
+    #
+    # get list of recipients from signature requests
+    #
     def get_recipients_for_request(signature_requests)      
       recipients = { }
 
@@ -73,10 +86,16 @@ module Hancock
       recipients
     end
 
+    #
+    # format recipient type(symbol) for DocuSign
+    #
     def docusign_recipient_type(type)
       type.to_s.camelize(:lower).pluralize
     end
 
+    #
+    # get params for event notification from Hancock.config
+    #
     def get_event_notification
       {
         url: Hancock.event_notification[:url],
