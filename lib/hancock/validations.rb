@@ -6,7 +6,7 @@ module Hancock
     #
     module ClassMethods
 
-      def validates(*args, &block)
+      def validates(*args)
         @validations ||= []
         @validations << args
       end
@@ -40,16 +40,25 @@ module Hancock
       end
     end
 
+
+    #
+    # We need conditions hash to be sorted, so defaults run
+    # before presence validations. 
+    # options.sort => will return array like [[:key, :val],...]
+    #
     def validate_attribute! attr_name, options={}
       return if options[:allow_nil]
 
-      options.sort.to_h.each do |k, v|
-        options[k] = v.call(self) if v.is_a? Proc
-        self.send("validate_#{k}!", attr_name, self.send(attr_name), options)
+      options.sort.each do |validation|
+        options[validation[0]] = validation[1].call(self) if validation[1].is_a? Proc
+        self.send("validate_#{validation[0]}!", attr_name, self.send(attr_name), options)
       end
     end
 
 
+    #
+    # Can validate strict presence and strict absence.
+    #
     def validate_presence! attr_name, attr_val, options
       if attr_val.blank? && options[:presence]
         message = "Invalid argument '#{attr_name}'. '#{attr_name}' is required"

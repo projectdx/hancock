@@ -9,8 +9,6 @@ module Hancock
     # identifier: 'my_document_3', # optional, generates if not given
     # 
 
-    ATTRIBUTES = [:file, :data, :name, :extension, :identifier]
-
     attr_accessor :file, :data, :name, :extension, :identifier
 
     validates :identifier, default: lambda{ |inst| inst.generate_identifier }
@@ -20,10 +18,16 @@ module Hancock
     validates :data, type: :string, presence: lambda{ |inst| !inst.file }
 
 
-    def initialize attributes={}, run_validations=true 
-      ATTRIBUTES.each do |attr|
-        self.send("#{attr}=", attributes[attr])
-      end
+    #
+    # skip validations if run_validations == false
+    #
+    def initialize(attributes = {}, run_validations = true) 
+      @file       = attributes[:file] 
+      @data       = attributes[:data]
+      @name       = attributes[:name]
+      @extension  = attributes[:extension]
+      @identifier = attributes[:identifier]
+
       self.validate! if run_validations
     end
 

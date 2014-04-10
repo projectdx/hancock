@@ -10,8 +10,6 @@ module Hancock
     # identifier:      optional, generates if not given
     #
 
-    ATTRIBUTES = [:name, :email, :id_check, :delivery_method, :routing_order, :identifier]
-
     attr_accessor :name, :email, :id_check, :delivery_method, :routing_order, :identifier
 
     validates :identifier, default: lambda{ |inst| inst.generate_identifier }
@@ -20,11 +18,15 @@ module Hancock
     validates :name, :email, presence: true
     validates :delivery_method, inclusion_of: [:email, :embedded, :offline, :paper], default: :email
 
-    def initialize(attributes = {})
-      ATTRIBUTES.each do |attr|
-        self.send("#{attr}=", attributes[attr])
-      end
-      self.validate!
+    def initialize(attributes = {}, run_validations=true)
+      @name            = attributes[:name]
+      @email           = attributes[:email]
+      @id_check        = attributes[:id_check]
+      @delivery_method = attributes[:delivery_method]
+      @routing_order   = attributes[:routing_order]
+      @routing_order   = attributes[:routing_order]
+
+      self.validate! if run_validations
     end
   end
 end
