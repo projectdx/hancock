@@ -10,13 +10,15 @@ module Hancock
     # identifier:      optional, generates if not given
     #
 
-    attr_accessor :name, :email, :id_check, :delivery_method, :routing_order, :identifier
+    RECIPIENT_TYPES = [:agent, :carbon_copy, :certified_delivery, :editor, :in_person_signer, :intermediary, :signer]
+    attr_accessor :name, :email, :id_check, :delivery_method, :routing_order, :identifier, :recipient_type
 
     validates :identifier, default: lambda{ |inst| inst.generate_identifier }
     validates :id_check, inclusion_of: [true, false], default: true
     validates :routing_order, default: 1
     validates :name, :email, presence: true
     validates :delivery_method, inclusion_of: [:email, :embedded, :offline, :paper], default: :email
+    validates :recipient_type, inclusion_of: RECIPIENT_TYPES, default: :signer
 
     def initialize(attributes = {}, run_validations=true)
       @name            = attributes[:name]
@@ -25,6 +27,7 @@ module Hancock
       @delivery_method = attributes[:delivery_method]
       @routing_order   = attributes[:routing_order]
       @routing_order   = attributes[:routing_order]
+      @recipient_type  = attributes[:recipient_type] 
 
       self.validate! if run_validations
     end
