@@ -32,4 +32,14 @@ describe Hancock::Recipient do
      lambda { Hancock::Recipient.new(params) }.should raise_error(Hancock::ArgumentError)
   end
 
+  it 'Should not run validations if appropriate param supplied' do
+   params = {
+      #name:            'name', This is a required param
+      email:           'email', 
+      id_check:        true,
+      #delivery_method: :email, This is a required param
+     }
+     lambda{ Hancock::Recipient.new(params, false) }.should_not raise_error()
+  end
+
 end
