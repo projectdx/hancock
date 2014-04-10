@@ -13,6 +13,8 @@ module Hancock
     def send_get_request(uri, headers)
       http = initialize_http(uri)
 
+      p http
+
       request = Net::HTTP::Get.new(uri.request_uri, headers)
       http.request(request) # return response
     end
@@ -55,7 +57,7 @@ module Hancock
         recipients[docusign_recipient_type(type)] = []
       end
 
-      @signature_requests.each do |signature|
+      signature_requests.each do |signature|
         doc_signer = {
           email: signature[:recipient].email,
           name: signature[:recipient].name,
