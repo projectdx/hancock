@@ -55,7 +55,7 @@ module Hancock
         recipients[docusign_recipient_type(type)] = []
       end
 
-      @signature_requests.each do |signature|
+      signature_requests.each do |signature|
         doc_signer = {
           email: signature[:recipient].email,
           name: signature[:recipient].name,
@@ -123,22 +123,7 @@ module Hancock
     end
 
     def generate_tab(tab, document_id)
-      tab_hash = {}
-
-      if tab.is_a? Hancock::AnchoredTab
-        tab_hash[:anchorString]  = tab.anchor_text
-        tab_hash[:anchorXOffset] = tab.offset[0]
-        tab_hash[:anchorYOffset] = tab.offset[1]
-        tab_hash[:IgnoreIfNotPresent] = 1
-      else
-        tab_hash[:tabLabel]   = tab.label
-        tab_hash[:xPosition]  = tab.coordinates[0]
-        tab_hash[:yPosition]  = tab.coordinates[1]
-      end
-
-      tab_hash[:documentId] = document_id || '0'
-      tab_hash[:pageNumber] = tab.page_number
-      tab_hash
+      tab.to_h.merge({ :documentId => (document_id || '0')})
     end
 
     def form_post_body(status)     

@@ -26,4 +26,22 @@ describe Hancock::AnchoredTab do
      at.anchor_text.should eq(params[:label])
   end
 
+  it 'to_h method Should generate proper hash' do 
+    def to_h
+      tmp_hash = {
+        :anchorString       => 'anchor_text',
+        :anchorXOffset      => offset[0],
+        :anchorYOffset      => offset[1],
+        :IgnoreIfNotPresent => 1,
+        :pageNumber         => page_number
+      }
+      params = {
+        type:   tmp_hash[:anchorString],
+        offset: [tmp_hash[:anchorXOffset],tmp_hash[:anchorYOffset]], 
+        type:   tmp_hash[:anchorString]
+      }
+      Hancock::AnchoredTab.new(params).to_h.should eq(tmp_hash)
+    end
+  end
+
 end

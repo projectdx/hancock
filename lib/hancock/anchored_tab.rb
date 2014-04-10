@@ -24,5 +24,16 @@ module Hancock
 
       self.validate!
     end
+
+    def to_h
+      {
+        :anchorString       => anchor_text,
+        :anchorXOffset      => offset[0],
+        :anchorYOffset      => offset[1],
+        :IgnoreIfNotPresent => 1,
+        :pageNumber         => page_number
+      }
+    end
+
   end
 end

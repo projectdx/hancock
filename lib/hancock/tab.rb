@@ -22,5 +22,15 @@ module Hancock
 
       self.validate!
     end
+
+    def to_h
+      {
+        :tabLabel           => label,
+        :xPosition          => coordinates[0],
+        :yPosition          => coordinates[1],
+        :pageNumber         => page_number
+      }
+    end
+
   end
 end
