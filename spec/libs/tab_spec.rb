@@ -16,20 +16,18 @@ describe Hancock::Tab do
   end
 
   it 'to_h method Should generate proper hash' do 
-    def to_h
-      tmp_hash = {
-        :tabLabel    => 'label',
-        :xPosition   => 1,
-        :yPosition   => 2,
-        :pageNumber  => page_number
-      }
-      params = {
-        type:        tmp_hash[:tabLabel],
-        coordinates: [tmp_hash[:xPosition],tmp_hash[:yPosition]], 
-        type:        tmp_hash[:tabLabel]
-      }
-      Hancock::Tab.new(params).to_h.should eq(tmp_hash)
-    end
+    tmp_hash = {
+      :tabLabel    => 'label',
+      :xPosition   => 1,
+      :yPosition   => 2,
+      :pageNumber  => 1
+    }
+    params = {
+      label:       tmp_hash[:tabLabel],
+      coordinates: [tmp_hash[:xPosition],tmp_hash[:yPosition]], 
+      type:        tmp_hash[:tabLabel]
+    }
+    Hancock::Tab.new(params).to_h.should eq(tmp_hash)
   end
 
 end
