@@ -3,7 +3,7 @@ module Hancock
     
     BOUNDARY = 'AAA'
 
-    attr_accessor :identifier, :status, :documents, :signature_requests, :email
+    attr_accessor :identifier, :status, :documents, :signature_requests, :email, :recipients
 
     def self.find(envelope_id)
       uri = build_uri("/accounts/#{Hancock.account_id}/envelopes/#{envelope_id}")
@@ -20,6 +20,7 @@ module Hancock
       @identifier = attributes[:identifier]
       @status = attributes[:status]
       @documents = attributes[:documents] || []
+      @recipients = attributes[:recipients] || []
       @signature_requests = attributes[:signature_requests] || []
       @email = attributes[:email] || {}
     end
@@ -28,12 +29,14 @@ module Hancock
       @documents << document
     end
 
-    def add_signature_request(attributes={})
+    def add_signature_request(attributes = {})
       @signature_requests << {
         recipient: attributes[:recipient],
         document: attributes[:document],
         tabs: attributes[:tabs]
-      } 
+      }
+
+      @recipients << attributes[:recipients] 
     end
 
     def send!
@@ -44,42 +47,13 @@ module Hancock
       send_envelope("created")
     end
 
-    def documents
-      if identifier
-        @documents = []
-        response = get_response("/accounts/#{Hancock.account_id}/envelopes/#{identifier}/documents").body
-        doc_array = JSON.parse(response)["envelopeDocuments"]
-
-        doc_array.each do |doc|
-          document = Hancock::Document.new({identifier: doc["documentId"], name: doc["name"]}, false)
-          add_document(document) 
-        end
-      end
-      @documents
-    end
-
-    def recipients
-      if identifier
-        response = get_response("/accounts/#{Hancock.account_id}/envelopes/#{identifier}/recipients").body
-        signers_array = JSON.parse(response)["signers"]
-
-        recipients_array = []
-
-        signers_array.each do |signer|
-          recipient = Hancock::Recipient.new(name: signer["name"], identifier: signer["recipientId"], 
-                                            email: signer["email"], routing_order: signer["routingOrder"].to_i)
-          recipients_array << recipient
-        end
-        recipients_array
-      end
-    end
-
     def reload!
       if identifier
         response = JSON.parse(get_response("/accounts/#{Hancock.account_id}/envelopes/#{identifier}").body)
         @status = response["status"]
         @email = {subject: response["emailSubject"], blurb: response["emailBlurb"]}
         get_documents
+        get_recipients
       end
       self
     end
@@ -92,13 +66,26 @@ module Hancock
     #   envelope = Hancock::Envelope.new
     #   doc1 = File.open("test.pdf")
     #   document1 = Hancock::Document.new(file: doc1, name: "test", extension: "pdf", identifier: "123")
-    #   recipient1 = Hancock::Recipient.new(name: "Owner", email: "kolya.bokhonko@gmail.com", routing_order: 1, delivery_method: :email)
+    #   recipient1 = Hancock::Recipient.new(identifier: 222, name: "Owner", email: "kolya.bokhonko@gmail.com", routing_order: 1, delivery_method: :email)
     #   envelope.add_document(document1)
     #   tab1 = Hancock::Tab.new(type: "sign_here", label: "Vas", coordinates: [2, 100], page_number: 1)
     #   envelope.add_signature_request(recipient: recipient1, document: document1, tabs: [tab1])
     #   envelope.save
     # end
 
+    # #
+    # # This one for testing API's callbacks
+    # #
+    # def self.callback_test
+    #   envelope = Hancock::Envelope.new
+    #   doc1 = File.open("test.pdf")
+    #   document1 = Hancock::Document.new(file: doc1, name: "test", extension: "pdf", identifier: "123")
+    #   recipient1 = Hancock::Recipient.new(name: "Owner", email: "kolya.bokhonko@gmail.com", routing_order: 1, delivery_method: :email)
+    #   envelope.add_document(document1)
+    #   tab1 = Hancock::Tab.new(type: "sign_here", label: "Vas", coordinates: [2, 100], page_number: 1)
+    #   envelope.add_signature_request(recipient: recipient1, document: document1, tabs: [tab1])
+    #   envelope.send!
+    # end
     # # One call does it all
     # def self.test_init
     #   doc1 = File.open("test.pdf")
@@ -143,6 +130,22 @@ module Hancock
           end
         end
         @documents
+      end
+
+      def get_recipients
+        if identifier
+          response = get_response("/accounts/#{Hancock.account_id}/envelopes/#{identifier}/recipients").body
+          signers_array = JSON.parse(response)["signers"]
+
+          @recipients = []
+
+          signers_array.each do |signer|
+            recipient = Hancock::Recipient.new({ name: signer["name"], identifier: signer["recipientId"], 
+                                              email: signer["email"], routing_order: signer["routingOrder"].to_i}, false)
+            @recipients << recipient
+          end
+          @recipients
+        end
       end
 
       def send_envelope(status)

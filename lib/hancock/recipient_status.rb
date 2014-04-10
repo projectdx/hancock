@@ -1,24 +1,40 @@
 module Hancock
   class RecipientStatus
     def initialize(xml)
-
       @noko_doc = Nokogiri::XML.parse xml
-
     end
 
+    #
+    # An accessor for Nokogiri parser
+    #
+    def noko
+      @noko_doc
+    end
+
+    #
+    # Gives you a raw xml of Recipient data
+    #
     def to_raw
-      @noko_doc.to_s
+      noko.to_s
     end
 
+    #
+    # Returns a status of a Recipient
+    #
     def status
-      @noko_doc.xpath('//Status').text.to_s
+      noko.xpath('*/Status').text.to_s
     end
 
+    #
+    # Returns a Recipient Id
+    #
     def recipient_id
-      recipient_id = @noko_doc.xpath('//RecipientId').text.to_s
-      recipient_id
+      noko.xpath('//RecipientId').text.to_s
     end
 
+    #
+    # Returns a Recipient tabs statuses
+    #
     def tab_statuses
       # collection of tab statuses
     end
