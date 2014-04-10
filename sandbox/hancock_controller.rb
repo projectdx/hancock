@@ -1,10 +1,8 @@
 class HancockController < ApplicationController
-  #around_filter :global_request_logging
+  around_filter :global_request_logging
 
   require 'hancock'
   require 'nokogiri'
-  require 'active_support/core_ext/hash/conversions'
-
 
   def global_request_logging
     http_request_header_keys = request.headers.env.select{|header_name| header_name.match("^HTTP.*")}
@@ -21,19 +19,29 @@ class HancockController < ApplicationController
 
   def process_callback
 
-    #payload = File.open("callback.xml", "r")
+    # payload = File.open("callback.xml", "r")
     payload = request.raw_post
     @envelope_status = Hancock::EnvelopeStatus.new(payload)
 
-    status = @envelope_status.status # here we got a status balue of a received evelope
+    status = @envelope_status.status # here we got a status value of a received envelope
 
     recipient_statuses = @envelope_status.recipient_statuses # fetch a collection of recipient statuses
+
+    documents = @envelope_status.documents # fetch a collection of received documents
 
     logger.debug 'Recipient id:'
     logger.debug recipient_statuses.first.recipient_id
 
     logger.debug 'Recipient status:'
     logger.debug recipient_statuses.first.status
+
+    logger.debug 'Recipient document:'
+    logger.debug documents.first.to_request
+
+
+    #to ensure lazy initialization
+    recipient_statuses2 = @envelope_status.recipient_statuses
+    documents2 = @envelope_status.documents
 
     render :nothing => true
 
