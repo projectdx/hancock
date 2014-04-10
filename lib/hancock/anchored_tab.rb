@@ -8,8 +8,6 @@ module Hancock
     # page_number: default 1
     #
 
-    ATTRIBUTES = [:type, :label, :offset, :anchor_text, :page_number]
-
     attr_accessor :type, :label, :offset, :anchor_text, :page_number
 
     validates :type, :label, :offset, presence: true 
@@ -18,9 +16,12 @@ module Hancock
     validates :anchor_text, default: lambda{ |inst| inst.label }
 
     def initialize(attributes = {})
-      ATTRIBUTES.each do |attr|
-        self.send("#{attr}=", attributes[attr])
-      end
+      @type        = attributes[:type]
+      @label       = attributes[:label]
+      @offset      = attributes[:offset]
+      @anchor_text = attributes[:anchor_text]
+      @page_number = attributes[:page_number]
+
       self.validate!
     end
   end

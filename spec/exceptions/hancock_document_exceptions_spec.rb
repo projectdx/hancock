@@ -52,4 +52,13 @@ describe Hancock::Document do
     }
     lambda { Hancock::Document.new(params) }.should raise_error(Hancock::ArgumentError)
   end
+
+  it 'Should not run validations if appropriate param supplied' do
+    params = {
+      data: file,
+      name: 'test',
+      extension: 'pdf'
+    }
+    lambda { Hancock::Document.new(params, false) }.should_not raise_error()
+  end
 end
