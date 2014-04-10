@@ -2,6 +2,7 @@ require_relative 'hancock/configuration'
 
 unless defined?(Rails)
   require 'active_support/concern'
+  require 'active_support/inflector'
 end
 
 require 'hancock/validations'

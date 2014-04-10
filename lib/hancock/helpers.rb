@@ -48,13 +48,14 @@ module Hancock
       default.merge!(user_defined_headers) if user_defined_headers
     end
 
-    def get_recipients_for_request(signature_requests)
-      recipients =  {
-          signers: []
-        }
+    def get_recipients_for_request(signature_requests)      
+      recipients = { }
+
+      Hancock::Recipient::RECIPIENT_TYPES.each do |type|
+        recipients[docusign_recipient_type(type)] = []
+      end
 
       @signature_requests.each do |signature|
-        p signature
         doc_signer = {
           email: signature[:recipient].email,
           name: signature[:recipient].name,
@@ -67,9 +68,13 @@ module Hancock
           signHereTabs:    get_tabs( signature[:tabs], "sign_here" , signature[:document].identifier),
         }
 
-        recipients[:signers] << doc_signer
+        recipients[docusign_recipient_type(signature[:recipient].recipient_type)] << doc_signer
       end
       recipients
+    end
+
+    def docusign_recipient_type type
+      type.to_s.camelize(:lower).pluralize
     end
 
     def get_event_notification
