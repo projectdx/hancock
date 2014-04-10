@@ -44,4 +44,21 @@ describe Hancock::Helpers do
     response = get_response("/login_information")
     response.code.should == '200' 
   end
+
+  it "helper 'get_content_type_for' should return correct content type" do    
+    type = get_content_type_for(:json)
+    type.should == "Content-Type: application/json\r\nContent-Disposition: form-data\r\n\r\n"
+  end
+
+  it "helper 'get_content_type_for' with file parameter should return correct content type" do    
+    type = get_content_type_for(:pdf, document)
+    type.should == "Content-Type: application/pdf\r\nContent-Disposition: file; filename=test; documentid=123\r\n\r\n"
+  end
+
+  it "helper 'get_event_notification' should return correct hash" do    
+    hash = get_event_notification
+    hash[:url].should == Hancock.event_notification[:url]
+    hash[:loggingEnabled].should == Hancock.event_notification[:logging_enabled]
+    hash[:includeDocuments].should == Hancock.event_notification[:include_documents]
+  end
 end
