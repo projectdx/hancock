@@ -2,7 +2,7 @@ module Hancock
   module Configuration
 
     VALID_CONNECTION_KEYS  = [:endpoint, :api_version, :user_agent, :method].freeze
-    VALID_OPTIONS_KEYS     = [:access_token, :username, :password, :integrator_key, :account_id, :format, :ca_file, :email_template, :event_notification].freeze
+    VALID_OPTIONS_KEYS     = [:access_token, :username, :password, :integrator_key, :account_id, :format, :ca_file, :email_template, :event_notification, :boundary].freeze
 
     VALID_CONFIG_KEYS      = VALID_CONNECTION_KEYS + VALID_OPTIONS_KEYS
 
@@ -13,6 +13,7 @@ module Hancock
 
     DEFAULT_ACCESS_TOKEN   = nil
 
+    DEFAULT_BOUNDARY       = 'MYBOUNDARY'
     DEFAULT_USERNAME       = nil
     DEFAULT_PASSWORD       = nil
     DEFAULT_INTEGRATOR_KEY = nil
@@ -46,6 +47,7 @@ module Hancock
       self.ca_file            = DEFAULT_CA_FILE
       self.email_template     = DEFAULT_EMAIL_TEMPLATE
       self.event_notification = DEFAULT_EVENT_NOTIFICATION
+      self.boundary           = DEFAULT_BOUNDARY
     end
 
     def configure

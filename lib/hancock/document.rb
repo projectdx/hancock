@@ -19,7 +19,7 @@ module Hancock
 
 
     #
-    # skip validations if run_validations == false
+    # skip validations if 'run_validations' is false
     #
     def initialize(attributes = {}, run_validations = true) 
       @file       = attributes[:file] 

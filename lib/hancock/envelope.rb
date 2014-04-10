@@ -1,7 +1,5 @@
 module Hancock
   class Envelope < Hancock::Base
-    
-    BOUNDARY = 'AAA'
 
     attr_accessor :identifier, :status, :documents, :signature_requests, :email, :recipients
 
@@ -151,7 +149,7 @@ module Hancock
       def send_envelope(status)
         uri = build_uri("/accounts/#{Hancock.account_id}/envelopes")
         content_headers = { 
-          'Content-Type' => "multipart/form-data, boundary=#{BOUNDARY}" 
+          'Content-Type' => "multipart/form-data, boundary=#{Hancock.boundary}" 
         }
 
         response = send_post_request(uri, form_post_body(status), get_headers(content_headers))
@@ -164,21 +162,6 @@ module Hancock
           message = envelope_params["message"]
           raise Hancock::DocusignError.new(message) 
         end
-      end
-
-      def form_post_body(status)     
-        post_body =  "\r\n--#{BOUNDARY}\r\n"
-        post_body << get_content_type_for(:json)
-        post_body << get_post_params(status).to_json
-        post_body << "\r\n--#{BOUNDARY}\r\n"
-
-        @documents.each do |doc|
-          post_body << get_content_type_for(:pdf, doc)
-          post_body << doc.data_for_request
-          post_body << "\r\n"
-        end
-
-        post_body << "\r\n--#{BOUNDARY}--\r\n"
       end
 
       def get_post_params(status)
