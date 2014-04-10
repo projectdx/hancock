@@ -20,6 +20,7 @@ module Hancock
       ATTRIBUTES.each do |attr|
         self.send("#{attr}=", attributes[attr])
       end
+      p self
       self.validate!
     end
   end

@@ -28,7 +28,7 @@ module Hancock
       @documents << document
     end
 
-    def    (attributes={})
+    def add_signature_request(attributes={})
       @signature_requests << {
         recipient: attributes[:recipient],
         document: attributes[:document],
