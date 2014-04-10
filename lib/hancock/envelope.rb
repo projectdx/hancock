@@ -4,16 +4,16 @@ module Hancock
     attr_accessor :identifier, :status, :documents, :signature_requests, :email, :recipients
 
     def self.find(envelope_id)
-      uri = build_uri("/accounts/#{Hancock.account_id}/envelopes/#{envelope_id}")
-      content_headers = { 'Content-Type' => 'application/json' }
-
-      response = send_get_request(uri, get_headers(content_headers))
+      response = send_get_request("/accounts/#{Hancock.account_id}/envelopes/#{envelope_id}")
       envelope_params = JSON.parse(response.body)
 
       envelope = self.new(status: envelope_params["status"], identifier: envelope_params["envelopeId"])
       envelope.reload!
     end
 
+    #
+    # initializing of new instance of Envelope - can be without attributes
+    #
     def initialize(attributes = {})
       @identifier = attributes[:identifier]
       @status = attributes[:status]
@@ -37,17 +37,26 @@ module Hancock
       @recipients << attributes[:recipients] 
     end
 
+    #
+    # sends to DocuSign and sets status to "sent," which sends email
+    #
     def send!
       send_envelope("sent")      
     end
 
+    #
+    # sends to DocuSign but sets status to "created," which makes it a draft
+    #
     def save
       send_envelope("created")
     end
 
+    #
+    # reload information about envelope from DocuSign
+    #
     def reload!
       if identifier
-        response = JSON.parse(get_response("/accounts/#{Hancock.account_id}/envelopes/#{identifier}").body)
+        response = JSON.parse(send_get_request("/accounts/#{Hancock.account_id}/envelopes/#{identifier}").body)
         @status = response["status"]
         @email = {subject: response["emailSubject"], blurb: response["emailBlurb"]}
         get_documents
@@ -116,11 +125,11 @@ module Hancock
       def get_documents
         if identifier
           @documents = []
-          response = get_response("/accounts/#{Hancock.account_id}/envelopes/#{identifier}/documents").body
+          response = send_get_request("/accounts/#{Hancock.account_id}/envelopes/#{identifier}/documents").body
           doc_array = JSON.parse(response)["envelopeDocuments"]
 
           doc_array.each do |doc|
-            response_data = get_response("/accounts/#{Hancock.account_id}/envelopes/#{identifier}/documents/#{doc["documentId"]}").body
+            response_data = send_get_request("/accounts/#{Hancock.account_id}/envelopes/#{identifier}/documents/#{doc["documentId"]}").body
 
             document = Hancock::Document.new(identifier: doc["documentId"], name: doc["name"], extension: "pdf", data: response_data)
             
@@ -132,7 +141,7 @@ module Hancock
 
       def get_recipients
         if identifier
-          response = JSON.parse(get_response("/accounts/#{Hancock.account_id}/envelopes/#{identifier}/recipients").body)
+          response = JSON.parse(send_get_request("/accounts/#{Hancock.account_id}/envelopes/#{identifier}/recipients").body)
           @recipients = []
 
           Hancock::Recipient::RECIPIENT_TYPES.each do |type|
