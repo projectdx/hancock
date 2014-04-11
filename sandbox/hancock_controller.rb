@@ -1,5 +1,5 @@
 class HancockController < ApplicationController
-  around_filter :global_request_logging
+  #around_filter :global_request_logging
 
   require 'hancock'
   require 'nokogiri'
@@ -43,7 +43,13 @@ class HancockController < ApplicationController
     recipient_statuses2 = @envelope_status.recipient_statuses
     documents2 = @envelope_status.documents
 
-    render :nothing => true
+    response = {
+        status: status,
+        recipient_statuses: recipient_statuses,
+        documents: documents
+    }
+
+    render :json => response
 
   end
 
