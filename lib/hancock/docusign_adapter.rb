@@ -1,12 +1,14 @@
 module Hancock
   class DocuSignAdapter < Hancock::Base
+    
     attr_accessor :envelope_id
+    
     def initialize(envelope_id=nil)
       @envelope_id = envelope_id
     end
 
     #
-    # The response returns the current envelope status
+    # The response returns the current envelope info
     #
     def envelope
       JSON.parse(send_get_request("/accounts/#{Hancock.account_id}/envelopes/#{envelope_id}").body)
