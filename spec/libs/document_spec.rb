@@ -3,6 +3,11 @@ require_relative '../spec_helper'
 describe Hancock::Document do
   include_context "configs"
   include_context "variables"
+  
+  before do
+    envelope.add_document(document)
+    envelope.add_signature_request({ recipient: recipient, document: document, tabs: [tab] })
+  end
 
   describe 'Default values' do
     it 'Should generate name if file given' do 
@@ -18,6 +23,15 @@ describe Hancock::Document do
        }
        Hancock::Document.new(params).extension.should_not be(nil)
     end
+  end
+
+  it 'Should reload documents' do
+    envelope.save
+    documents = envelope.documents
+    envelope.add_document(document2)
+    envelope.save
+
+    documents.size.should_not eq( Hancock::Document.reload!(envelope).size )
   end
 
 end
