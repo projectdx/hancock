@@ -39,5 +39,16 @@ module Hancock
       file.nil? ? data : IO.read(file)      
     end
 
+    def self.reload!(envelope)
+      documents_array = []
+
+      connection = Hancock::DocuSignAdapter.new(envelope.identifier)
+      connection.documents.map do |document|
+        document_data = connection.document(document["documentId"])
+        documents_array << new(identifier: document["documentId"], name: document["name"], extension: "pdf", data: document_data)
+      end
+      documents_array
+    end
+
   end
 end

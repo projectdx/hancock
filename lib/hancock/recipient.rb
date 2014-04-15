@@ -31,5 +31,19 @@ module Hancock
 
       self.validate! if run_validations
     end
+
+    def self.reload!(envelope)
+      recipient_array = []
+      connection = Hancock::DocuSignAdapter.new(envelope.identifier)
+      recipients = connection.recipients
+
+      Hancock::Recipient::RECIPIENT_TYPES.each do |type|
+        recipients[docusign_recipient_type(type)].each do |r|
+          recipient_array << new({ name: r["name"], identifier: r["recipientId"], recipient_type: type,
+                                            email: r["email"], routing_order: r["routingOrder"].to_i})
+        end
+      end
+      recipient_array
+    end
   end
 end

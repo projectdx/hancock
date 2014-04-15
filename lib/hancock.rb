@@ -16,6 +16,7 @@ require 'openssl'
 require 'json'
 
 require 'hancock/base'
+require 'hancock/docusign_adapter'
 require 'hancock/version'
 require 'hancock/exceptions'
 require 'hancock/envelope'

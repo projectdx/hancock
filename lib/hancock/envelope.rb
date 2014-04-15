@@ -4,8 +4,8 @@ module Hancock
     attr_accessor :identifier, :status, :documents, :signature_requests, :email, :recipients
 
     def self.find(envelope_id)
-      response = send_get_request("/accounts/#{Hancock.account_id}/envelopes/#{envelope_id}")
-      envelope_params = JSON.parse(response.body)
+      connection = Hancock::DocuSignAdapter.new(envelope_id)
+      envelope_params = connection.envelope
 
       envelope = self.new(status: envelope_params["status"], identifier: envelope_params["envelopeId"])
       envelope.reload!
@@ -56,11 +56,12 @@ module Hancock
     #
     def reload!
       if identifier
-        response = JSON.parse(send_get_request("/accounts/#{Hancock.account_id}/envelopes/#{identifier}").body)
+        response = Hancock::DocuSignAdapter.new(identifier).envelope
+
         @status = response["status"]
         @email = {subject: response["emailSubject"], blurb: response["emailBlurb"]}
-        get_documents
-        get_recipients
+        @documents = Document.reload!(self)
+        @recipients = Recipient.reload!(self)
       end
       self
     end
@@ -122,39 +123,6 @@ module Hancock
     # #
     
     private
-      def get_documents
-        if identifier
-          @documents = []
-          response = send_get_request("/accounts/#{Hancock.account_id}/envelopes/#{identifier}/documents").body
-          doc_array = JSON.parse(response)["envelopeDocuments"]
-
-          doc_array.each do |doc|
-            response_data = send_get_request("/accounts/#{Hancock.account_id}/envelopes/#{identifier}/documents/#{doc["documentId"]}").body
-
-            document = Hancock::Document.new(identifier: doc["documentId"], name: doc["name"], extension: "pdf", data: response_data)
-            
-            add_document(document) 
-          end
-        end
-        @documents
-      end
-
-      def get_recipients
-        if identifier
-          response = JSON.parse(send_get_request("/accounts/#{Hancock.account_id}/envelopes/#{identifier}/recipients").body)
-          @recipients = []
-
-          Hancock::Recipient::RECIPIENT_TYPES.each do |type|
-            response[docusign_recipient_type(type)].each do |r|
-              recipient = Hancock::Recipient.new({ name: r["name"], identifier: r["recipientId"], recipient_type: type,
-                                                email: r["email"], routing_order: r["routingOrder"].to_i})
-              @recipients << recipient
-            end
-          end
-          @recipients
-        end
-      end
-
       def send_envelope(status)
         uri = build_uri("/accounts/#{Hancock.account_id}/envelopes")
         content_headers = { 
