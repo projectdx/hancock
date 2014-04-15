@@ -12,15 +12,13 @@ module Hancock
 
     validates :type, :label, :offset, presence: true 
     validates :offset, type: :array
-    validates :page_number, default: 1
-    validates :anchor_text, default: lambda{ |inst| inst.label }
 
     def initialize(attributes = {})
       @type        = attributes[:type]
       @label       = attributes[:label]
       @offset      = attributes[:offset]
-      @anchor_text = attributes[:anchor_text]
-      @page_number = attributes[:page_number]
+      @anchor_text = attributes[:anchor_text] || @label
+      @page_number = attributes[:page_number] || 1
 
       self.validate!
     end

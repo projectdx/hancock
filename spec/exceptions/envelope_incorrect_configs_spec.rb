@@ -12,7 +12,7 @@ describe Hancock::Envelope do
       tabs:      [tab] 
     })
 
-    lambda { envelope.save }.should raise_error( Hancock::DocusignError )
+    expect { envelope.save }.to raise_error( Hancock::DocusignError )
   end
 
   it "helper 'send_post_request' should return response code 401(Unauthorized)" do 

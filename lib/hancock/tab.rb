@@ -12,13 +12,12 @@ module Hancock
 
     validates :type, :label, presence: true 
     validates :coordinates, type: :array, presence: true 
-    validates :page_number, default: 1
 
     def initialize(attributes = {})
       @type        = attributes[:type] 
       @label       = attributes[:label]
       @coordinates = attributes[:coordinates]
-      @page_number = attributes[:page_number]
+      @page_number = attributes[:page_number] || 1
 
       self.validate!
     end

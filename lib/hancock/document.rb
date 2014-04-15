@@ -11,9 +11,7 @@ module Hancock
 
     attr_accessor :file, :data, :name, :extension, :identifier
 
-    validates :identifier, default: lambda{ |inst| inst.generate_identifier }
-    validates :name, default: lambda{ |inst| File.basename(inst.file, '.*') if inst.file}, presence: true
-    validates :extension, default: lambda{ |inst| File.basename(inst.file).split('.').last if inst.file}, presence: true
+    validates :name, :extension, presence: true
     validates :file, type: :file, allow_nil: true
     validates :data, type: :string, presence: lambda{ |inst| !inst.file }
 
@@ -24,9 +22,9 @@ module Hancock
     def initialize(attributes = {}, run_validations = true) 
       @file       = attributes[:file] 
       @data       = attributes[:data]
-      @name       = attributes[:name]
-      @extension  = attributes[:extension]
-      @identifier = attributes[:identifier]
+      @name       = attributes[:name]       || generate_name()
+      @extension  = attributes[:extension]  || generate_extension()
+      @identifier = attributes[:identifier] || generate_identifier()
 
       self.validate! if run_validations
     end
@@ -38,6 +36,15 @@ module Hancock
     def data_for_request
       file.nil? ? data : IO.read(file)      
     end
+
+    private
+      def generate_name
+        File.basename(@file, '.*') if @file
+      end
+
+      def generate_extension
+        File.basename(@file).split('.').last if @file
+      end
 
   end
 end

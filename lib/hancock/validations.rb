@@ -88,9 +88,5 @@ module Hancock
       end
     end
 
-    def validate_default! attr_name, attr_val, options
-      self.send( "#{attr_name}=", options[:default] ) unless attr_val
-    end
-
   end
 end
