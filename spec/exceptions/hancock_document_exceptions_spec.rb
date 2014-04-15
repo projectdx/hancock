@@ -5,11 +5,11 @@ describe Hancock::Document do
   include_context "variables"
 
   it 'Is valid when file supplied' do
-     lambda { Hancock::Document.new({file: file}) }.should_not raise_error()
+    expect { Hancock::Document.new({file: file}) }.to_not raise_error()
   end
 
   it 'Is valid when: file, name, extension, identifier supplied' do 
-    lambda { Hancock::Document.new( file: doc, name: "test", extension: "pdf", identifier: 123 )}.should_not raise_error()
+    expect { Hancock::Document.new( file: doc, name: "test", extension: "pdf", identifier: 123 )}.to_not raise_error()
   end
 
   it 'Is valid when data, name, extension supplied' do 
@@ -18,7 +18,7 @@ describe Hancock::Document do
       name: 'test',
       extension: 'pdf'
     }
-   lambda { Hancock::Document.new(params) }.should_not raise_error()
+   expect { Hancock::Document.new(params) }.to_not raise_error()
   end
 
   it 'data required if no file, invalid if file' do 
@@ -28,13 +28,13 @@ describe Hancock::Document do
       name: 'test',
       extension: 'pdf'
     }
-   lambda { Hancock::Document.new(params) }.should raise_error(Hancock::ArgumentError)
+   expect { Hancock::Document.new(params) }.to raise_error(Hancock::ArgumentError)
 
     params = {
       name: 'test',
       extension: 'pdf'
     }
-    lambda { Hancock::Document.new(params) }.should raise_error(Hancock::ArgumentError)
+    expect { Hancock::Document.new(params) }.to raise_error(Hancock::ArgumentError)
   end
 
   it 'data should not be file' do 
@@ -43,14 +43,14 @@ describe Hancock::Document do
       name: 'test',
       extension: 'pdf'
     }
-    lambda { Hancock::Document.new(params) }.should raise_error(Hancock::ArgumentError)
+    expect { Hancock::Document.new(params) }.to raise_error(Hancock::ArgumentError)
   end
 
   it 'name, extension must be optional if file' do
     params = {
       data: 'string'
     }
-    lambda { Hancock::Document.new(params) }.should raise_error(Hancock::ArgumentError)
+    expect { Hancock::Document.new(params) }.to raise_error(Hancock::ArgumentError)
   end
 
   it 'Should not run validations if appropriate param supplied' do
@@ -59,6 +59,6 @@ describe Hancock::Document do
       name: 'test',
       extension: 'pdf'
     }
-    lambda { Hancock::Document.new(params, false) }.should_not raise_error()
+    expect { Hancock::Document.new(params, false) }.to_not raise_error()
   end
 end

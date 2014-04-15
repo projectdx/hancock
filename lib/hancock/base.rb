@@ -12,8 +12,9 @@ module Hancock
       end
     end
 
-    def generate_identifier
-      Random.rand(1..1234)
-    end
+    private
+      def generate_identifier
+        Random.rand(1..1234)
+      end
   end
 end

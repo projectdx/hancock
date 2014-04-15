@@ -7,17 +7,17 @@ describe Hancock::AnchoredTab do
     params = {
       offset: [2, 4]
     }
-    lambda { Hancock::AnchoredTab.new(params) }.should raise_error(Hancock::ArgumentError)
+    expect { Hancock::AnchoredTab.new(params) }.to raise_error(Hancock::ArgumentError)
     params = {
       type:   'type',
       offset: [2, 4]
     }
-    lambda { Hancock::AnchoredTab.new(params) }.should raise_error(Hancock::ArgumentError)
+    expect { Hancock::AnchoredTab.new(params) }.to raise_error(Hancock::ArgumentError)
     params = {
       type:   'type',
       offset: [2, 4]
     }
-    lambda { Hancock::AnchoredTab.new(params) }.should raise_error(Hancock::ArgumentError)
+    expect { Hancock::AnchoredTab.new(params) }.to raise_error(Hancock::ArgumentError)
   end
 
   it 'should not raise an exception if valid params given' do 
@@ -26,7 +26,7 @@ describe Hancock::AnchoredTab do
       type:   'type',
       offset: [2, 1234]
     }
-    lambda { Hancock::AnchoredTab.new(params) }.should_not raise_error()
+    expect { Hancock::AnchoredTab.new(params) }.to_not raise_error()
   end
 
   it 'page_number should have default value of 1 it not supplied' do 
