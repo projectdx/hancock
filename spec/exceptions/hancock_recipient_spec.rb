@@ -12,14 +12,14 @@ describe Hancock::Recipient do
       routing_order:   1, 
       identifier:      1234
      }
-     lambda { Hancock::Recipient.new(params) }.should_not raise_error()
+     expect { Hancock::Recipient.new(params) }.to_not raise_error()
 
      params = {
       name:            'name',
       email:           'email',
       delivery_method: :email
      }
-     lambda { Hancock::Recipient.new(params) }.should_not raise_error()
+     expect { Hancock::Recipient.new(params) }.to_not raise_error()
   end
 
   it 'should raise if delivery_method is not inclusion of [:email, :embedded, :offline, :paper]' do 
@@ -29,7 +29,7 @@ describe Hancock::Recipient do
       routing_order:   1,
       delivery_method: :unvalid
      }
-     lambda { Hancock::Recipient.new(params) }.should raise_error(Hancock::ArgumentError)
+     expect { Hancock::Recipient.new(params) }.to raise_error(Hancock::ArgumentError)
   end
 
   it 'Should not run validations if appropriate param supplied' do
@@ -39,7 +39,7 @@ describe Hancock::Recipient do
       id_check:        true,
       #delivery_method: :email, This is a required param
      }
-     lambda{ Hancock::Recipient.new(params, false) }.should_not raise_error()
+    expect { Hancock::Recipient.new(params, false) }.to_not raise_error()
   end
 
 end
