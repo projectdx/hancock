@@ -25,6 +25,7 @@ class String
 end
 
 require 'hancock'
+require 'nokogiri'
 require_relative 'support/configs'
 require_relative 'support/incorrect_configs'
 require_relative 'support/variables'
