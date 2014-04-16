@@ -32,12 +32,10 @@ describe Hancock::Recipient do
     end
 
     it 'Should reload recipients' do
-      envelope.save
-      recipients = envelope.recipients
       envelope.add_signature_request({ recipient: recipient2, document: document, tabs: [tab] })
       envelope.save
 
-      recipients.size.should_not eq( Hancock::Recipient.reload!(envelope).size )
+      Hancock::Recipient.reload!(envelope).size.should == 2
     end
   end
   
