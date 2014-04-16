@@ -26,14 +26,10 @@ module Hancock
       end
     end
 
-    #
-    # We are passing a copy of conditions here
-    # condition.clone 
-    #
     def validate!
       self.class.validations.each do |validation|
         options    = get_options(validation)
-        condition  = get_conditions(options)
+        condition  = build_condition(options)
         validation.select{ |i| i.is_a? Symbol }.each do |atr|
           validate_attribute!( atr, options ) if condition
         end
@@ -42,12 +38,7 @@ module Hancock
 
     private
 
-      #
-      # We need conditions hash to be sorted, so defaults run
-      # before presence validations. 
-      # options.sort => will return array like [[:key, :val],...]
-      #
-      def validate_attribute! attr_name, options={}
+      def validate_attribute!(attr_name, options={})
         attr_value = self.send(attr_name)
         return if attr_value.nil? && options[:allow_nil]
 
@@ -65,39 +56,41 @@ module Hancock
       #
       # Can validate strict presence and strict absence.
       #
-      def validate_presence! attr_name, attr_val, presence
-        if attr_val.blank? && presence
-          message = "Invalid argument '#{attr_name}'. '#{attr_name}' is required"
-          raise Hancock::ArgumentError.new(message)
+      def validate_presence!(attr_name, attr_val, presence)
+        message = if attr_val.blank? && presence
+          "Invalid argument '#{attr_name}'. '#{attr_name}' is required"
         elsif !attr_val.blank? && !presence
-          message = "Invalid argument '#{attr_name}'. '#{attr_name}' is not required"
-          raise Hancock::ArgumentError.new(message)
+          "Invalid argument '#{attr_name}'. '#{attr_name}' is not required"
         end
+
+        raise_error(message) if message
       end
 
       #
       # We will ignore nil
       # return if options[:presence] == false
       #
-      def validate_type! attr_name, attr_val, type
+      def validate_type!(attr_name, attr_val, type)
         if ![ type ].flatten.include?( attr_val.class.to_s.to_sym.downcase )
-          message = "Invalid argument '#{attr_name}'. Exspected #{ type }, got #{attr_val.class}"
-          raise Hancock::ArgumentError.new(message)
+          raise_error("Invalid argument '#{attr_name}'. Exspected #{ type }, got #{attr_val.class}")
         end
       end
 
-      def validate_inclusion_of! attr_name, attr_val, inclusion_of
+      def validate_inclusion_of!(attr_name, attr_val, inclusion_of)
         unless inclusion_of.include?( attr_val )
-          message = "Invalid argument '#{attr_name}'. Exspected #{ inclusion_of }, got #{attr_val}"
-          raise Hancock::ArgumentError.new(message)
+          raise_error("Invalid argument '#{attr_name}'. Exspected #{ inclusion_of }, got #{attr_val}")
         end
       end
 
-      def get_options options={}
+      #
+      # We are passing a copy of conditions here
+      # condition.clone 
+      #
+      def get_options(options={})
         options.select { |i| i.is_a? Hash }.inject({}) { |i, res| res.merge!(i) }.clone
       end
 
-      def get_conditions options={}
+      def build_condition(options={})
         if options.has_key?(:if)
           !self.send( options[:if] ).nil?
         elsif options.has_key?(:unless)
@@ -105,6 +98,10 @@ module Hancock
         else
           true
         end
+      end
+
+      def raise_error(message)
+        raise Hancock::ArgumentError.new(message)
       end
 
   end
