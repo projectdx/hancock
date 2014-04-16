@@ -5,9 +5,7 @@ shared_context "variables" do
   let(:doc2) { File.open("#{SPEC_ROOT}/fixtures/test2.pdf") }
 
   let(:document) { Hancock::Document.new( file: doc, name: "test", extension: "pdf", identifier: 123 ) }
-  let(:document2) { Hancock::Document.new( file: doc2, name: "test2", extension: "pdf", identifier: 1234 ) }
 
-  
   let(:recipient) { Hancock::Recipient.new({identifier: 222, name: "Owner", email: "kolya.bokhonko@gmail.com", routing_order: 1, delivery_method: :email, recipient_type: :signer}) }
   let(:recipient2) { Hancock::Recipient.new({identifier: 2222, name: "Owner2", email: "kolya2.bokhonko@gmail.com", routing_order: 1, delivery_method: :email, recipient_type: :signer}) }
   

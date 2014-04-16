@@ -1,4 +1,4 @@
-
+# encoding: UTF-8
 #
 # For some reason .blank? isn't working here
 # This is an issue for rspec only

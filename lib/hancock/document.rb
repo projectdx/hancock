@@ -12,8 +12,9 @@ module Hancock
     attr_accessor :file, :data, :name, :extension, :identifier
 
     validates :name, :extension, presence: true
-    validates :file, type: :file, allow_nil: true
-    validates :data, type: :string, presence: lambda{ |inst| !inst.file }
+    validates :file, type: :file, allow_nil: true, if: :data
+    validates :data, type: :string, presence: true, unless: :file
+    validates :data, presence: false, if: :file
 
 
     #

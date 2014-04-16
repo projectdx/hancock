@@ -27,11 +27,9 @@ describe Hancock::Document do
 
   it 'Should reload documents' do
     envelope.save
-    documents = envelope.documents
-    envelope.add_document(document2)
-    envelope.save
-
-    documents.size.should_not eq( Hancock::Document.reload!(envelope).size )
+    Hancock::Document.reload!(envelope).each do |document|
+      document.data.should_not eq( nil )
+    end
   end
 
 end
