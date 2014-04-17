@@ -148,7 +148,6 @@ module Hancock
           status: "#{status}",
           documents: @documents.map{|d| d.to_request},
           recipients: get_recipients_for_request(@signature_requests),
-          eventNotification: get_event_notification
         }
       end      
   end
