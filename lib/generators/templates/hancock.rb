@@ -11,8 +11,8 @@ Hancock.configure do |config|
   config.event_notification = {
     :connect_name => "EventNotification", #to identify connect configuration for notification
     :logging_enabled => true,
-    :uri => 'https://de45db.ngrok.com/notification', #your callback url
-    :include_document => true,
+    :uri => 'https://605d992.ngrok.com/notifications',
+    :include_documents => true,
   }
   
   config.email_template = {
