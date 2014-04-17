@@ -1,6 +1,8 @@
 module Hancock
   module Configuration
 
+    include Hancock::Helpers
+
     VALID_CONNECTION_KEYS  = [:endpoint, :api_version, :user_agent, :method].freeze
     VALID_OPTIONS_KEYS     = [:access_token, :username, :password, :integrator_key, :account_id, :format, :ca_file, :email_template, :event_notification, :boundary].freeze
 
@@ -52,6 +54,36 @@ module Hancock
 
     def configure
       yield self
+      set_connect
+    end
+
+    #
+    #  set up and configure a DocuSign Custom Connect definition for your account
+    #
+    def set_connect
+      uri = build_uri("/accounts/#{Hancock.account_id}/connect")
+
+      configurations = JSON.parse(send_get_request("/accounts/#{Hancock.account_id}/connect").body)["configurations"]
+      connect_configuration = configurations.find{|k| k["name"] == Hancock.event_notification[:connect_name]}
+
+      content_headers = { 'Content-Type' => 'application/json' }
+      post_body = {
+        allUsers: true,
+        urlToPublishTo: Hancock.event_notification[:uri],
+        enableLog: Hancock.event_notification[:logging_enabled],
+        includeDocuments: Hancock.event_notification[:include_documents],
+        useSoapInterface: "false",
+        name: Hancock.event_notification[:connect_name],
+        envelopeEvents: "Delivered, Sent, Completed",
+        recipientEvents: "Delivered, Sent, Completed"
+      }
+
+      if connect_configuration
+        post_body.merge!({connectId: connect_configuration["connectId"]}) 
+        send_put_request(uri, post_body.to_json, get_headers(content_headers))
+      else
+        send_post_request(uri, post_body.to_json, get_headers(content_headers))
+      end
     end
 
     def options

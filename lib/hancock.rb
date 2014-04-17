@@ -1,3 +1,4 @@
+require 'hancock/helpers'
 require_relative 'hancock/configuration'
 
 unless defined?(Rails)
@@ -6,7 +7,6 @@ unless defined?(Rails)
 end
 
 require 'hancock/validations'
-require 'hancock/helpers'
 
 require 'openssl'
 require 'nokogiri'
