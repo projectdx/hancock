@@ -14,6 +14,17 @@ module Hancock
     end
 
     #
+    # send put request to set url
+    #
+    def send_put_request(uri, body_post, headers)
+      http = initialize_http(uri)
+
+      request = Net::HTTP::Put.new(uri.request_uri, headers)
+      request.body = body_post
+      http.request(request) # return response
+    end
+
+    #
     # send get request to set url
     #
     def send_get_request(url)
@@ -92,29 +103,6 @@ module Hancock
     def docusign_recipient_type(type)
       type.to_s.camelize(:lower).pluralize
     end
-
-    # #
-    # # get params for event notification from Hancock.config
-    # #
-    # def get_event_notification
-    #   {
-    #     url: Hancock.event_notification[:url],
-    #     loggingEnabled: Hancock.event_notification[:logging_enabled],
-    #     includeDocuments: Hancock.event_notification[:include_documents],
-    #     useSoapInterface: "false",
-    #     # @todo move out a definition of following events
-    #     envelopeEvents: [
-    #         {envelopeEventStatusCode: "Delivered", includeDocuments: "true"},
-    #         {envelopeEventStatusCode: "Sent", includeDocuments: "true"},
-    #         {envelopeEventStatusCode: "Completed", includeDocuments: "true"}
-    #     ],
-    #     recipientEvents: [
-    #         {recipientEventStatusCode: "delivered", includeDocuments: "true"},
-    #         {recipientEventStatusCode: "sent", includeDocuments: "true"},
-    #         {recipientEventStatusCode: "completed", includeDocuments: "true"},
-    #     ]
-    #   }
-    # end
 
     def get_content_type_for(format, document = {})
       case format
