@@ -2,8 +2,6 @@ shared_context "variables" do
   let(:envelope) { Hancock::Envelope.new }
 
   let(:doc) { File.open("#{SPEC_ROOT}/fixtures/test.pdf") }
-  let(:doc2) { File.open("#{SPEC_ROOT}/fixtures/test2.pdf") }
-
   let(:document) { Hancock::Document.new( file: doc, name: "test", extension: "pdf", identifier: 123 ) }
 
   let(:recipient) { Hancock::Recipient.new({identifier: 222, name: "Owner", email: "kolya.bokhonko@gmail.com", routing_order: 1, delivery_method: :email, recipient_type: :signer}) }
@@ -22,5 +20,4 @@ shared_context "variables" do
       } }
 
   let(:callback_xml) { File.open("#{SPEC_ROOT}/fixtures/callback.xml", "rb").read }
-
 end
