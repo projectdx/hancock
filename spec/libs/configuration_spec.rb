@@ -1,29 +1,10 @@
 require_relative '../spec_helper'
+include Hancock::Helpers
 
 describe Hancock::Configuration do
+  include_context "variables"
 
-  let(:def_mock) do
-    {
-      :username       => 'hancock.docusign.test@gmail.com',
-      :password       => 'qweqwe123123',
-      :integrator_key => 'XXXX-72b4a74c-e8a2-4d59-82bf-c28219bf5ebb',
-      :account_id     => '482411',
-      :endpoint       => 'https://demo.docusign.net/restapi',
-      :api_version    => 'v2',
-      :event_notification => {
-        :connect_name => "EventNotification", #to identify connect configuration for notification
-        :logging_enabled => true,
-        :uri => 'https://qwerqwer.com/notifications',
-        :include_documents => true,
-      },
-      :email_template => {
-        :subject => 'subject from configuration',
-        :blurb => 'blurb from configuration '
-      }
-    }
-  end
-
-  before(:all) do 
+  before do 
     Hancock.configure do |config|
       config.username           = def_mock[:username]
       config.password           = def_mock[:password]
@@ -68,6 +49,42 @@ describe Hancock::Configuration do
 
     it 'should change default email_template' do
       Hancock.email_template.should eq(def_mock[:email_template])
+    end
+
+  end
+
+  describe "It should create and update configurations with 'set_connect' method" do
+
+    it "action 'set_connect' should update connect configuration" do
+      response = JSON.parse(Hancock.set_connect.body)
+
+      response["name"].should == Hancock.event_notification[:connect_name]
+      response["urlToPublishTo"].should == Hancock.event_notification[:uri]
+      response["includeDocuments"].should == Hancock.event_notification[:include_documents].to_s
+    end
+
+    it "action 'set_connect' should create connect configuration" do
+      configs = JSON.parse(send_get_request("/accounts/#{Hancock.account_id}/connect").body)["configurations"]
+      connect_configuration = configs.find{|k| k["name"] == Hancock.event_notification[:connect_name]} if configs
+
+      if connect_configuration
+        uri = build_uri("/accounts/#{Hancock.account_id}/connect/#{connect_configuration["connectId"]}")
+        http = initialize_http(uri)
+
+        content_headers = { 'Content-Type' => 'application/json' }
+
+        request = Net::HTTP::Delete.new(uri.request_uri, get_headers(content_headers))
+        http.request(request).code.should == "200"
+      end
+
+      configs = JSON.parse(send_get_request("/accounts/#{Hancock.account_id}/connect").body)["configurations"]
+      configs.find{|k| k["name"] == Hancock.event_notification[:connect_name]}.should == nil
+      
+      response = JSON.parse(Hancock.set_connect.body)
+
+      response["name"].should == Hancock.event_notification[:connect_name]
+      response["urlToPublishTo"].should == Hancock.event_notification[:uri]
+      response["includeDocuments"].should == Hancock.event_notification[:include_documents].to_s
     end
 
   end
