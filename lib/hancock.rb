@@ -5,6 +5,9 @@ end
 require 'hancock/helpers'
 require_relative 'hancock/configuration'
 
+require 'hancock/helpers'
+require_relative 'hancock/configuration'
+
 require 'hancock/validations'
 
 require 'openssl'
