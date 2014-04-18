@@ -11,18 +11,18 @@ module CustomBlank
 end
 class Array
   def blank?
-    self == []
+    self == [] || self == nil
   end
 end
-class NilClass
-  include CustomBlank
+class Symbol
+  def blank?
+    self == nil
+  end
 end
-class File
-  include CustomBlank
-end
-class String
-  include CustomBlank
-end
+class NilClass; include CustomBlank; end
+class File; include CustomBlank; end
+class String; include CustomBlank; end
+
 
 require 'hancock'
 require 'nokogiri'
