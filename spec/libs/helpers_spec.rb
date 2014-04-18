@@ -11,14 +11,11 @@ describe Hancock::Helpers do
   end
 
   it "helper 'send_post_request' should return response code 201(Created)" do 
-    uri = build_uri("/accounts/#{Hancock.account_id}/views/console")
-    response = send_post_request(uri, "", header)
+    response = send_post_request("/accounts/#{Hancock.account_id}/views/console", "", header)
     response.code.should == '201' 
   end
 
   it "helper 'send_put_request' should return response code 200(OK)" do 
-    uri = build_uri("/accounts/#{Hancock.account_id}/settings")
-    
     put_body = {
       accountSettings: [{
         name: "allowSignerReassign",
@@ -28,7 +25,7 @@ describe Hancock::Helpers do
 
     content_headers = { 'Content-Type' => 'application/json' }
 
-    response = send_put_request(uri, put_body, get_headers(content_headers))
+    response = send_put_request("/accounts/#{Hancock.account_id}/settings", put_body, get_headers(content_headers))
     response.code.should == '200' 
   end
 

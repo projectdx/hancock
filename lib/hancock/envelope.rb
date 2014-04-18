@@ -124,12 +124,11 @@ module Hancock
     
     private
       def send_envelope(status)
-        uri = build_uri("/accounts/#{Hancock.account_id}/envelopes")
         content_headers = { 
           'Content-Type' => "multipart/form-data, boundary=#{Hancock.boundary}" 
         }
 
-        response = send_post_request(uri, form_post_body(status), get_headers(content_headers))
+        response = send_post_request("/accounts/#{Hancock.account_id}/envelopes", form_post_body(status), get_headers(content_headers))
         envelope_params = JSON.parse(response.body)
 
         if response.is_a? Net::HTTPSuccess

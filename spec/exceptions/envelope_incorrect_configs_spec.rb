@@ -16,8 +16,7 @@ describe Hancock::Envelope do
   end
 
   it "helper 'send_post_request' should return response code 401(Unauthorized)" do 
-    uri = build_uri("/accounts/#{Hancock.account_id}/views/console")
-    response = send_post_request(uri, "", header)
+    response = send_post_request("/accounts/#{Hancock.account_id}/views/console", "", header)
     response.code.should == '401' 
   end
 
