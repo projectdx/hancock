@@ -5,7 +5,8 @@ module Hancock
     #
     # send post request to set uri with post body and headers
     #
-    def send_post_request(uri, body_post, headers)
+    def send_post_request(url, body_post, headers)
+      uri = build_uri(url)
       http = initialize_http(uri)
 
       request = Net::HTTP::Post.new(uri.request_uri, headers)
@@ -16,7 +17,8 @@ module Hancock
     #
     # send put request to set url
     #
-    def send_put_request(uri, body_post, headers)
+    def send_put_request(url, body_post, headers)
+      uri = build_uri(url)
       http = initialize_http(uri)
 
       request = Net::HTTP::Put.new(uri.request_uri, headers)

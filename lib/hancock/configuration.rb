@@ -61,9 +61,9 @@ module Hancock
     #  set up and configure a DocuSign Custom Connect definition for your account
     #
     def set_connect
-      uri = build_uri("/accounts/#{Hancock.account_id}/connect")
+      url = "/accounts/#{Hancock.account_id}/connect"
 
-      configurations = JSON.parse(send_get_request("/accounts/#{Hancock.account_id}/connect").body)["configurations"]
+      configurations = JSON.parse(send_get_request(url).body)["configurations"]
       connect_configuration = configurations.find{|k| k["name"] == Hancock.event_notification[:connect_name]} if configurations
 
       content_headers = { 'Content-Type' => 'application/json' }
@@ -80,9 +80,9 @@ module Hancock
 
       if connect_configuration
         post_body.merge!({connectId: connect_configuration["connectId"]}) 
-        send_put_request(uri, post_body.to_json, get_headers(content_headers))
+        send_put_request(url, post_body.to_json, get_headers(content_headers))
       else
-        send_post_request(uri, post_body.to_json, get_headers(content_headers))
+        send_post_request(url, post_body.to_json, get_headers(content_headers))
       end
     end
 

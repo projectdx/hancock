@@ -15,14 +15,14 @@ module Hancock
     end
 
     #
-    # This retrieves the specified document from the envelope
+    # This returns a list of documents associated with the specified envelope
     #
     def documents
       JSON.parse(send_get_request("/accounts/#{Hancock.account_id}/envelopes/#{envelope_id}/documents").body)["envelopeDocuments"]
     end
 
     #
-    # This returns a list of documents associated with the specified envelope
+    # This retrieves the specified document from the envelope
     #
     def document(document_id)
       send_get_request("/accounts/#{Hancock.account_id}/envelopes/#{envelope_id}/documents/#{document_id}").body
