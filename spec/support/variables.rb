@@ -20,4 +20,25 @@ shared_context "variables" do
       } }
 
   let(:callback_xml) { File.open("#{SPEC_ROOT}/fixtures/callback.xml", "rb").read }
+
+  let(:def_mock) do
+    {
+      :username       => ***REMOVED***,
+      :password       => ***REMOVED***,
+      :integrator_key => ***REMOVED***,
+      :account_id     => ***REMOVED***,
+      :endpoint       => 'https://demo.docusign.net/restapi',
+      :api_version    => 'v2',
+      :event_notification => {
+        :connect_name => "EventNotification", #to identify connect configuration for notification
+        :logging_enabled => true,
+        :uri => 'https://qwerqwer.com/notifications',
+        :include_documents => true,
+      },
+      :email_template => {
+        :subject => 'subject from configuration',
+        :blurb => 'blurb from configuration '
+      }
+    }
+  end
 end

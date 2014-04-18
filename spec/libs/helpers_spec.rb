@@ -16,6 +16,22 @@ describe Hancock::Helpers do
     response.code.should == '201' 
   end
 
+  it "helper 'send_put_request' should return response code 200(OK)" do 
+    uri = build_uri("/accounts/#{Hancock.account_id}/settings")
+    
+    put_body = {
+      accountSettings: [{
+        name: "allowSignerReassign",
+        value: true
+      }]
+    }.to_json
+
+    content_headers = { 'Content-Type' => 'application/json' }
+
+    response = send_put_request(uri, put_body, get_headers(content_headers))
+    response.code.should == '200' 
+  end
+
   it "helper 'get_headers' should return correct get_headers" do    
     content_headers = { 'Content-Type' => "multipart/form-data, boundary='AAA'"}
 

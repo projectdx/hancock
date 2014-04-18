@@ -2,8 +2,6 @@ unless defined?(Rails)
   require 'active_support/concern'
   require 'active_support/inflector'
 end
-require 'hancock/helpers'
-require_relative 'hancock/configuration'
 
 require 'hancock/helpers'
 require_relative 'hancock/configuration'
