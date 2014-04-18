@@ -64,7 +64,7 @@ module Hancock
       uri = build_uri("/accounts/#{Hancock.account_id}/connect")
 
       configurations = JSON.parse(send_get_request("/accounts/#{Hancock.account_id}/connect").body)["configurations"]
-      connect_configuration = configurations.find{|k| k["name"] == Hancock.event_notification[:connect_name]}
+      connect_configuration = configurations.find{|k| k["name"] == Hancock.event_notification[:connect_name]} if configurations
 
       content_headers = { 'Content-Type' => 'application/json' }
       post_body = {
