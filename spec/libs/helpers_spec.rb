@@ -41,11 +41,4 @@ describe Hancock::Helpers do
     type = get_content_type_for(:pdf, document)
     type.should == "Content-Type: application/pdf\r\nContent-Disposition: file; filename=test; documentid=123\r\n\r\n"
   end
-
-  it "helper 'get_event_notification' should return correct hash" do    
-    hash = get_event_notification
-    hash[:url].should == Hancock.event_notification[:url]
-    hash[:loggingEnabled].should == Hancock.event_notification[:logging_enabled]
-    hash[:includeDocuments].should == Hancock.event_notification[:include_documents]
-  end
 end

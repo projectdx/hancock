@@ -8,11 +8,13 @@ shared_context "incorrect_configs" do
       config.endpoint       = 'https://demo.docusign.net/restapi'
       config.api_version    = 'v2'
 
-      # c.event_notification = {
-      #   :logging_enabled => true,
-      #   :uri => 'http://callback.com',
-      #   :include_document => true,
-      # }
+      config.event_notification = {
+        :connect_name => "EventNotification", #to identify connect configuration for notification
+        :logging_enabled => true,
+        :uri => 'https://605d992.ngrok.com/notifications',
+        :include_documents => true,
+      }
+
       config.email_template = {
         :subject => 'subject from configuration',
         :blurb => 'blurb from configuration '
