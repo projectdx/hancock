@@ -31,7 +31,7 @@ end
 
   -- OR --
 
-Hanckock.username = 'awesome@whereever.com'
+Hancock.username = 'awesome@whereever.com'
  : : : : : :
 Hancock.event_notification = {}
 Hancock.email_template = {}
