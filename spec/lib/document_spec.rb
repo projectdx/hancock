@@ -73,6 +73,18 @@ describe Hancock::Document do
     end
   end
 
+  describe '#data_for_request' do
+    it 'returns raw data when no file' do
+      subject.data = 'a multicolored frog turbine shell'
+      expect(subject.data_for_request).to eq 'a multicolored frog turbine shell'
+    end
+
+    it 'returns bytes of file when file exists' do
+      subject.file = file
+      expect(subject.data_for_request).to eq IO.read(file)
+    end
+  end
+
   describe '#multipart_form_part' do
     it "returns content type and disposition followed by data" do    
       allow(subject).to receive(:content_type_and_disposition).and_return('1, 2, 3... ')
