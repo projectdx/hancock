@@ -1,92 +1,53 @@
-require_relative '../spec_helper'
-include Hancock::Helpers
-
 describe Hancock::Configuration do
-  include_context "variables"
+  let(:config_hash) do
+    {
+      :oauth_token    => ***REMOVED***,
+      :account_id     => ***REMOVED***,
+      :endpoint       => 'https://demo.docusign.net/restapi',
+      :api_version    => 'v2',
+      :email_template => {
+        :subject => 'subject from configuration',
+        :blurb => 'blurb from configuration '
+      }
+    }
+  end
+
 
   before do 
     Hancock.configure do |config|
-      config.username           = def_mock[:username]
-      config.password           = def_mock[:password]
-      config.integrator_key     = def_mock[:integrator_key]
-      config.account_id         = def_mock[:account_id]
-      config.endpoint           = def_mock[:endpoint]
-      config.api_version        = def_mock[:api_version]
-      config.event_notification = def_mock[:event_notification]
-      config.email_template     = def_mock[:email_template]
+      config.oauth_token        = config_hash[:oauth_token]
+      config.account_id         = config_hash[:account_id]
+      config.endpoint           = config_hash[:endpoint]
+      config.api_version        = config_hash[:api_version]
+      config.email_template     = config_hash[:email_template]
     end
+  end
+
+  after do
+    Hancock.reset
   end
 
   describe 'It changes configurations with configure method' do
 
-    it 'should change default username' do 
-      Hancock.username.should eq(def_mock[:username])
-    end
-
-    it 'should change default password' do
-      Hancock.password.should eq(def_mock[:password])
-    end
-
-    it 'should change default integrator_key' do
-      Hancock.integrator_key.should eq(def_mock[:integrator_key])
+    it 'should change default oauth_token' do 
+      Hancock.oauth_token.should eq(config_hash[:oauth_token])
     end
 
     it 'should change default account_id' do
-      Hancock.account_id.should eq(def_mock[:account_id])
+      Hancock.account_id.should eq(config_hash[:account_id])
     end
 
     it 'should change default endpoint' do
-      Hancock.endpoint.should eq(def_mock[:endpoint])
+      Hancock.endpoint.should eq(config_hash[:endpoint])
     end
 
     it 'should change default api_version' do
-      Hancock.api_version.should eq(def_mock[:api_version])
-    end
-
-    it 'should change default event_notification' do
-      Hancock.event_notification.should eq(def_mock[:event_notification])
+      Hancock.api_version.should eq(config_hash[:api_version])
     end
 
     it 'should change default email_template' do
-      Hancock.email_template.should eq(def_mock[:email_template])
+      Hancock.email_template.should eq(config_hash[:email_template])
     end
 
   end
-
-  describe "It should create and update configurations with 'set_connect' method" do
-
-    it "action 'set_connect' should update connect configuration" do
-      response = JSON.parse(Hancock.set_connect.body)
-
-      response["name"].should == Hancock.event_notification[:connect_name]
-      response["urlToPublishTo"].should == Hancock.event_notification[:uri]
-      response["includeDocuments"].should == Hancock.event_notification[:include_documents].to_s
-    end
-
-    it "action 'set_connect' should create connect configuration" do
-      configs = JSON.parse(send_get_request("/accounts/#{Hancock.account_id}/connect").body)["configurations"]
-      connect_configuration = configs.find{|k| k["name"] == Hancock.event_notification[:connect_name]} if configs
-
-      if connect_configuration
-        uri = build_uri("/accounts/#{Hancock.account_id}/connect/#{connect_configuration["connectId"]}")
-        http = initialize_http(uri)
-
-        content_headers = { 'Content-Type' => 'application/json' }
-
-        request = Net::HTTP::Delete.new(uri.request_uri, get_headers(content_headers))
-        http.request(request).code.should == "200"
-      end
-
-      configs = JSON.parse(send_get_request("/accounts/#{Hancock.account_id}/connect").body)["configurations"]
-      configs.find{|k| k["name"] == Hancock.event_notification[:connect_name]}.should == nil
-      
-      response = JSON.parse(Hancock.set_connect.body)
-
-      response["name"].should == Hancock.event_notification[:connect_name]
-      response["urlToPublishTo"].should == Hancock.event_notification[:uri]
-      response["includeDocuments"].should == Hancock.event_notification[:include_documents].to_s
-    end
-
-  end
-
 end

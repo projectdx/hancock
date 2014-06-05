@@ -1,23 +1,21 @@
 shared_context "configs" do
   before(:all) do 
     Hancock.configure do |config|
-      config.username       = ***REMOVED***
-      config.password       = ***REMOVED***
-      config.integrator_key = ***REMOVED***
-      config.account_id     = ***REMOVED***
+      config.oauth_token    = 'AnAmazingOAuthTokenShinyAndPink'
+      config.account_id     = '123456'
       config.endpoint       = 'https://demo.docusign.net/restapi'
       config.api_version    = 'v2'
 
       config.event_notification = {
-        :connect_name => "EventNotification", #to identify connect configuration for notification
+        :connect_name => "Everyone Is Happy",
         :logging_enabled => true,
-        :uri => ***REMOVED***,
+        :uri => 'http://everyoneishappy.com/callback',
         :include_documents => true,
       }
       
       config.email_template = {
-        :subject => 'subject from configuration',
-        :blurb => 'blurb from configuration '
+        :subject => 'An Email Subject',
+        :blurb => 'An Email Blurb'
       }
     end
   end

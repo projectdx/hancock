@@ -1,0 +1,46 @@
+{
+  "configurations": [
+    {
+      "connectId": "1",
+      "urlToPublishTo": "http://awesomeville.com",
+      "name": "Awesomeville",
+      "allowEnvelopePublish": "true",
+      "enableLog": "true",
+      "includeDocuments": "false",
+      "includeCertificateOfCompletion": "false",
+      "requiresAcknowledgement": "false",
+      "signMessageWithX509Certificate": "false",
+      "useSoapInterface": "false",
+      "includeTimeZoneInformation": "false",
+      "includeEnvelopeVoidReason": "true",
+      "includeSenderAccountasCustomField": "false",
+      "envelopeEvents": "Completed,Declined,Delivered,Sent,Signed,Voided",
+      "recipientEvents": "Completed,Declined,Delivered,Sent,AuthenticationFailed,AutoResponded",
+      "userIds": "123-456,789-555",
+      "soapNamespace": "",
+      "allUsers": "false",
+      "includeCertSoapHeader": "false"
+    },
+    {
+      "connectId": "2",
+      "urlToPublishTo": "http://everyoneishappy.com",
+      "name": "Everyone Is Happy",
+      "allowEnvelopePublish": "true",
+      "enableLog": "true",
+      "includeDocuments": "true",
+      "includeCertificateOfCompletion": "false",
+      "requiresAcknowledgement": "false",
+      "signMessageWithX509Certificate": "false",
+      "useSoapInterface": "false",
+      "includeTimeZoneInformation": "false",
+      "includeEnvelopeVoidReason": "false",
+      "includeSenderAccountasCustomField": "false",
+      "envelopeEvents": "Delivered,Sent,Completed",
+      "recipientEvents": "Delivered,Sent,Completed",
+      "soapNamespace": "",
+      "allUsers": "true",
+      "includeCertSoapHeader": "false"
+    }
+  ],
+  "totalRecords": "2"
+}

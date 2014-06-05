@@ -1,0 +1,21 @@
+{
+  "envelopeId": "a-crazy-envelope-id",
+  "envelopeDocuments": [
+    {
+      "documentId": "14",
+      "name": "Cool Document",
+      "type": "content",
+      "uri": "/envelopes/a-crazy-envelope-id/documents/14",
+      "order": "1",
+      "pages": "1"
+    },
+    {
+      "documentId": "16",
+      "name": "Amazing Document",
+      "type": "content",
+      "uri": "/envelopes/a-crazy-envelope-id/documents/16",
+      "order": "2",
+      "pages": "6"
+    }
+  ]
+}

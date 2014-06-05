@@ -35,7 +35,7 @@ module Hancock
       @identifier      = attributes[:identifier]      || generate_identifier()
     end
 
-    def self.reload!(envelope)
+    def self.fetch_for_envelope(envelope)
       connection = Hancock::DocuSignAdapter.new(envelope.identifier)
       envelope_recipients = connection.recipients
 

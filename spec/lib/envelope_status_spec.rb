@@ -1,7 +1,5 @@
-require_relative '../spec_helper'
-
 describe Hancock::EnvelopeStatus do
-  include_context "variables"
+  let(:callback_xml) { File.open(fixture_path('callback.xml'), "rb").read }
 
   before do
     @envelope_status = Hancock::EnvelopeStatus.new callback_xml

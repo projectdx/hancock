@@ -60,22 +60,20 @@ module Hancock
 
         @status = response["status"]
         @email = {subject: response["emailSubject"], blurb: response["emailBlurb"]}
-        @documents = Document.reload!(self)
-        @recipients = Recipient.reload!(self)
+        @documents = Document.fetch_for_envelope(self)
+        @recipients = Recipient.fetch_for_envelope(self)
       end
       self
     end
 
     def form_post_body(status)
       post_body =  "\r\n--#{Hancock.boundary}\r\n"
-      post_body << get_content_type_for(:json)
+      post_body << "Content-Type: application/json\r\n"
+      post_body << "Content-Disposition: form-data\r\n\r\n"
       post_body << get_post_params(status).to_json
       post_body << "\r\n--#{Hancock.boundary}\r\n"
 
-      document_strings = @documents.map do |doc|
-        document_string = get_content_type_for(:pdf, doc)
-        document_string << doc.data_for_request
-      end
+      document_strings = @documents.map(&:multipart_form_part)
 
       post_body << document_strings.join("\r\n--#{Hancock.boundary}\r\n")
       post_body << "\r\n--#{Hancock.boundary}--\r\n"
@@ -88,13 +86,12 @@ module Hancock
         }
 
         response = send_post_request("/accounts/#{Hancock.account_id}/envelopes", form_post_body(status), get_headers(content_headers))
-        envelope_params = JSON.parse(response.body)
 
-        if response.is_a? Net::HTTPSuccess
-          self.identifier = envelope_params["envelopeId"]
+        if response.success?
+          self.identifier = response["envelopeId"]
           reload!
         else
-          message = envelope_params["message"]
+          message = response["message"]
           raise Hancock::DocusignError.new(message) 
         end
       end

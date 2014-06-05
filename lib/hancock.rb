@@ -9,11 +9,7 @@ require_relative 'hancock/configuration'
 
 require 'hancock/validations'
 
-require 'openssl'
 require 'nokogiri'
-require 'net/http'
-require 'uri'
-require 'openssl'
 require 'json'
 
 require 'hancock/base'
@@ -27,6 +23,7 @@ require 'hancock/anchored_tab'
 require 'hancock/tab'
 require 'hancock/envelope_status'
 require 'hancock/recipient_status'
+require 'hancock/callback'
 
 module Hancock
   extend Configuration
