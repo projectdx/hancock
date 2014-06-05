@@ -125,7 +125,7 @@ module Hancock
     private
       def send_envelope(status)
         content_headers = { 
-          'Content-Type' => "multipart/form-data, boundary=#{Hancock.boundary}" 
+          'Content-Type' => "multipart/form-data; boundary=#{Hancock.boundary}" 
         }
 
         response = send_post_request("/accounts/#{Hancock.account_id}/envelopes", form_post_body(status), get_headers(content_headers))
