@@ -66,7 +66,7 @@ document1 = Hancock::Document.new({
   # identifier: 'my_document_3', # optional, generates if not given
 })
 
-envelope.add_document(document1)
+envelope.documents << document1
 
 # create recepients and add them to envelope
 recipient1 = Hancock::Recipient.new({
@@ -166,12 +166,6 @@ Envelope.find(envelope_id)
 ```
 
 Retrieves envelope information from DocuSign
-
-```ruby
-Envelope#add_document(document)
-```
-
-Add a Document object to the envelope
 
 ```ruby
 Envelope#documents

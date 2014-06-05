@@ -23,10 +23,6 @@ module Hancock
       @email = attributes[:email] || {}
     end
 
-    def add_document(document) 
-      @documents << document
-    end
-
     def add_signature_request(attributes = {})
       @signature_requests << {
         recipient: attributes[:recipient],
@@ -34,7 +30,7 @@ module Hancock
         tabs: attributes[:tabs]
       }
 
-      @recipients << attributes[:recipients] 
+      @recipients << attributes[:recipient] 
     end
 
     #
@@ -66,7 +62,7 @@ module Hancock
       self
     end
 
-    def signature_requests_for_submission
+    def signature_requests_for_params
       recipients_by_type = {}
 
       recipients = signature_requests.inject({}) { |hsh, request|
@@ -96,11 +92,16 @@ module Hancock
       post_body << "Content-Disposition: form-data\r\n\r\n"
       post_body << get_post_params(status).to_json
       post_body << "\r\n--#{Hancock.boundary}\r\n"
-
-      document_strings = @documents.map(&:multipart_form_part)
-
-      post_body << document_strings.join("\r\n--#{Hancock.boundary}\r\n")
+      post_body << documents_for_body.join("\r\n--#{Hancock.boundary}\r\n")
       post_body << "\r\n--#{Hancock.boundary}--\r\n"
+    end
+
+    def documents_for_params
+      documents.map(&:to_request)
+    end
+
+    def documents_for_body
+      documents.map(&:multipart_form_part)
     end
 
     private
@@ -122,11 +123,11 @@ module Hancock
 
       def get_post_params(status)
         { 
-          emailBlurb: @email[:blurb] || Hancock.email_template[:blurb],
-          emailSubject: @email[:subject]|| Hancock.email_template[:subject],
+          emailBlurb: email[:blurb] || Hancock.email_template[:blurb],
+          emailSubject: email[:subject]|| Hancock.email_template[:subject],
           status: "#{status}",
-          documents: @documents.map{|d| d.to_request},
-          recipients: signature_requests_for_submission,
+          documents: documents_for_params,
+          recipients: signature_requests_for_params,
         }
       end      
   end
