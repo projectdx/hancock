@@ -3,14 +3,6 @@ module Hancock
     include Hancock::Validations
     include Hancock::Helpers
     extend Hancock::Helpers
-      
-    def [](attr)
-      if self.respond_to?(attr)
-        self.send(attr)
-      else
-        raise NoMethodError.new(attr)
-      end
-    end
 
     private
       def generate_identifier
