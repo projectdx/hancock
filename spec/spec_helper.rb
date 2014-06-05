@@ -2,15 +2,15 @@
 require 'hancock'
 require 'nokogiri'
 require 'valid_attribute'
-require_relative 'support/configs'
-require_relative 'support/incorrect_configs'
-require_relative 'support/variables'
+require 'webmock/rspec'
 
-SPEC_ROOT = File.expand_path '../', __FILE__
+Dir["#{File.dirname(__FILE__)}/support/**/*.rb"].each { |f| require f }
 
 RSpec.configure do |config|
   config.treat_symbols_as_metadata_keys_with_true_values = true
   config.run_all_when_everything_filtered = true
   config.filter_run :focus
   config.order = 'random'
+  config.include PathHelper
+  config.include RequestStubHelper
 end

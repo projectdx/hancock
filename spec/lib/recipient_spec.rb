@@ -1,9 +1,4 @@
-require_relative '../spec_helper'
-
 describe Hancock::Recipient do
-  include_context "configs"
-  include_context "variables"
-
   describe "#routing_order" do
     it 'defaults to 1' do
       subject.routing_order.should eq 1
@@ -60,15 +55,17 @@ describe Hancock::Recipient do
     end
   end
 
-  describe '.reload!' do
-    it 'reloads recipients from DocuSign envelope' do    
-      envelope.add_document(document)
-      envelope.add_signature_request({ recipient: recipient, document: document, tabs: [tab] })
-      envelope.add_signature_request({ recipient: recipient2, document: document, tabs: [tab] })
-      envelope.save
+  describe '.fetch_for_envelope' do
+    it 'reloads recipients from DocuSign envelope' do
+      envelope = Hancock::Envelope.new(:identifier => 'a-crazy-envelope-id')
+      allow(Hancock::DocuSignAdapter).to receive(:new).
+        with('a-crazy-envelope-id').
+        and_return(double(Hancock::DocuSignAdapter, :recipients => JSON.parse(response_body('recipients'))))
 
-      expect(described_class.reload!(envelope).map(&:email)).
-        to match_array([recipient, recipient2].map(&:email))
+      recipients = described_class.fetch_for_envelope(envelope)
+      expect(recipients.map(&:email)).
+        to match_array(['darwin@example.com', 'salli@example.com'])
+      expect(recipients.map(&:class).uniq).to eq [described_class]
     end
   end
 

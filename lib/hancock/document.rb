@@ -36,7 +36,22 @@ module Hancock
       file.nil? ? data : IO.read(file)      
     end
 
-    def self.reload!(envelope)
+    def content_type_and_disposition
+      case extension
+      when 'pdf'
+        "Content-Type: application/pdf\r\n"\
+        "Content-Disposition: file; filename=#{name}; documentid=#{identifier}\r\n\r\n"
+      when 'docx'
+        "Content-Type: application/vnd.openxmlformats-officedocument.wordprocessingml.document\r\n"\
+        "Content-Disposition: file; filename=#{name}; documentid=#{identifier}\r\n\r\n"  
+      end
+    end
+
+    def multipart_form_part
+      content_type_and_disposition + data_for_request
+    end
+
+    def self.fetch_for_envelope(envelope)
       connection = Hancock::DocuSignAdapter.new(envelope.identifier)
       connection.documents.map do |document|
         document_data = connection.document(document["documentId"])

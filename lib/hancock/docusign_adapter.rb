@@ -11,14 +11,14 @@ module Hancock
     # The response returns the current envelope info
     #
     def envelope
-      JSON.parse(send_get_request("/accounts/#{Hancock.account_id}/envelopes/#{envelope_id}").body)
+      send_get_request("/accounts/#{Hancock.account_id}/envelopes/#{envelope_id}")
     end
 
     #
     # This returns a list of documents associated with the specified envelope
     #
     def documents
-      JSON.parse(send_get_request("/accounts/#{Hancock.account_id}/envelopes/#{envelope_id}/documents").body)["envelopeDocuments"]
+      send_get_request("/accounts/#{Hancock.account_id}/envelopes/#{envelope_id}/documents")["envelopeDocuments"]
     end
 
     #
@@ -32,7 +32,7 @@ module Hancock
     # This returns a list of recipients associated with the specified envelope
     #
     def recipients
-      JSON.parse(send_get_request("/accounts/#{Hancock.account_id}/envelopes/#{envelope_id}/recipients").body)
+      send_get_request("/accounts/#{Hancock.account_id}/envelopes/#{envelope_id}/recipients")
     end
   end
 end

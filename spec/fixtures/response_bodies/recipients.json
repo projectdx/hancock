@@ -1,0 +1,35 @@
+{
+  "signers": [
+    {
+      "name": "Darwin Nerdwod",
+      "email": "darwin@example.com",
+      "recipientId": "12",
+      "recipientIdGuid": "e5eb4bce-c9f5-4487-91e4-8bb8fa0d638d",
+      "requireIdLookup": "false",
+      "userId": "c228b39c-72fb-471a-b2d5-935d53539278",
+      "routingOrder": "1",
+      "status": "completed",
+      "signedDateTime": "2014-06-04T23:55:36.7700000Z",
+      "deliveredDateTime": "2014-06-04T23:48:36.0230000Z"
+    },
+    {
+      "name": "Salli Plifto",
+      "email": "salli@example.com",
+      "recipientId": "50",
+      "recipientIdGuid": "c8533ca1-41cb-4f10-ad24-390fcce13b03",
+      "requireIdLookup": "false",
+      "userId": "e760bd3a-3bc5-46e3-b739-14951e08bf07",
+      "routingOrder": "1",
+      "status": "completed",
+      "signedDateTime": "2014-06-04T23:51:49.5600000Z",
+      "deliveredDateTime": "2014-06-04T23:47:06.7270000Z"
+    }
+  ],
+  "agents": [],
+  "editors": [],
+  "intermediaries": [],
+  "carbonCopies": [],
+  "certifiedDeliveries": [],
+  "inPersonSigners": [],
+  "recipientCount": "2"
+}

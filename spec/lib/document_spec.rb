@@ -1,10 +1,7 @@
 describe Hancock::Document do
-  include_context "configs"
-  include_context "variables"
+  let(:file) { File.open(fixture_path('test.pdf')) }
 
   context 'validations' do
-    let(:file) { File.open("#{SPEC_ROOT}/fixtures/test.pdf") }
-
     it { should have_valid(:file).when(file) }
     it { should_not have_valid(:file).when('not a file', nil) }
 
@@ -58,14 +55,48 @@ describe Hancock::Document do
     end
   end
 
-  describe '.reload!' do
-    it 'reloads documents from DocuSign envelope' do
-      envelope.add_document(document)
-      envelope.add_signature_request({ recipient: recipient, document: document, tabs: [tab] })
-      envelope.save
+  describe '#content_type_and_disposition' do
+    it "returns a PDF content type and disposition when extension is pdf" do
+      subject = described_class.new(:extension => 'pdf', :name => 'booger.pdf', :identifier => 4)
+      expect(subject.content_type_and_disposition).to eq(
+        "Content-Type: application/pdf\r\n"\
+        "Content-Disposition: file; filename=booger.pdf; documentid=4\r\n\r\n"
+      )
+    end
 
-      expect(described_class.reload!(envelope).map { |d| [d.name, d.extension, d.identifier.to_s] }).
-        to match_array([[document.name, document.extension, document.identifier.to_s]])
+    it "returns a docx content type and disposition when extension is docx" do
+      subject = described_class.new(:extension => 'docx', :name => 'booger.docx', :identifier => 5)
+      expect(subject.content_type_and_disposition).to eq(
+        "Content-Type: application/vnd.openxmlformats-officedocument.wordprocessingml.document\r\n"\
+        "Content-Disposition: file; filename=booger.docx; documentid=5\r\n\r\n"
+      )
+    end
+  end
+
+  describe '#multipart_form_part' do
+    it "returns content type and disposition followed by data" do    
+      allow(subject).to receive(:content_type_and_disposition).and_return('1, 2, 3... ')
+      allow(subject).to receive(:data_for_request).and_return('get excited!')
+      expect(subject.multipart_form_part).to eq "1, 2, 3... get excited!"
+    end
+  end
+
+  describe '.fetch_for_envelope' do
+    it 'reloads documents from DocuSign envelope' do
+      adapter = double(Hancock::DocuSignAdapter, :documents => JSON.parse(response_body('documents'))['envelopeDocuments'])
+      allow(adapter).to receive(:document).with('14').and_return('the bytes')
+      allow(adapter).to receive(:document).with('16').and_return('omg more bytes')
+      envelope = Hancock::Envelope.new(:identifier => 'a-crazy-envelope-id')
+      allow(Hancock::DocuSignAdapter).to receive(:new).
+        with('a-crazy-envelope-id').
+        and_return(adapter)
+
+      documents = described_class.fetch_for_envelope(envelope)
+      expect(documents.map(&:identifier)).
+        to match_array(['14', '16'])
+      expect(documents.map(&:data)).
+        to match_array(['the bytes', 'omg more bytes'])
+      expect(documents.map(&:class).uniq).to eq [described_class]
     end
   end
 end

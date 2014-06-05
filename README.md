@@ -16,18 +16,11 @@ Interface Specification
 
 ```ruby
 Hancock.configure do |c|
-   c.username       = 'awesome@whereever.com'
-   c.password       = '12345'
-   c.integrator_key = 'YAY-9ED8E711-C191-4265-AFCC-253F6241207A'
-   c.account_id     = '999999'
+   c.oauth_token     = 'MY-REALLY-LONG-TOKEN'
+   c.account_id      = '999999'
    #c.endpoint       = 'https://www.docusign.net/restapi'
    #c.api_version    = 'v2'
 
-  c.event_notification = {
-    :logging_enabled => true,
-    :uri => 'http://callback.com',
-    :include_document => true,
-  }
   c.email_template = {
     :subject => 'sign me',
     :blurb => 'whatever '
@@ -38,7 +31,6 @@ end
 
 Hancock.username = 'awesome@whereever.com'
  : : : : : :
-Hancock.event_notification = {}
 Hancock.email_template = {}
 ```
 
@@ -50,16 +42,10 @@ This method will allow the client to register a callback uri and select which ev
 
 Key                | Description
 ---                | ---
-username           | Docusign username
-password           | Docusign password
-integrator_key     | Docusign Integrator_key
+oauth_token        | OAuth token generated via Docusign 
 account_id         | Docusign account id
 endpoint           | Docusign endpoint (demo vs live)
 api_version        | Docusign api version (v1, v2)
-event_notifcation  | `logging_enabled`: (default: false) Flag on eventNotification to enable logging to DocuSign console.
-                   | Register event notification callback uri, and events of interest.
-                   | `uri`: Endpoint where DocuSign will call upon changes in envelope status
-                   | `include_document`: Include documents in notification callback
 email_fields       | components necessary to create outgoing email to signers.
                    | `subject`: subject of email
                    | `blurb`: instruction blurb sent in the email to the recepient

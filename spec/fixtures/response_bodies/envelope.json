@@ -1,0 +1,21 @@
+{
+  "status": "sent",
+  "documentsUri": "/envelopes/a-crazy-envelope-id/documents",
+  "recipientsUri": "/envelopes/a-crazy-envelope-id/recipients",
+  "envelopeUri": "/envelopes/a-crazy-envelope-id",
+  "emailSubject": "Hello there",
+  "emailBlurb": "Please sign this!",
+  "envelopeId": "a-crazy-envelope-id",
+  "customFieldsUri": "/envelopes/a-crazy-envelope-id/custom_fields",
+  "notificationUri": "/envelopes/a-crazy-envelope-id/notification",
+  "enableWetSign": "true",
+  "createdDateTime": "2014-06-04T23:46:03.2870000Z",
+  "lastModifiedDateTime": "2014-06-04T23:46:03.2870000Z",
+  "deliveredDateTime": "2014-06-04T23:48:36.0830000Z",
+  "sentDateTime": "2014-06-04T23:46:03.7530000Z",
+  "completedDateTime": "2014-06-04T23:55:36.7870000Z",
+  "statusChangedDateTime": "2014-06-04T23:55:36.7870000Z",
+  "documentsCombinedUri": "/envelopes/a-crazy-envelope-id/documents/combined",
+  "certificateUri": "/envelopes/a-crazy-envelope-id/documents/certificate",
+  "templatesUri": "/envelopes/a-crazy-envelope-id/templates"
+}

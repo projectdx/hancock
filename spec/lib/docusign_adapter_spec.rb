@@ -1,43 +1,59 @@
-require_relative '../spec_helper'
-
 describe Hancock::DocuSignAdapter do
-  include_context "configs"
-  include_context "variables"
-  
   before do
-    envelope.add_document(document)
-    envelope.add_signature_request({ recipient: recipient, document: document, tabs: [tab] })
-    envelope.save
-    @connection = Hancock::DocuSignAdapter.new(envelope.identifier)
+    allow(Hancock).to receive(:oauth_token).and_return('AnAmazingOAuthTokenShinyAndPink')
+    allow(Hancock).to receive(:account_id).and_return(123456)
+    @connection = Hancock::DocuSignAdapter.new('a-crazy-envelope-id')
   end
 
-  it "action 'envelope' should return the envelope info" do
-    response = @connection.envelope
+  describe '#envelope' do
+    it "returns info for the requested envelope" do
+      stub_request(:get, "https://demo.docusign.net/restapi/v2/accounts/123456/envelopes/a-crazy-envelope-id").
+        with(:headers => {'Accept'=>'json', 'Authorization'=>'bearer AnAmazingOAuthTokenShinyAndPink', 'Content-Type'=>'application/json'}).
+        to_return(:status => 200, :body => response_body('envelope'), :headers => { 'Content-Type' => 'application/json' })
 
-    response["envelopeId"].should == envelope.identifier
-    response["status"].should == "created"
+      response = @connection.envelope
+
+      expect(response["envelopeId"]).to eq "a-crazy-envelope-id"
+      expect(response["status"]).to eq "sent"
+    end
   end
 
-  it "action 'documents' should return the documents info for current envelope" do
-    documents = @connection.documents
+  describe '#documents' do
+    it "return document info for all of the requested envelopes' documents" do
+      stub_request(:get, "https://demo.docusign.net/restapi/v2/accounts/123456/envelopes/a-crazy-envelope-id/documents").
+        with(:headers => {'Accept'=>'json', 'Authorization'=>'bearer AnAmazingOAuthTokenShinyAndPink', 'Content-Type'=>'application/json'}).
+        to_return(:status => 200, :body => response_body('documents'), :headers => { 'Content-Type' => 'application/json' })
 
-    documents.length.should == 1
-    documents.first["name"].should == "test"
+      documents = @connection.documents
+
+      expect(documents).to have(2).items
+      expect(documents.first["name"]).to eq 'Cool Document'
+    end
   end
 
-  it "action 'recipients' should return the recipients info for current envelope" do
-    recipients = @connection.recipients
+  describe '#recipients' do
+    it "returns info about the recipients for the current envelope" do
+      stub_request(:get, "https://demo.docusign.net/restapi/v2/accounts/123456/envelopes/a-crazy-envelope-id/recipients").
+        with(:headers => {'Accept'=>'json', 'Authorization'=>'bearer AnAmazingOAuthTokenShinyAndPink', 'Content-Type'=>'application/json'}).
+        to_return(:status => 200, :body => response_body('recipients'), :headers => { 'Content-Type' => 'application/json' })
 
-    recipients["signers"].count.should == 1
-    recipients["editors"].count.should == 0
-    recipients["signers"].first["name"].should == "Owner"
+      recipients = @connection.recipients
+
+      expect(recipients["signers"]).to have(2).items
+      expect(recipients["editors"]).to have(0).items
+      expect(recipients["signers"].first["name"]).to eq "Darwin Nerdwod"
+    end
   end
 
-  it "action 'document' should return the document info by id" do
-    document = @connection.document("123")
+  describe '#document' do
+    it "returns the bytes for the requested document on an envelope" do
+      stub_request(:get, "https://demo.docusign.net/restapi/v2/accounts/123456/envelopes/a-crazy-envelope-id/documents/123").
+        with(:headers => {'Accept'=>'json', 'Authorization'=>'bearer AnAmazingOAuthTokenShinyAndPink', 'Content-Type'=>'application/json'}).
+        to_return(:status => 200, :body => File.read(fixture_path('test.pdf')).strip, :headers => { 'Content-Type' => 'application/pdf' })
 
-    document.length.should > 50
-    document[-3, 3].should == "EOF"
+      document = @connection.document("123")
+
+      expect(document).to eq File.read(fixture_path('test.pdf')).strip
+    end
   end
-
 end
