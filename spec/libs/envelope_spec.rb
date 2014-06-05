@@ -63,4 +63,26 @@ describe Hancock::Envelope do
     recipients.first.name.should == "Owner"
   end
 
+  describe '#form_post_body' do
+    it 'assembles body for posting' do
+      doc1 = double(Hancock::Document, :data_for_request => 'Oh my')
+      doc2 = double(Hancock::Document, :data_for_request => 'How wondrous')
+      subject.documents = [doc1, doc2]
+      allow(subject).to receive(:get_content_type_for).with(:json).
+        and_return('JSON Content Type')
+      allow(subject).to receive(:get_content_type_for).with(:pdf, doc1).
+        and_return('Document 1 Content Type')
+      allow(subject).to receive(:get_content_type_for).with(:pdf, doc2).
+        and_return('Document 2 Content Type')
+      allow(subject).to receive(:get_post_params).with(:a_status).
+        and_return({ :foo => :bar })
+      subject.form_post_body(:a_status).should eq(
+        "\r\n"\
+        "--MYBOUNDARY\r\nJSON Content Type{\"foo\":\"bar\"}\r\n"\
+        "--MYBOUNDARY\r\nDocument 1 Content TypeOh my\r\n"\
+        "--MYBOUNDARY\r\nDocument 2 Content TypeHow wondrous\r\n"\
+        "--MYBOUNDARY--\r\n"
+      )
+    end
+  end
 end
