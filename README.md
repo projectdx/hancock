@@ -2,6 +2,11 @@ Hancock Signature Gem
 =========================
 Gem for submitting documents to DocuSign with electronic signature tabs.
 
+TODO:
+-----
+
+* Ensure that document identifiers are unique within an envelope
+* Allow a single recipient to sign multiple documents
 
 Interface Specification
 ------------------
