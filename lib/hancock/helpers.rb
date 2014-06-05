@@ -76,7 +76,7 @@ module Hancock
     def get_recipients_for_request(signature_requests)      
       recipients = { }
 
-      Hancock::Recipient::RECIPIENT_TYPES.each do |type|
+      Hancock::Recipient::Types.each do |type|
         recipients[docusign_recipient_type(type)] = []
       end
 

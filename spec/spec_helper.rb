@@ -1,6 +1,7 @@
 # encoding: UTF-8
 require 'hancock'
 require 'nokogiri'
+require 'valid_attribute'
 require_relative 'support/configs'
 require_relative 'support/incorrect_configs'
 require_relative 'support/variables'
