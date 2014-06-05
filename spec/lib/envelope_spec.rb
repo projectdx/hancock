@@ -15,6 +15,14 @@ describe Hancock::Envelope do
       envelope.save
       expect(envelope.identifier).to eq 'a-crazy-envelope-id'
     end
+
+    it 'raises a DocusignError with the returned message if not successful' do
+      allow(document).to receive(:data_for_request).and_return('hello world')
+      stub_envelope_creation('create_draft', 'failed_creation', 500)
+      expect {
+        envelope.save
+      }.to raise_error(Hancock::DocusignError, "Nobody actually loves you; they just pretend until payday.")
+    end
   end
 
   describe '#send!' do
@@ -24,6 +32,14 @@ describe Hancock::Envelope do
       expect(envelope).to receive(:reload!)
       envelope.send!
       expect(envelope.identifier).to eq 'a-crazy-envelope-id'
+    end
+
+    it 'raises a DocusignError with the returned message if not successful' do
+      allow(document).to receive(:data_for_request).and_return('hello world')
+      stub_envelope_creation('send_envelope', 'failed_creation', 500)
+      expect {
+        envelope.send!
+      }.to raise_error(Hancock::DocusignError, "Nobody actually loves you; they just pretend until payday.")
     end
   end
 
