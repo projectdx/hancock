@@ -1,26 +1,10 @@
+require_relative 'tab'
+
 module Hancock
-  class AnchoredTab < Hancock::Base
-    #
-    # type:        'sign_here',
-    # label:       '{{recipient.name}} Signature',
-    # offset:      [2, 100]
-    # anchor_text: 'Owner 1 Signature', # defaults to label
-    # page_number: default 1
-    #
-
-    attr_accessor :type, :label, :offset, :page_number
-
-    validates :type, :label, :offset, presence: true 
-    validates :offset, type: :array
-
+  class AnchoredTab < Tab
     def initialize(attributes = {})
-      @type        = attributes[:type]
-      @label       = attributes[:label]
-      @offset      = attributes[:offset]
       @anchor_text = attributes[:anchor_text]
-      @page_number = attributes[:page_number] || 1
-
-      self.validate!
+      super
     end
 
     def anchor_text
@@ -30,12 +14,11 @@ module Hancock
     def to_h
       {
         :anchorString       => anchor_text,
-        :anchorXOffset      => offset[0],
-        :anchorYOffset      => offset[1],
+        :anchorXOffset      => coordinates[0],
+        :anchorYOffset      => coordinates[1],
         :IgnoreIfNotPresent => 1,
         :pageNumber         => page_number
       }
     end
-
   end
 end

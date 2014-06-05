@@ -7,12 +7,11 @@ module Hancock
     module ClassMethods
 
       def validates(*args)
-        @validations ||= []
-        @validations << args
+        validations << args
       end
 
       def validations
-        @validations
+        @validations ||= []
       end
     end
 
@@ -23,7 +22,25 @@ module Hancock
     class << self
       def included base
         base.extend ClassMethods
+        base.class_eval do
+          def self.inherited(subclass)
+            subclass.validations.concat validations
+          end
+        end
       end
+    end
+
+    def errors
+      @errors ||= {}
+    end
+
+    def errors_on(attribute)
+      errors[attribute] || []
+    end
+
+    def valid?
+      validate!
+      errors.empty?
     end
 
     def validate!
@@ -58,12 +75,14 @@ module Hancock
       #
       def validate_presence!(attr_name, attr_val, presence)
         message = if attr_val.blank? && presence
-          "Invalid argument '#{attr_name}'. '#{attr_name}' is required"
+          "must be set"
         elsif !attr_val.blank? && !presence
-          "Invalid argument '#{attr_name}'. '#{attr_name}' is not required"
+          "must not be set"
         end
 
-        raise_error(message) if message
+        if message
+          (errors[attr_name] ||= []) << message
+        end
       end
 
       #
@@ -72,13 +91,13 @@ module Hancock
       #
       def validate_type!(attr_name, attr_val, type)
         if ![ type ].flatten.include?( attr_val.class.to_s.to_sym.downcase )
-          raise_error("Invalid argument '#{attr_name}'. Exspected #{ type }, got #{attr_val.class}")
+          (errors[attr_name] ||= []) << "must be of type: #{type}"
         end
       end
 
       def validate_inclusion_of!(attr_name, attr_val, inclusion_of)
         unless inclusion_of.include?( attr_val )
-          raise_error("Invalid argument '#{attr_name}'. Exspected #{ inclusion_of }, got #{attr_val}")
+          (errors[attr_name] ||= []) << "must be included in: #{inclusion_of}"
         end
       end
 
@@ -91,18 +110,15 @@ module Hancock
       end
 
       def build_condition(options={})
-        if options.has_key?(:if)
-          !self.send( options[:if] ).nil?
-        elsif options.has_key?(:unless)
-          self.send( options[:unless] ).nil?
-        else
-          true
+        options.all? do |key, val|
+          if key == :if
+            self.send(val)
+          elsif key == :unless
+            !self.send(val)
+          else
+            true
+          end
         end
       end
-
-      def raise_error(message)
-        raise Hancock::ArgumentError.new(message)
-      end
-
   end
 end

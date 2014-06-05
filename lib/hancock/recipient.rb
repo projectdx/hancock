@@ -10,13 +10,20 @@ module Hancock
     # identifier:      optional, generates if not given
     #
 
-    RECIPIENT_TYPES = [:agent, :carbon_copy, :certified_delivery, :editor, :in_person_signer, :intermediary, :signer]
+    Types = [:agent, :carbon_copy, :certified_delivery, :editor, :in_person_signer, :intermediary, :signer]
     attr_accessor :name, :email, :id_check, :delivery_method, :routing_order, :identifier, :recipient_type
 
-    validates :id_check, inclusion_of: [true, false]
-    validates :name, :email, presence: true
-    validates :delivery_method, inclusion_of: [:email, :embedded, :offline, :paper]
-    validates :recipient_type, inclusion_of: RECIPIENT_TYPES
+    validates :name, :email, :presence => true
+    validates :id_check, :allow_nil => true, :inclusion_of => [true, false]
+    validates :delivery_method, :inclusion_of => [:email, :embedded, :offline, :paper]
+    validates :recipient_type, :inclusion_of => Types
+
+    def validate!
+      super
+      unless email =~ /\A([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\z/i
+        (errors[:email] ||= []) << 'must be valid email'
+      end
+    end
 
     def initialize(attributes = {}, run_validations=true)
       @name            = attributes[:name]
@@ -26,22 +33,24 @@ module Hancock
       @routing_order   = attributes[:routing_order]   || 1
       @recipient_type  = attributes[:recipient_type]  || :signer
       @identifier      = attributes[:identifier]      || generate_identifier()
-
-      self.validate! if run_validations
     end
 
     def self.reload!(envelope)
-      recipient_array = []
       connection = Hancock::DocuSignAdapter.new(envelope.identifier)
-      recipients = connection.recipients
+      envelope_recipients = connection.recipients
 
-      Hancock::Recipient::RECIPIENT_TYPES.each do |type|
-        recipients[docusign_recipient_type(type)].each do |r|
-          recipient_array << new({ name: r["name"], identifier: r["recipientId"], recipient_type: type,
-                                            email: r["email"], routing_order: r["routingOrder"].to_i})
-        end
-      end
-      recipient_array
+      Types.map { |type|
+        envelope_recipients[docusign_recipient_type(type)].map { |envelope_recipient|
+          new({
+            name: envelope_recipient["name"],
+            email: envelope_recipient["email"],
+            id_check: nil,
+            routing_order: envelope_recipient["routingOrder"].to_i,
+            recipient_type: type,
+            identifier: envelope_recipient["recipientId"]
+          })
+        }
+      }.flatten
     end
   end
 end
