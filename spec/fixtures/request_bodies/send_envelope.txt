@@ -2,7 +2,7 @@
 Content-Type: application/json
 Content-Disposition: form-data
 
-{"emailBlurb":"An Email Blurb","emailSubject":"An Email Subject","status":"sent","documents":[{"documentId":123,"name":"test"}],"recipients":{"agents":[],"carbonCopies":[],"certifiedDeliveries":[],"editors":[],"inPersonSigners":[],"intermediaries":[],"signers":[{"email":"ravi@renewfund.com","name":"Owner","recipientId":222,"tabs":{"initialHereTabs":[],"signHereTabs":[{"tabLabel":"Vas","xPosition":2,"yPosition":100,"pageNumber":1,"documentId":123}]}}]}}
+{"emailBlurb":"An Email Blurb","emailSubject":"An Email Subject","status":"sent","documents":[{"documentId":123,"name":"test"}],"recipients":{"signers":[{"email":"ravi@renewfund.com","name":"Owner","recipientId":222,"tabs":{"signHereTabs":[{"tabLabel":"Vas","xPosition":2,"yPosition":100,"pageNumber":1,"documentId":123}]}}]}}
 --MYBOUNDARY
 Content-Type: application/pdf
 Content-Disposition: file; filename=test; documentid=123

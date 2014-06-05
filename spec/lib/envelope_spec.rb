@@ -64,14 +64,67 @@ describe Hancock::Envelope do
     end
   end
 
+  describe '#signature_requests_for_submission' do
+    it 'returns signature requests grouped by recipient and set up for submission' do
+      document1 = Hancock::Document.new(:identifier => 1)
+      document2 = Hancock::Document.new(:identifier => 2)
+      recipient1 = Hancock::Recipient.new(:email => 'b@mail.com', :name => 'Bob', :recipient_type => :signer, :identifier => 1)
+      recipient2 = Hancock::Recipient.new(:email => 'e@mail.com', :name => 'Edna', :recipient_type => :signer, :identifier => 2)
+      recipient3 = Hancock::Recipient.new(:email => 'f@mail.com', :name => 'Fump', :recipient_type => :editor, :identifier => 3)
+      tab1 = double(Hancock::Tab, :type => 'initial_here', :to_h => { :initial => :here })
+      tab2 = double(Hancock::Tab, :type => 'sign_here', :to_h => { :sign => :here })
+      subject = described_class.new({
+        :signature_requests => [
+          { :recipient => recipient1, :document => document1, :tabs => [tab1] },
+          { :recipient => recipient1, :document => document2, :tabs => [tab1, tab2] },
+          { :recipient => recipient2, :document => document1, :tabs => [tab2] },
+          { :recipient => recipient2, :document => document2, :tabs => [tab1] },
+          { :recipient => recipient3, :document => document2, :tabs => [tab2] },
+        ]
+      })
+      expect(subject.signature_requests_for_submission).to eq({
+        'signers' => [
+          {
+            :email => 'b@mail.com', :name => 'Bob', :recipientId => 1, :tabs => {
+              :initialHereTabs => [
+                { :initial => :here, :documentId => 1 },
+                { :initial => :here, :documentId => 2 },
+              ],
+              :signHereTabs => [
+                { :sign => :here, :documentId => 2 },
+              ]
+            },
+          },
+          {
+            :email => 'e@mail.com', :name => 'Edna', :recipientId => 2, :tabs => {
+              :initialHereTabs => [
+                { :initial => :here, :documentId => 2 },
+              ],
+              :signHereTabs => [
+                { :sign => :here, :documentId => 1 },
+              ]
+            }
+          }
+        ],
+        'editors' => [
+          {
+            :email => 'f@mail.com', :name => 'Fump', :recipientId => 3, :tabs => {
+              :signHereTabs => [
+                { :sign => :here, :documentId => 2 },
+              ]
+            }
+          }
+        ]
+      })
+    end
+  end
+
   describe '#form_post_body' do
     it 'assembles body for posting' do
       doc1 = double(Hancock::Document, :multipart_form_part => 'Oh my', :to_request => 'horse')
       doc2 = double(Hancock::Document, :multipart_form_part => 'How wondrous', :to_request => 'pony')
       subject.documents = [doc1, doc2]
-      subject.signature_requests = [:dummy_request]
-      allow(subject).to receive(:get_recipients_for_request).
-        with([:dummy_request]).
+      allow(subject).to receive(:signature_requests_for_submission).
         and_return('the signature requests')
       subject.form_post_body(:a_status).should eq(
         "\r\n"\

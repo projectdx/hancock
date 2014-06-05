@@ -6,7 +6,6 @@ TODO:
 -----
 
 * Ensure that document identifiers are unique within an envelope
-* Allow a single recipient to sign multiple documents
 
 Interface Specification
 ------------------

@@ -66,6 +66,30 @@ module Hancock
       self
     end
 
+    def signature_requests_for_submission
+      recipients_by_type = {}
+
+      recipients = signature_requests.inject({}) { |hsh, request|
+        recipient = request[:recipient]
+        recipient_type = docusign_recipient_type(recipient.recipient_type)
+        hsh[recipient_type] ||= []
+        entry = hsh[recipient_type].detect { |r|
+          r[:recipientId] == recipient.identifier
+        }
+        unless entry
+          entry = { :email => recipient.email, :name => recipient.name, :recipientId => recipient.identifier }
+          hsh[recipient_type] << entry
+        end
+        entry[:tabs] ||= {}
+        request[:tabs].each do |tab|
+          type = "#{tab.type}_tabs".camelize(:lower).to_sym
+          entry[:tabs][type] ||= []
+          entry[:tabs][type] << tab.to_h.merge(:documentId => request[:document].identifier)
+        end
+        hsh
+      }
+    end
+
     def form_post_body(status)
       post_body =  "\r\n--#{Hancock.boundary}\r\n"
       post_body << "Content-Type: application/json\r\n"
@@ -102,7 +126,7 @@ module Hancock
           emailSubject: @email[:subject]|| Hancock.email_template[:subject],
           status: "#{status}",
           documents: @documents.map{|d| d.to_request},
-          recipients: get_recipients_for_request(@signature_requests),
+          recipients: signature_requests_for_submission,
         }
       end      
   end
