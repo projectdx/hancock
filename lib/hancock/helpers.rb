@@ -1,6 +1,5 @@
 module Hancock
   module Helpers
-    extend ActiveSupport::Concern
 
     #
     # send post request to set uri with post body and headers
