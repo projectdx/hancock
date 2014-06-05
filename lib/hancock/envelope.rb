@@ -66,6 +66,21 @@ module Hancock
       self
     end
 
+    def form_post_body(status)
+      post_body =  "\r\n--#{Hancock.boundary}\r\n"
+      post_body << get_content_type_for(:json)
+      post_body << get_post_params(status).to_json
+      post_body << "\r\n--#{Hancock.boundary}\r\n"
+
+      document_strings = @documents.map do |doc|
+        document_string = get_content_type_for(:pdf, doc)
+        document_string << doc.data_for_request
+      end
+
+      post_body << document_strings.join("\r\n--#{Hancock.boundary}\r\n")
+      post_body << "\r\n--#{Hancock.boundary}--\r\n"
+    end
+
     private
       def send_envelope(status)
         content_headers = { 

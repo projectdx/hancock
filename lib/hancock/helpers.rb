@@ -132,20 +132,5 @@ module Hancock
     def generate_tab(tab, document_id)
       tab.to_h.merge({ :documentId => (document_id || '0')})
     end
-
-    def form_post_body(status)     
-      post_body =  "\r\n--#{Hancock.boundary}\r\n"
-      post_body << get_content_type_for(:json)
-      post_body << get_post_params(status).to_json
-      post_body << "\r\n--#{Hancock.boundary}\r\n"
-
-      @documents.each do |doc|
-        post_body << get_content_type_for(:pdf, doc)
-        post_body << doc.data_for_request
-        post_body << "\r\n"
-      end
-
-      post_body << "\r\n--#{Hancock.boundary}--\r\n"
-    end
   end
 end
