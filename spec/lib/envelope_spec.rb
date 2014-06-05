@@ -1,45 +1,47 @@
 describe Hancock::Envelope do
-  include_context "configs"
-  include_context "variables"
-  
   before do
-    envelope.add_document(document)
-    envelope.add_signature_request({ recipient: recipient, document: document, tabs: [tab] })
+    allow(Hancock).to receive(:oauth_token).and_return('AnAmazingOAuthTokenShinyAndPink')
+    allow(Hancock).to receive(:account_id).and_return(123456)
   end
 
-  describe '#save' do
-    it "should send envelope with status 'created'" do
-      allow(document).to receive(:data_for_request).and_return('hello world')
-      stub_envelope_creation('create_draft', 'created')
-      expect(envelope).to receive(:reload!)
-      envelope.save
-      expect(envelope.identifier).to eq 'a-crazy-envelope-id'
+  context 'sending envelopes' do
+    before do
+      allow(subject).to receive(:documents_for_params).and_return('the_documents')
+      allow(subject).to receive(:documents_for_body).and_return(['hello world'])
+      allow(subject).to receive(:signature_requests_for_params).and_return('the_requests')
+      allow(subject).to receive(:email).and_return({ :subject => 'fubject', :blurb => 'flurb'})
     end
 
-    it 'raises a DocusignError with the returned message if not successful' do
-      allow(document).to receive(:data_for_request).and_return('hello world')
-      stub_envelope_creation('create_draft', 'failed_creation', 500)
-      expect {
-        envelope.save
-      }.to raise_error(Hancock::DocusignError, "Nobody actually loves you; they just pretend until payday.")
-    end
-  end
+    describe '#save' do
+      it "should send envelope with status 'created'" do
+        stub_envelope_creation('create_draft', 'created')
+        expect(subject).to receive(:reload!)
+        subject.save
+        expect(subject.identifier).to eq 'a-crazy-envelope-id'
+      end
 
-  describe '#send!' do
-    it "should send envelope with status 'sent'" do
-      allow(document).to receive(:data_for_request).and_return('hello world')
-      stub_envelope_creation('send_envelope', 'sent')
-      expect(envelope).to receive(:reload!)
-      envelope.send!
-      expect(envelope.identifier).to eq 'a-crazy-envelope-id'
+      it 'raises a DocusignError with the returned message if not successful' do
+        stub_envelope_creation('create_draft', 'failed_creation', 500)
+        expect {
+          subject.save
+        }.to raise_error(Hancock::DocusignError, "Nobody actually loves you; they just pretend until payday.")
+      end
     end
 
-    it 'raises a DocusignError with the returned message if not successful' do
-      allow(document).to receive(:data_for_request).and_return('hello world')
-      stub_envelope_creation('send_envelope', 'failed_creation', 500)
-      expect {
-        envelope.send!
-      }.to raise_error(Hancock::DocusignError, "Nobody actually loves you; they just pretend until payday.")
+    describe '#send!' do
+      it "should send envelope with status 'sent'" do
+        stub_envelope_creation('send_envelope', 'sent')
+        expect(subject).to receive(:reload!)
+        subject.send!
+        expect(subject.identifier).to eq 'a-crazy-envelope-id'
+      end
+
+      it 'raises a DocusignError with the returned message if not successful' do
+        stub_envelope_creation('send_envelope', 'failed_creation', 500)
+        expect {
+          subject.send!
+        }.to raise_error(Hancock::DocusignError, "Nobody actually loves you; they just pretend until payday.")
+      end
     end
   end
 
@@ -92,6 +94,19 @@ describe Hancock::Envelope do
     end
   end
 
+  describe '#add_signature_request' do
+    it 'adds a signature request to the envelope, and caches recipients' do
+      attributes = {
+        :recipient => :a_recipient,
+        :document => :a_document,
+        :tabs => [:tab1, :tab2]
+      }
+      subject.add_signature_request(attributes)
+      expect(subject.signature_requests).to eq [attributes]
+      expect(subject.recipients).to eq [:a_recipient]
+    end
+  end
+
   describe '#new' do
     it "can set params on initialization" do
       envelope = Hancock::Envelope.new({
@@ -112,7 +127,7 @@ describe Hancock::Envelope do
     end
   end
 
-  describe '#signature_requests_for_submission' do
+  describe '#signature_requests_for_params' do
     it 'returns signature requests grouped by recipient and set up for submission' do
       document1 = Hancock::Document.new(:identifier => 1)
       document2 = Hancock::Document.new(:identifier => 2)
@@ -130,7 +145,7 @@ describe Hancock::Envelope do
           { :recipient => recipient3, :document => document2, :tabs => [tab2] },
         ]
       })
-      expect(subject.signature_requests_for_submission).to eq({
+      expect(subject.signature_requests_for_params).to eq({
         'signers' => [
           {
             :email => 'b@mail.com', :name => 'Bob', :recipientId => 1, :tabs => {
@@ -169,16 +184,17 @@ describe Hancock::Envelope do
 
   describe '#form_post_body' do
     it 'assembles body for posting' do
+      allow(subject).to receive(:email).and_return({ :subject => 'fubject', :blurb => 'flurb'})
       doc1 = double(Hancock::Document, :multipart_form_part => 'Oh my', :to_request => 'horse')
       doc2 = double(Hancock::Document, :multipart_form_part => 'How wondrous', :to_request => 'pony')
       subject.documents = [doc1, doc2]
-      allow(subject).to receive(:signature_requests_for_submission).
+      allow(subject).to receive(:signature_requests_for_params).
         and_return('the signature requests')
       subject.form_post_body(:a_status).should eq(
         "\r\n"\
         "--MYBOUNDARY\r\nContent-Type: application/json\r\n"\
         "Content-Disposition: form-data\r\n\r\n"\
-        "{\"emailBlurb\":\"An Email Blurb\",\"emailSubject\":\"An Email Subject\","\
+        "{\"emailBlurb\":\"flurb\",\"emailSubject\":\"fubject\","\
         "\"status\":\"a_status\",\"documents\":[\"horse\",\"pony\"],"\
         "\"recipients\":\"the signature requests\"}\r\n"\
         "--MYBOUNDARY\r\nOh my\r\n"\

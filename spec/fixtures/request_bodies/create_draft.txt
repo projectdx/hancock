@@ -2,10 +2,7 @@
 Content-Type: application/json
 Content-Disposition: form-data
 
-{"emailBlurb":"An Email Blurb","emailSubject":"An Email Subject","status":"created","documents":[{"documentId":123,"name":"test"}],"recipients":{"signers":[{"email":"ravi@renewfund.com","name":"Owner","recipientId":222,"tabs":{"signHereTabs":[{"tabLabel":"Vas","xPosition":2,"yPosition":100,"pageNumber":1,"documentId":123}]}}]}}
+{"emailBlurb":"flurb","emailSubject":"fubject","status":"created","documents":"the_documents","recipients":"the_requests"}
 --MYBOUNDARY
-Content-Type: application/pdf
-Content-Disposition: file; filename=test; documentid=123
-
 hello world
 --MYBOUNDARY--
