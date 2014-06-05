@@ -27,6 +27,38 @@ describe Hancock::Envelope do
     end
   end
 
+  describe '#reload!' do
+    it 'reloads status, documents, and recipients from DocuSign' do
+      subject.identifier = 'crayons'
+      allow(Hancock::DocuSignAdapter).to receive(:new).
+        with('crayons').
+        and_return(double('adapter', :envelope => {
+          'status' => 'bullfree',
+          'emailSubject' => 'Subjacked',
+          'emailBlurb' => 'Blurble'
+        }))
+      allow(Hancock::Document).to receive(:fetch_for_envelope).
+        with(subject).
+        and_return(:le_documeneaux)
+      allow(Hancock::Recipient).to receive(:fetch_for_envelope).
+        with(subject).
+        and_return(:le_recipierre)
+
+      expect(subject.reload!).to eq subject
+      expect(subject.status).to eq 'bullfree'
+      expect(subject.email).to eq({:subject => 'Subjacked', :blurb => 'Blurble'})
+      expect(subject.documents).to eq :le_documeneaux
+      expect(subject.recipients).to eq :le_recipierre
+    end
+
+    it 'is safe to call even if no identifier' do
+      subject.identifier = nil
+      expect {
+        subject.reload!
+      }.not_to raise_error
+    end
+  end
+
   describe '.find' do
     it "should find envelope with given ID and #reload! it" do
       envelope = Hancock::Envelope.new(:identifier => 'a-crazy-envelope-id')
