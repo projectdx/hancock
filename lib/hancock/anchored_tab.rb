@@ -8,7 +8,7 @@ module Hancock
     # page_number: default 1
     #
 
-    attr_accessor :type, :label, :offset, :anchor_text, :page_number
+    attr_accessor :type, :label, :offset, :page_number
 
     validates :type, :label, :offset, presence: true 
     validates :offset, type: :array
@@ -17,10 +17,14 @@ module Hancock
       @type        = attributes[:type]
       @label       = attributes[:label]
       @offset      = attributes[:offset]
-      @anchor_text = attributes[:anchor_text] || @label
+      @anchor_text = attributes[:anchor_text]
       @page_number = attributes[:page_number] || 1
 
       self.validate!
+    end
+
+    def anchor_text
+      @anchor_text || label
     end
 
     def to_h

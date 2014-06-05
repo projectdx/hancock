@@ -1,46 +1,42 @@
-require_relative '../spec_helper'
-
 describe Hancock::AnchoredTab do
-  include_context "configs"
-  include_context "variables"
+  let(:params) { { type: 'type', offset: [1,2], label: 'label' } }
+  subject { described_class.new(params) }
 
-  it 'Should have default value of page_number' do 
+  describe "#page_number" do
+    it 'defaults to 1' do
+      subject.page_number.should eq 1
+    end
 
-
-    params = {
-      type:            'type',
-      offset:          [1,2], 
-      label:           'label', 
-      anchor_text:     'anchor_text'
-     }
-     Hancock::AnchoredTab.new(params).page_number.should_not be(nil)
+    it 'can be set via params' do
+      params.merge!(page_number: 3)
+      subject.page_number.should eq 3
+    end
   end
 
-  it 'Should have default value of anchor_text' do 
-    params = {
-      type:            'type',
-      offset:          [1,2], 
-      label:           'label'
-     }
-     at = Hancock::AnchoredTab.new(params)
-     at.anchor_text.should eq(params[:label])
+  describe "#anchor_text" do
+    it 'defaults to label' do
+      allow(subject).to receive(:label).and_return('ghosts')
+      subject.anchor_text.should eq 'ghosts'
+    end
+
+    it 'can be set via params' do
+      params.merge!(anchor_text: 'smurf bees')
+      subject.anchor_text.should eq 'smurf bees'
+    end
   end
 
-  it 'to_h method Should generate proper hash' do 
-    tmp_hash = {
-      :anchorString       => 'anchor_text',
-      :anchorXOffset      => 1,
-      :anchorYOffset      => 2,
-      :IgnoreIfNotPresent => 1,
-      :pageNumber         => 1
-    }
-    params = {
-      label:  tmp_hash[:anchorString],
-      type:   tmp_hash[:anchorString],
-      offset: [tmp_hash[:anchorXOffset],tmp_hash[:anchorYOffset]], 
-      type:   tmp_hash[:anchorString]
-    }
-    Hancock::AnchoredTab.new(params).to_h.should eq(tmp_hash)
+  describe "#to_h" do
+    it "generates hash suitable for DocuSign submission" do
+      allow(subject).to receive(:page_number).and_return(5)
+      allow(subject).to receive(:offset).and_return([45,251])
+      allow(subject).to receive(:anchor_text).and_return('smarmy vikings')
+      subject.to_h.should eq({
+        :anchorString => 'smarmy vikings',
+        :anchorXOffset      => 45,
+        :anchorYOffset      => 251,
+        :IgnoreIfNotPresent => 1,
+        :pageNumber         => 5
+      })
+    end
   end
-
 end
