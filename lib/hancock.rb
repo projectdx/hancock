@@ -1,7 +1,5 @@
-unless defined?(Rails)
-  require 'active_support/concern'
-  require 'active_support/inflector'
-end
+require 'active_support/core_ext/string'
+require 'active_support/inflector'
 
 require 'hancock/helpers'
 require_relative 'hancock/configuration'
