@@ -1,4 +1,7 @@
 # encoding: UTF-8
+require 'simplecov'
+SimpleCov.start
+
 require 'hancock'
 require 'nokogiri'
 require 'valid_attribute'
