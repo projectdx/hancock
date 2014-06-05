@@ -50,26 +50,4 @@ describe Hancock::Helpers do
         to eq default_headers.merge!(content_headers)
     end
   end
-
-  describe '#get_recipients_for_request' do
-    it 'returns recipients hash grouped by signer type' do
-      recipient1 = Hancock::Recipient.new(:name => 'Frog King', :email => 'frog@owner.owner', :identifier => '7', :recipient_type => 'signer')
-      recipient2 = Hancock::Recipient.new(:name => 'Dr. Nurse', :email => 'drnurse@owner.owner', :identifier => '11', :recipient_type => 'signer')
-      recipient3 = Hancock::Recipient.new(:name => 'Lurky', :email => 'lurky@lurking.lurk', :identifier => '31', :recipient_type => 'editor')
-      tab = Hancock::Tab.new(type: "sign_here", label: "Gopher", coordinates: [2, 100], page_number: 1)
-      document = Hancock::Document.new( data: 'yay hello', name: "test", extension: "pdf", identifier: 123 )
-
-      signature_requests = [
-        { recipient: recipient1, document: document, tabs: [tab] },
-        { recipient: recipient2, document: document, tabs: [tab] },
-        { recipient: recipient3, document: document, tabs: [tab] }
-      ]
-
-      recipients = get_recipients_for_request(signature_requests)
-      expect(recipients["signers"]).to have(2).items
-      expect(recipients["editors"]).to have(1).item
-      expect(recipients["signers"].map { |s| s[:name] }).to eq(['Frog King', 'Dr. Nurse'])
-      expect(recipients["editors"].map { |s| s[:name] }).to eq(['Lurky'])
-    end
-  end
 end
