@@ -12,8 +12,6 @@ module Hancock
     DEFAULT_API_VERSION    = 'v2'
     DEFAULT_METHOD         = :get
 
-    DEFAULT_ACCESS_TOKEN   = nil
-
     DEFAULT_BOUNDARY       = 'MYBOUNDARY'
     DEFAULT_OAUTH_TOKEN    = nil
     DEFAULT_ACCOUNT_ID     = nil
