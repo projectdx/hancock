@@ -24,7 +24,7 @@ module Hancock
     end
 
     def data_for_request
-      file.nil? ? data : IO.read(file)      
+      file.nil? ? data : IO.read(file)
     end
 
     def content_type_and_disposition
@@ -34,7 +34,7 @@ module Hancock
         "Content-Disposition: file; filename=#{name}; documentid=#{identifier}\r\n\r\n"
       when 'docx'
         "Content-Type: application/vnd.openxmlformats-officedocument.wordprocessingml.document\r\n"\
-        "Content-Disposition: file; filename=#{name}; documentid=#{identifier}\r\n\r\n"  
+        "Content-Disposition: file; filename=#{name}; documentid=#{identifier}\r\n\r\n"
       end
     end
 
