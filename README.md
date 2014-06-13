@@ -213,7 +213,7 @@ be populated with Docusign envelope information (similar to `#reload!``)
 Envelope#reload!
 ```
 
-If the envelope has a Dcousign identifier, the request envelope information from Docusign.
+If the envelope has a Docusign identifier, the request envelope information from Docusign.
 
 ```ruby
 Envelope#identifer
