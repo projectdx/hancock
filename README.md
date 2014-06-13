@@ -2,11 +2,6 @@ Hancock Signature Gem
 =========================
 Gem for submitting documents to DocuSign with electronic signature tabs.
 
-TODO:
------
-
-* Ensure that document identifiers are unique within an envelope
-
 Interface Specification
 ------------------
 
@@ -63,7 +58,6 @@ document1 = Hancock::Document.new({
   # data: 'Base64 Encoded String', # required if no file, invalid if file
   # name: 'whatever.pdf', # optional if file, defaults to basename
   # extension: 'pdf', # optional if file, defaults to path extension
-  # identifier: 'my_document_3', # optional, generates if not given
 })
 
 envelope.documents << document1
@@ -230,7 +224,6 @@ document1 = Hancock::Document.new({
   # data: 'Base64 Encoded String', # required if no file, invalid if file
   # name: 'whatever.pdf', # optional if file, defaults to basename
   # extension: 'pdf', # optional if file, defaults to path extension
-  # identifier: 'my_document_3', # optional, generates if not given
 })
 ```
 
@@ -242,7 +235,6 @@ file | (File object) which would contain the data, respond to `basename` and `ex
 data | (string Required if `file` is missing) Base64 encoded string.
 name       | (string) filename `bob_hope_contract`
 extension  | (string [default: pdf]) file extension `docx                    | pdf..`
-identifier | (string optional) a unique identifier for document within envelope.  Autogenerate if not provided.
 
 Recipient class
 ---

@@ -16,7 +16,7 @@ module Hancock
       @data       = attributes[:data]
       @name       = attributes[:name]       || generate_name()
       @extension  = attributes[:extension]  || generate_extension()
-      @identifier = attributes[:identifier] || generate_identifier()
+      @identifier = attributes[:identifier]
     end
 
     def to_request
@@ -46,7 +46,7 @@ module Hancock
       connection = Hancock::DocuSignAdapter.new(envelope.identifier)
       connection.documents.map do |document|
         document_data = connection.document(document["documentId"])
-        new(identifier: document["documentId"], name: document["name"], extension: "pdf", data: document_data)
+        new(name: document["name"], extension: "pdf", data: document_data)
       end
     end
 

@@ -113,8 +113,6 @@ describe Hancock::Document do
         and_return(adapter)
 
       documents = described_class.fetch_for_envelope(envelope)
-      expect(documents.map(&:identifier)).
-        to match_array(['14', '16'])
       expect(documents.map(&:data)).
         to match_array(['the bytes', 'omg more bytes'])
       expect(documents.map(&:class).uniq).to eq [described_class]
