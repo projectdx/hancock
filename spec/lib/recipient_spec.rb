@@ -28,14 +28,13 @@ describe Hancock::Recipient do
   end
 
   describe '#identifier' do
-    it 'returns generated identifier by default' do
-      allow_any_instance_of(described_class).to receive(:generate_identifier).and_return(:this_is_exciting)
-      subject.identifier.should eq :this_is_exciting
+    it 'returns nil by default' do
+      expect(subject.identifier).to be_nil
     end
 
     it 'can be set' do
-      subject.identifier = 'smithy mcsmitherson'
-      subject.identifier.should eq 'smithy mcsmitherson'
+      subject = described_class.new(:identifier => 'smithy mcsmitherson')
+      expect(subject.identifier).to eq 'smithy mcsmitherson'
     end
   end
 

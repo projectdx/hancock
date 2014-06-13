@@ -32,7 +32,7 @@ module Hancock
       @delivery_method = attributes[:delivery_method] || :email
       @routing_order   = attributes[:routing_order]   || 1
       @recipient_type  = attributes[:recipient_type]  || :signer
-      @identifier      = attributes[:identifier]      || generate_identifier()
+      @identifier      = attributes[:identifier]
     end
 
     def self.fetch_for_envelope(envelope)

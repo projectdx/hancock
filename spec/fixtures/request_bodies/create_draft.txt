@@ -1,8 +1,0 @@
---MYBOUNDARY
-Content-Type: application/json
-Content-Disposition: form-data
-
-{"emailBlurb":"flurb","emailSubject":"fubject","status":"created","documents":"the_documents","recipients":"the_requests"}
---MYBOUNDARY
-hello world
---MYBOUNDARY--

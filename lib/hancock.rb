@@ -12,7 +12,6 @@ require 'json'
 require 'hancock/base'
 require 'hancock/docusign_adapter'
 require 'hancock/version'
-require 'hancock/exceptions'
 require 'hancock/envelope'
 require 'hancock/document'
 require 'hancock/recipient'
@@ -21,6 +20,11 @@ require 'hancock/tab'
 require 'hancock/envelope_status'
 require 'hancock/recipient_status'
 require 'hancock/callback'
+
+# Avoid deprecation warnings; ActiveSupport 4.1.0 loads i18n and displays a
+# deprecation warning that while this variable currently defaults to false,
+# it will default to true in the "future."
+I18n.enforce_available_locales = true
 
 module Hancock
   class ConfigurationMissing < StandardError; end
