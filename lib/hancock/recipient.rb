@@ -25,7 +25,7 @@ module Hancock
       end
     end
 
-    def initialize(attributes = {}, run_validations=true)
+    def initialize(attributes = {})
       @name            = attributes[:name]
       @email           = attributes[:email]
       @id_check        = attributes[:id_check]        || true
