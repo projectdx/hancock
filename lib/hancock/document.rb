@@ -17,11 +17,8 @@ module Hancock
     validates :data, :type => :string, :presence => true, :unless => :file
     validates :data, :presence => false, :if => :file
 
-    #
-    # skip validations if 'run_validations' is false
-    #
-    def initialize(attributes = {}, run_validations = true) 
-      @file       = attributes[:file] 
+    def initialize(attributes = {})
+      @file       = attributes[:file]
       @data       = attributes[:data]
       @name       = attributes[:name]       || generate_name()
       @extension  = attributes[:extension]  || generate_extension()
