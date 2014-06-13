@@ -1,4 +1,21 @@
 describe Hancock::Recipient do
+  context 'validations' do
+    it { should have_valid(:delivery_method).when(:email, :embedded, :offline, :paper) }
+    it { should_not have_valid(:delivery_method).when(:goofy, nil, '') }
+
+    it { should have_valid(:name).when('Soup Can Sam') }
+    it { should_not have_valid(:name).when(nil, '') }
+
+    it { should have_valid(:email).when('nerf@email.com', 'ooh+a+spider@what.is.an.email') }
+    it { should_not have_valid(:email).when('dan@localhost', 'noobody', nil, '') }
+
+    it { should have_valid(:id_check).when(true, false, nil) }
+    it { should_not have_valid(:id_check).when('oh my yes', :true, '') }
+
+    it { should have_valid(:recipient_type).when(*described_class::Types) }
+    it { should_not have_valid(:recipient_type).when(:puppy, nil, '') }
+  end
+
   describe "#routing_order" do
     it 'defaults to 1' do
       subject.routing_order.should eq 1
@@ -67,22 +84,5 @@ describe Hancock::Recipient do
         to match_array(['darwin@example.com', 'salli@example.com'])
       expect(recipients.map(&:class).uniq).to eq [described_class]
     end
-  end
-
-  context 'validations' do
-    it { should have_valid(:delivery_method).when(:email, :embedded, :offline, :paper) }
-    it { should_not have_valid(:delivery_method).when(:goofy, nil, '') }
-
-    it { should have_valid(:name).when('Soup Can Sam') }
-    it { should_not have_valid(:name).when(nil, '') }
-
-    it { should have_valid(:email).when('nerf@email.com', 'ooh+a+spider@what.is.an.email') }
-    it { should_not have_valid(:email).when('dan@localhost', 'noobody', nil, '') }
-
-    it { should have_valid(:id_check).when(true, false, nil) }
-    it { should_not have_valid(:id_check).when('oh my yes', :true, '') }
-
-    it { should have_valid(:recipient_type).when(*described_class::Types) }
-    it { should_not have_valid(:recipient_type).when(:puppy, nil, '') }
   end
 end

@@ -1,21 +1,15 @@
 module Hancock
   class Document < Hancock::Base
-
-    #
-    # file:       #<File:/tmp/whatever.pdf>,
-    # data:       'Base64 Encoded String', # required if no file, invalid if file
-    # name:       'whatever.pdf', # optional if file, defaults to basename
-    # extension:  'pdf', # optional if file, defaults to path extension
-    # identifier: 'my_document_3', # optional, generates if not given
-    # 
-
     attr_accessor :file, :data, :name, :extension, :identifier
 
     validates :name, :extension, :presence => true
-    validates :file, :type => :file, :presence => true, :unless => :data
-    validates :file, :presence => false, :if => :data
-    validates :data, :type => :string, :presence => true, :unless => :file
-    validates :data, :presence => false, :if => :file
+    validate :has_either_data_or_file
+
+    def has_either_data_or_file
+      unless (file.blank? && data.present?) || (data.blank? && file.present?)
+        errors.add(:base, 'must have either data or file but not both')
+      end
+    end
 
     def initialize(attributes = {})
       @file       = attributes[:file]

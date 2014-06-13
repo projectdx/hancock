@@ -2,31 +2,40 @@ describe Hancock::Document do
   let(:file) { File.open(fixture_path('test.pdf')) }
 
   context 'validations' do
-    it { should have_valid(:file).when(file) }
-    it { should_not have_valid(:file).when('not a file', nil) }
-
-    it { should have_valid(:data).when('squishy bits') }
-    it { should_not have_valid(:data).when(nil, file) }
-
     it { should have_valid(:name).when('squishy bits') }
     it { should_not have_valid(:name).when(nil, '') }
 
     it { should have_valid(:extension).when('.foo') }
     it { should_not have_valid(:extension).when(nil, '') }
 
-    it { should have_valid(:data).when('squishy bits') }
-    it { should_not have_valid(:data).when(nil) }
-
     context 'when file is present' do
       before { subject.file = file }
-      it { should have_valid(:data).when(nil) }
-      it { should_not have_valid(:data).when('squishy bits') }
+      it 'should be valid if no data' do
+        subject.data = nil
+        subject.valid?
+        expect(subject.errors[:base]).to be_empty
+      end
+
+      it 'should be invalid if data' do
+        subject.data = 'squishy bits'
+        subject.valid?
+        expect(subject.errors[:base]).not_to be_empty
+      end
     end
 
     context 'when data is present' do
       before { subject.data = 'squishy bits' }
-      it { should have_valid(:file).when(nil) }
-      it { should_not have_valid(:file).when(file) }
+      it 'should be valid if no file' do
+        subject.file = nil
+        subject.valid?
+        expect(subject.errors[:base]).to be_empty
+      end
+
+      it 'should be invalid if file' do
+        subject.file = 'squishy bits'
+        subject.valid?
+        expect(subject.errors[:base]).not_to be_empty
+      end
     end
   end
 

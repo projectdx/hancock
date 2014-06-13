@@ -1,6 +1,6 @@
 module Hancock
   class Base
-    include Hancock::Validations
+    include ActiveModel::Validations
     include Hancock::Helpers
     extend Hancock::Helpers
 

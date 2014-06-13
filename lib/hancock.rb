@@ -1,10 +1,10 @@
 require 'active_support/core_ext/string'
 require 'active_support/inflector'
+require 'active_support/concern'
+require 'active_model'
 
 require 'hancock/helpers'
 require_relative 'hancock/configuration'
-
-require 'hancock/validations'
 
 require 'nokogiri'
 require 'json'
