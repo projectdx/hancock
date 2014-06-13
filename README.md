@@ -36,12 +36,12 @@ Hancock.email_template = {}
 ##### Description
 
 DocuSign has the ability to make callbacks to a specified URI and provide status on an envelope and recepient.
-This method will allow the client to register a callback uri and select which event to listen to. 
+This method will allow the client to register a callback uri and select which event to listen to.
 [See eventNotification for details](https://www.docusign.com/p/RESTAPIGuide/RESTAPIGuide.htm#REST%20API%20References/Send%20an%20Envelope.htm%3FTocPath%3DREST%20API%20References%7CSend%20an%20Envelope%20or%20Create%20a%20Draft%20Envelope%7C_____0)
 
 Key                | Description
 ---                | ---
-oauth_token        | OAuth token generated via Docusign 
+oauth_token        | OAuth token generated via Docusign
 account_id         | Docusign account id
 endpoint           | Docusign endpoint (demo vs live)
 api_version        | Docusign api version (v1, v2)
@@ -261,7 +261,7 @@ Key           | Description
 name          | (string) Name of signer
 email         | (string) Email address of signer
 id_check      | (boolean [default: true]) true to enable [ID Check functionality](http://www.docusign.com/partner/docusign-id-check-powered-by-lexisnexis-risk-solutions)
-delivery_method | (string [default: email]) 
+delivery_method | (string [default: email])
               | `email`: send through email and sign online
               | `embedded`: embedded iframe
               | `offline`: sign offline on tablet
@@ -283,7 +283,7 @@ EnvelopeStatus class
 EnvelopeStatus.new(xml)
 ```
 
-This will extract the recipient events information from the xml and provide readers to the information.  
+This will extract the recipient events information from the xml and provide readers to the information.
 
 For example:
 
