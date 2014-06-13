@@ -26,5 +26,11 @@ require 'hancock/recipient_status'
 require 'hancock/callback'
 
 module Hancock
+  class ConfigurationMissing < StandardError; end
+
   extend Configuration
+
+  def self.configured?
+    oauth_token.present? && account_id.present?
+  end
 end
