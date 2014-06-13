@@ -1,6 +1,3 @@
-require 'rubygems'
-require 'bundler/setup'
-
 require 'active_support/core_ext/string'
 require 'active_support/inflector'
 
