@@ -2,12 +2,11 @@ module Hancock
   class Tab < Hancock::Base
     attr_accessor :type, :label, :page_number, :coordinates
 
-    validates :type, :label, presence: true 
-    validates :coordinates, type: :array, presence: true
-    validates :page_number, :presence => true, :type => :fixnum
+    validates :type, :label, :coordinates, :page_number, :presence => true
+    validates :page_number, :numericality => { :greater_than => 0, :only_integer => true }
 
     def initialize(attributes = {})
-      @type        = attributes[:type] 
+      @type        = attributes[:type]
       @label       = attributes[:label]
       @coordinates = attributes[:coordinates]
       @page_number = attributes[:page_number] || 1
@@ -20,6 +19,12 @@ module Hancock
         :yPosition          => coordinates[1],
         :pageNumber         => page_number
       }
+    end
+
+    def coordinates=(coordinates)
+      raise ArgumentError unless coordinates.is_a?(Array)
+
+      @coordinates = coordinates
     end
   end
 end

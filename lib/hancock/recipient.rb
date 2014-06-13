@@ -14,12 +14,12 @@ module Hancock
     attr_accessor :name, :email, :id_check, :delivery_method, :routing_order, :identifier, :recipient_type
 
     validates :name, :email, :presence => true
-    validates :id_check, :allow_nil => true, :inclusion_of => [true, false]
-    validates :delivery_method, :inclusion_of => [:email, :embedded, :offline, :paper]
-    validates :recipient_type, :inclusion_of => Types
+    validates :id_check, :allow_nil => true, :inclusion => [true, false]
+    validates :delivery_method, :inclusion => [:email, :embedded, :offline, :paper]
+    validates :recipient_type, :inclusion => Types
+    validate :email_validition
 
-    def validate!
-      super
+    def email_validition
       unless email =~ /\A([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\z/i
         (errors[:email] ||= []) << 'must be valid email'
       end
