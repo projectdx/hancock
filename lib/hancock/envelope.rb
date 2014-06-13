@@ -30,14 +30,14 @@ module Hancock
         tabs: attributes[:tabs]
       }
 
-      @recipients << attributes[:recipient] 
+      @recipients << attributes[:recipient]
     end
 
     #
     # sends to DocuSign and sets status to "sent," which sends email
     #
     def send!
-      send_envelope("sent")      
+      send_envelope("sent")
     end
 
     #
