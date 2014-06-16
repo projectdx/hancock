@@ -4,7 +4,7 @@ module Hancock
     class DocusignError < StandardError; end
 
     attr_accessor :identifier, :status, :documents, :signature_requests, :email, :recipients
-
+    
     validates :status, :presence => true
     validates :documents, :presence => true
     validates :recipients, :presence => true
@@ -121,7 +121,7 @@ module Hancock
       documents.map(&:multipart_form_part)
     end
 
-  private
+    private
 
     def generate_document_ids!
       next_available_document_identifier = (documents.map(&:identifier).compact.max || 0) + 1
@@ -161,32 +161,27 @@ module Hancock
       }
     end
 
-    def recipient_validity
-      errors.add(:recipients, "can't be empty") if recipients.empty?
-      if recipients.any? { |recipient| !recipient.is_a?(Recipient) }
-        errors.add(:recipients, "one of the recipients is not a recipient")
+    def check_validity(klass)
+      field = klass.to_s.split("::")[1].downcase.pluralize.to_sym
+      errors.add(field, "can't be empty") if send(field).empty?
+      if send(field).any? {|item| !(item.is_a?(klass)) }
+        errors.add(field, "one of the #{field} is not a #{field.to_s.singularize}")
       else
-        unless recipients.all?(&:valid?)
-          errors.add(:recipients, "one of the recipients is not valid")
+        unless send(field).all?(&:valid?)
+          errors.add(field, "one of the #{field} is not valid")
         end
-        unless recipients.map(&:identifier).uniq.length == recipients.length
-          errors.add(:recipients, "must all be unique")
+        unless send(field).map(&:identifier).uniq.length == send(field).length
+          errors.add(field, "must all be unique")
         end
       end
     end
 
+    def recipient_validity
+      check_validity(Recipient)
+    end
+
     def document_validity
-      errors.add(:documents, "can't be empty") if documents.empty?
-      if documents.any? { |document| !document.is_a?(Document) }
-        errors.add(:documents, "one of the documents is not a document")
-      else
-        unless documents.all?(&:valid?)
-          errors.add(:documents, "one of the documents is not valid")
-        end
-        unless documents.map(&:identifier).uniq.length == documents.length
-          errors.add(:documents, "must all be unique")
-        end
-      end
+      check_validity(Document)
     end
   end
 end
