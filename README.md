@@ -2,6 +2,12 @@ Hancock Signature Gem
 =========================
 Gem for submitting documents to DocuSign with electronic signature tabs.
 
+TODO:
+-----
+
+* Allow sending of previously saved envelopes (right now #save followed by
+#send! just generates a new envelope)
+
 Interface Specification
 ------------------
 
