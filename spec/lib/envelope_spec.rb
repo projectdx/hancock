@@ -63,7 +63,7 @@ describe Hancock::Envelope do
         allow(subject).to receive(:valid?).and_return(false)
         expect {
           subject.send_envelope('foo')
-        }.to raise_error(described_class::Invalid)
+        }.to raise_error(described_class::InvalidEnvelopeError)
       end
 
       it 'should raise exception if Hancock not configured' do

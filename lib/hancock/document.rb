@@ -6,7 +6,7 @@ module Hancock
     validate :has_either_data_or_file
 
     def has_either_data_or_file
-      unless (file.blank? && data.present?) || (data.blank? && file.present?)
+      unless file.present? ^ data.present? # XOR
         errors.add(:base, 'must have either data or file but not both')
       end
     end
@@ -51,6 +51,8 @@ module Hancock
     end
 
     private
+      # NOTE: these two things return nil if there is no @file (i.e. we have @data instead)
+      # this will break the validations in that case (maybe we want this?)
       def generate_name
         File.basename(@file) if @file
       end

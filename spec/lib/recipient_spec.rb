@@ -12,7 +12,7 @@ describe Hancock::Recipient do
     it { is_expected.to have_valid(:id_check).when(true, false, nil) }
     it { is_expected.not_to have_valid(:id_check).when('oh my yes', :true, '') }
 
-    it { is_expected.to have_valid(:recipient_type).when(*described_class::Types) }
+    it { is_expected.to have_valid(:recipient_type).when(*described_class::TYPES) }
     it { is_expected.not_to have_valid(:recipient_type).when(:puppy, nil, '') }
   end
 

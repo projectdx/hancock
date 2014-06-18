@@ -1,7 +1,14 @@
 module Hancock
   class Envelope < Hancock::Base
-    class Invalid < StandardError; end
+    class InvalidEnvelopeError < StandardError; end
     class DocusignError < StandardError; end
+
+    # NOTE:
+    # In memory modeling
+    # validations
+    # any other responsibilities?
+
+    # NOTE: DocuSignAdapter should be folded in to this class.
 
     attr_accessor :identifier, :status, :documents, :signature_requests, :email, :recipients
 
@@ -55,8 +62,14 @@ module Hancock
       send_envelope("created")
     end
 
+    # NOTE:
+    # the sending and creating params stuff in this class seems like it would be better
+    # in a separate object (maybe DocuSignAdapter, maybe something new).
+    # it seems to me that this class may be overburdened if it is responsible for
+    # #form_post_body and all methods within that.
+    # let's talk about this
     def send_envelope(status)
-      raise Invalid unless valid?
+      raise InvalidEnvelopeError unless valid?
       raise Hancock::ConfigurationMissing unless Hancock.configured?
 
       generate_document_ids!
@@ -92,6 +105,7 @@ module Hancock
     def signature_requests_for_params
       recipients_by_type = {}
 
+      # NOTE: can we take a stab at refactoring this beast?
       recipients = signature_requests.inject({}) { |hsh, request|
         recipient = request[:recipient]
         recipient_type = docusign_recipient_type(recipient.recipient_type)
@@ -167,6 +181,8 @@ module Hancock
       if collection.any? {|item| !(item.is_a?(klass)) }
         errors.add(field, "one of the #{field} is not a #{klass}")
       else
+        # NOTE: maybe make these one-liners?
+        # (trade-off is readability vs line length)
         unless collection.all?(&:valid?)
           errors.add(field, "one of the #{field} is not valid")
         end
