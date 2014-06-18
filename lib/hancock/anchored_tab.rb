@@ -7,6 +7,7 @@ module Hancock
       super
     end
 
+    # NOTE: I would really like to know if this has any difference in DocuSign's interface.
     def anchor_text
       @anchor_text || label
     end

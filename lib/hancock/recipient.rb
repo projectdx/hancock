@@ -1,22 +1,13 @@
 module Hancock
   class Recipient < Hancock::Base
+    TYPES = [:agent, :carbon_copy, :certified_delivery, :editor, :in_person_signer, :intermediary, :signer]
 
-    #
-    # name:            'Owner 1',
-    # email:           'whoever@whereever.com',
-    # id_check:        true/false,
-    # delivery_method: email, # email, embedded, offline, paper
-    # routing_order:   1
-    # identifier:      optional, generates if not given
-    #
-
-    Types = [:agent, :carbon_copy, :certified_delivery, :editor, :in_person_signer, :intermediary, :signer]
     attr_accessor :name, :email, :id_check, :delivery_method, :routing_order, :identifier, :recipient_type
 
     validates :name, :email, :presence => true
     validates :id_check, :allow_nil => true, :inclusion => [true, false]
     validates :delivery_method, :inclusion => [:email, :embedded, :offline, :paper]
-    validates :recipient_type, :inclusion => Types
+    validates :recipient_type, :inclusion => TYPES
     validate :email_validition
 
     def email_validition
@@ -39,7 +30,7 @@ module Hancock
       connection = Hancock::DocuSignAdapter.new(envelope.identifier)
       envelope_recipients = connection.recipients
 
-      Types.map { |type|
+      TYPES.map { |type|
         envelope_recipients[docusign_recipient_type(type)].map { |envelope_recipient|
           new({
             name: envelope_recipient["name"],

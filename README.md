@@ -80,7 +80,7 @@ recipient1 = Hancock::Recipient.new({
 tab1 = Hancock::AnchoredTab.new({
   type: 'sign_here',
   label: '{{recipient.name}} Signature',
-  offset: [2, 100]
+  coordinates: [2, 100]
   # anchor_text: 'Owner 1 Signature', # defaults to label
 })
 
