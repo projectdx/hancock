@@ -51,8 +51,7 @@ module Hancock
     end
 
     private
-      # NOTE: these two things return nil if there is no @file (i.e. we have @data instead)
-      # this will break the validations in that case (maybe we want this?)
+
       def generate_name
         File.basename(@file) if @file
       end
