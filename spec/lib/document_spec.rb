@@ -53,7 +53,7 @@ describe Hancock::Document do
     end
 
     describe '#extension' do
-      it 'returns extension extracted from filename' do 
+      it 'returns extension extracted from filename' do
         expect(subject.extension).to eq 'pdf'
       end
 
@@ -95,27 +95,46 @@ describe Hancock::Document do
   end
 
   describe '#multipart_form_part' do
-    it "returns content type and disposition followed by data" do    
+    it "returns content type and disposition followed by data" do
       allow(subject).to receive(:content_type_and_disposition).and_return('1, 2, 3... ')
       allow(subject).to receive(:data_for_request).and_return('get excited!')
       expect(subject.multipart_form_part).to eq "1, 2, 3... get excited!"
     end
   end
 
-  describe '.fetch_for_envelope' do
-    it 'reloads documents from DocuSign envelope' do
+  context 'document fetching' do
+    let(:envelope) { Hancock::Envelope.new(:identifier => 'a-crazy-envelope-id') }
+    before(:each) do
       adapter = double(Hancock::DocuSignAdapter, :documents => JSON.parse(response_body('documents'))['envelopeDocuments'])
       allow(adapter).to receive(:document).with('14').and_return('the bytes')
       allow(adapter).to receive(:document).with('16').and_return('omg more bytes')
-      envelope = Hancock::Envelope.new(:identifier => 'a-crazy-envelope-id')
+      allow(adapter).to receive(:document).with('certificate').and_return('a golden ticket!')
       allow(Hancock::DocuSignAdapter).to receive(:new).
         with('a-crazy-envelope-id').
         and_return(adapter)
+    end
 
-      documents = described_class.fetch_for_envelope(envelope)
-      expect(documents.map(&:data)).
-        to match_array(['the bytes', 'omg more bytes'])
-      expect(documents.map(&:class).uniq).to eq [described_class]
+    describe '.fetch_all_for_envelope' do
+      it 'reloads only content documents from DocuSign envelope by default' do
+        documents = described_class.fetch_all_for_envelope(envelope)
+        expect(documents.map(&:data)).
+          to match_array(['the bytes', 'omg more bytes'])
+        expect(documents.map(&:identifier)).
+          to match_array([14, 16])
+        expect(documents.map(&:class).uniq).to eq [described_class]
+      end
+
+      it 'also loads summary documents if requested' do
+        documents = described_class.fetch_all_for_envelope(envelope, :types => ['content', 'summary'])
+        expect(documents.map(&:identifier)).
+          to match_array([14, 16, 'certificate'])
+      end
+
+      it 'only loads summary documents if requested' do
+        documents = described_class.fetch_all_for_envelope(envelope, :types => ['summary'])
+        expect(documents.map(&:identifier)).
+          to match_array(['certificate'])
+      end
     end
   end
 end

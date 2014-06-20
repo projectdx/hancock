@@ -42,12 +42,16 @@ module Hancock
       content_type_and_disposition + data_for_request
     end
 
-    def self.fetch_for_envelope(envelope)
+    def self.fetch_all_for_envelope(envelope, options = {})
+      options[:types] ||= ['content']
       connection = Hancock::DocuSignAdapter.new(envelope.identifier)
-      connection.documents.map do |document|
-        document_data = connection.document(document["documentId"])
-        new(name: document["name"], extension: "pdf", data: document_data)
-      end
+      connection.documents.map { |document|
+        next unless options[:types].include?(document["type"])
+        identifier = document["documentId"]
+        document_data = connection.document(identifier)
+        identifier = identifier.to_i if !!(identifier =~ /\A[0-9]+\z/)
+        new(name: document["name"], extension: "pdf", data: document_data, identifier: identifier)
+      }.compact
     end
 
     private

@@ -80,6 +80,13 @@ module Hancock
     end
 
     #
+    # returns all summary (not content) documents for envelope
+    #
+    def summary_documents
+      Document.fetch_all_for_envelope(self, :types => ['summary'])
+    end
+
+    #
     # reload information about envelope from DocuSign
     #
     def reload!
@@ -88,7 +95,7 @@ module Hancock
 
         @status = response["status"]
         @email = {subject: response["emailSubject"], blurb: response["emailBlurb"]}
-        @documents = Document.fetch_for_envelope(self)
+        @documents = Document.fetch_all_for_envelope(self)
         @recipients = Recipient.fetch_for_envelope(self)
       end
       self

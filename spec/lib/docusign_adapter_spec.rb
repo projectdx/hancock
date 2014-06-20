@@ -26,7 +26,7 @@ describe Hancock::DocuSignAdapter do
 
       documents = @connection.documents
 
-      expect(documents.size).to eq(2)
+      expect(documents.size).to eq(3)
       expect(documents.first["name"]).to eq 'Cool Document'
     end
   end
