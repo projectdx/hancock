@@ -38,7 +38,7 @@ module Hancock
             id_check: nil,
             routing_order: envelope_recipient["routingOrder"].to_i,
             recipient_type: type,
-            identifier: envelope_recipient["recipientId"]
+            identifier: envelope_recipient["recipientId"].to_i
           })
         }
       }.flatten
