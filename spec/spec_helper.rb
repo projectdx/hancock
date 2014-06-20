@@ -1,6 +1,8 @@
 # encoding: UTF-8
 require 'simplecov'
-SimpleCov.start
+SimpleCov.start do
+  add_filter "/spec/support/"
+end
 
 require 'hancock'
 require 'nokogiri'
