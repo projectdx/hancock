@@ -42,12 +42,57 @@ describe Hancock::Envelope do
         expect(subject).to receive(:send_envelope).with('created')
         subject.save
       end
+
+      it 'raises exception if envelope already has identifier' do
+        subject.identifier = 'smokey-heaven'
+        expect {
+          subject.save
+        }.to raise_error(described_class::AlreadySavedError)
+      end
     end
 
     describe '#send!' do
       it 'calls #send_envelope with "sent" argument' do
         expect(subject).to receive(:send_envelope).with('sent')
         subject.send!
+      end
+
+      it 'calls #change_status with "sent" argument if draft' do
+        subject.identifier = 'smokey-heaven'
+        subject.status = 'created'
+        expect(subject).to receive(:change_status!).with('sent')
+        subject.send!
+      end
+
+      it 'raises exception if envelope has already been sent' do
+        subject.identifier = 'smokey-heaven'
+        subject.status = 'sent'
+        expect {
+          subject.send!
+        }.to raise_error(described_class::AlreadySentError)
+      end
+    end
+
+    describe '#change_status!' do
+      it 'requests a status change with DocuSign for the envelope and reloads' do
+        subject.identifier = 'smokey-heaven'
+        stub_status_change('smokey-heaven', 'froop', 'changed_status')
+        expect(subject).to receive(:reload!)
+        subject.change_status!('froop')
+      end
+
+      it 'raises exception if envelope has no identifier' do
+        expect {
+          subject.change_status!('foo')
+        }.to raise_error(described_class::NotSavedYet)
+      end
+
+      it 'raises a DocusignError with the returned message if not successful' do
+        subject.identifier = 'smokey-heaven'
+        stub_status_change('smokey-heaven', 'floosh', 'failed_status_change', 400)
+        expect {
+          subject.change_status!('floosh')
+        }.to raise_error(described_class::DocusignError, "Umbrella smoothie is bad idea.")
       end
     end
 
