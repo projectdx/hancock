@@ -4,7 +4,7 @@ module Hancock
     class DocusignError < StandardError; end
 
     attr_accessor :identifier, :status, :documents, :signature_requests, :email, :recipients
-    
+
     validates :status, :presence => true
     validates :documents, :presence => true
     validates :recipients, :presence => true
@@ -161,27 +161,27 @@ module Hancock
       }
     end
 
-    def check_validity(klass)
-      field = klass.to_s.split("::")[1].downcase.pluralize.to_sym
-      errors.add(field, "can't be empty") if send(field).empty?
-      if send(field).any? {|item| !(item.is_a?(klass)) }
-        errors.add(field, "one of the #{field} is not a #{field.to_s.singularize}")
+    def check_collection_validity(field, klass)
+      collection = send(field)
+      errors.add(field, "can't be empty") if collection.empty?
+      if collection.any? {|item| !(item.is_a?(klass)) }
+        errors.add(field, "one of the #{field} is not a #{klass}")
       else
-        unless send(field).all?(&:valid?)
+        unless collection.all?(&:valid?)
           errors.add(field, "one of the #{field} is not valid")
         end
-        unless send(field).map(&:identifier).uniq.length == send(field).length
+        unless collection.map(&:identifier).uniq.length == collection.length
           errors.add(field, "must all be unique")
         end
       end
     end
 
     def recipient_validity
-      check_validity(Recipient)
+      check_collection_validity(:recipients, Recipient)
     end
 
     def document_validity
-      check_validity(Document)
+      check_collection_validity(:documents, Document)
     end
   end
 end
