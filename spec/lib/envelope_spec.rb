@@ -6,12 +6,12 @@ describe Hancock::Envelope do
       association
     end
 
-    it { should have_valid(:status).when('yay look a status') }
-    it { should_not have_valid(:status).when('', nil) }
-    it { should have_valid(:recipients).when([association(Hancock::Recipient)]) }
-    it { should_not have_valid(:recipients).when([], nil, [:not_a_recipient], [association(Hancock::Recipient, :validity => false)]) }
-    it { should have_valid(:documents).when([association(Hancock::Document)]) }
-    it { should_not have_valid(:documents).when([], nil, [:not_a_document], [association(Hancock::Document, :validity => false)]) }
+    it { is_expected.to have_valid(:status).when('yay look a status') }
+    it { is_expected.not_to have_valid(:status).when('', nil) }
+    it { is_expected.to have_valid(:recipients).when([association(Hancock::Recipient)]) }
+    it { is_expected.not_to have_valid(:recipients).when([], nil, [:not_a_recipient], [association(Hancock::Recipient, :validity => false)]) }
+    it { is_expected.to have_valid(:documents).when([association(Hancock::Document)]) }
+    it { is_expected.not_to have_valid(:documents).when([], nil, [:not_a_document], [association(Hancock::Document, :validity => false)]) }
 
     context 'recipients' do
       it "should validate uniqueness of ids" do
@@ -84,7 +84,7 @@ describe Hancock::Envelope do
         it "should add unique positive integer ids on sending" do
           subject.send_envelope('foo')
 
-          expect(subject.documents.map(&:identifier).all?{|x| x.integer? && x > 0}).to be_true
+          expect(subject.documents.map(&:identifier).all?{|x| x.integer? && x > 0}).to be_truthy
           expect(subject.documents.map(&:identifier).uniq.length).to eq(subject.documents.length)
         end
 
@@ -117,7 +117,7 @@ describe Hancock::Envelope do
         it "should add unique positive integer ids on sending" do
           subject.send_envelope('foo')
 
-          expect(subject.recipients.map(&:identifier).all?{|x| x.integer? && x > 0}).to be_true
+          expect(subject.recipients.map(&:identifier).all?{|x| x.integer? && x > 0}).to be_truthy
           expect(subject.recipients.map(&:identifier).uniq.length).to eq(subject.recipients.length)
         end
 
@@ -317,7 +317,7 @@ describe Hancock::Envelope do
         subject.documents = [doc1, doc2]
         allow(subject).to receive(:signature_requests_for_params).
           and_return('the signature requests')
-        subject.send(:form_post_body, :a_status).should eq(
+        expect(subject.send(:form_post_body, :a_status)).to eq(
           "\r\n"\
           "--MYBOUNDARY\r\nContent-Type: application/json\r\n"\
           "Content-Disposition: form-data\r\n\r\n"\

@@ -30,23 +30,23 @@ describe Hancock::Configuration do
   describe 'It changes configurations with configure method' do
 
     it 'should change default oauth_token' do 
-      Hancock.oauth_token.should eq(config_hash[:oauth_token])
+      expect(Hancock.oauth_token).to eq(config_hash[:oauth_token])
     end
 
     it 'should change default account_id' do
-      Hancock.account_id.should eq(config_hash[:account_id])
+      expect(Hancock.account_id).to eq(config_hash[:account_id])
     end
 
     it 'should change default endpoint' do
-      Hancock.endpoint.should eq(config_hash[:endpoint])
+      expect(Hancock.endpoint).to eq(config_hash[:endpoint])
     end
 
     it 'should change default api_version' do
-      Hancock.api_version.should eq(config_hash[:api_version])
+      expect(Hancock.api_version).to eq(config_hash[:api_version])
     end
 
     it 'should change default email_template' do
-      Hancock.email_template.should eq(config_hash[:email_template])
+      expect(Hancock.email_template).to eq(config_hash[:email_template])
     end
 
   end
