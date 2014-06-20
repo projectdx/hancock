@@ -1,5 +1,3 @@
-require 'pry'
-
 describe Hancock::Helpers do
   include Hancock::Helpers
 
