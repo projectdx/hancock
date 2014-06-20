@@ -16,6 +16,14 @@
       "uri": "/envelopes/a-crazy-envelope-id/documents/16",
       "order": "2",
       "pages": "6"
+    },
+    {
+      "documentId": "certificate",
+      "name": "Summary",
+      "type": "summary",
+      "uri": "/envelopes/a-crazy-envelope-id/documents/certificate",
+      "order": "999",
+      "pages": "1"
     }
   ]
 }

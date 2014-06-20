@@ -182,7 +182,7 @@ describe Hancock::Envelope do
             'emailSubject' => 'Subjacked',
             'emailBlurb' => 'Blurble'
           }))
-        allow(Hancock::Document).to receive(:fetch_for_envelope).
+        allow(Hancock::Document).to receive(:fetch_all_for_envelope).
           with(subject).
           and_return(:le_documeneaux)
         allow(Hancock::Recipient).to receive(:fetch_for_envelope).
@@ -201,6 +201,15 @@ describe Hancock::Envelope do
         expect {
           subject.reload!
         }.not_to raise_error
+      end
+    end
+
+    describe '#summary_documents' do
+      it 'returns summary documents for envelope' do
+        allow(Hancock::Document).to receive(:fetch_all_for_envelope).with(
+          subject, :types => ['summary']
+        ).and_return(:the_documents)
+        expect(subject.summary_documents).to eq :the_documents
       end
     end
 
