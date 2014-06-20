@@ -2,7 +2,7 @@
 Content-Type: application/json
 Content-Disposition: form-data
 
-{"emailBlurb":"flurb","emailSubject":"fubject","status":"foo","documents":"the_documents","recipients":"the_requests"}
+{"emailBlurb":"flurb","emailSubject":"fubject","status":"foo","documents":"the_documents","recipients":"the_requests","notification":{"useAccountDefaults":false,"reminders":{"reminderEnabled":false},"expirations":{"expireEnabled":false}}}
 --MYBOUNDARY
 hello world
 --MYBOUNDARY--

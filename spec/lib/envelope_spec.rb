@@ -309,6 +309,40 @@ describe Hancock::Envelope do
       end
     end
 
+    describe '#notification_for_params' do
+      it 'returns reminder and expiration formatted for post' do
+        subject = described_class.new({
+          :reminder => { :delay => 5, :frequency => 8 },
+          :expiration => { :after => 3, :warn => 2 }
+        })
+        expect(subject.notification_for_params).to eq({
+          useAccountDefaults: false,
+          reminders: {
+            reminderEnabled: true,
+            reminderDelay: 5,
+            reminderFrequency: 8
+          },
+          expirations: {
+            expireEnabled: true,
+            expireAfter: 3,
+            expireWarn: 2
+          },
+        })
+      end
+
+      it 'returns skeleton when no reminder or expiration' do
+        expect(subject.notification_for_params).to eq({
+          useAccountDefaults: false,
+          reminders: {
+            reminderEnabled: false,
+          },
+          expirations: {
+            expireEnabled: false,
+          },
+        })
+      end
+    end
+
     describe '#form_post_body' do
       it 'assembles body for posting' do
         allow(subject).to receive(:email).and_return({ :subject => 'fubject', :blurb => 'flurb'})
@@ -317,13 +351,16 @@ describe Hancock::Envelope do
         subject.documents = [doc1, doc2]
         allow(subject).to receive(:signature_requests_for_params).
           and_return('the signature requests')
+        allow(subject).to receive(:notification_for_params).
+          and_return('the_notification')
         expect(subject.send(:form_post_body, :a_status)).to eq(
           "\r\n"\
           "--MYBOUNDARY\r\nContent-Type: application/json\r\n"\
           "Content-Disposition: form-data\r\n\r\n"\
           "{\"emailBlurb\":\"flurb\",\"emailSubject\":\"fubject\","\
           "\"status\":\"a_status\",\"documents\":[\"horse\",\"pony\"],"\
-          "\"recipients\":\"the signature requests\"}\r\n"\
+          "\"recipients\":\"the signature requests\","\
+          "\"notification\":\"the_notification\"}\r\n"\
           "--MYBOUNDARY\r\nOh my\r\n"\
           "--MYBOUNDARY\r\nHow wondrous\r\n"\
           "--MYBOUNDARY--\r\n"

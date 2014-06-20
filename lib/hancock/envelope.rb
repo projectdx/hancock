@@ -29,6 +29,8 @@ module Hancock
       @recipients = attributes[:recipients] || []
       @signature_requests = attributes[:signature_requests] || []
       @email = attributes[:email] || {}
+      @reminder = attributes[:reminder]
+      @expiration = attributes[:expiration]
     end
 
     def add_signature_request(attributes = {})
@@ -117,6 +119,14 @@ module Hancock
       }
     end
 
+    def notification_for_params
+      {
+        useAccountDefaults: false,
+        reminders: reminder_for_params,
+        expirations: expiration_for_params
+      }
+    end
+
     def documents_for_params
       documents.map(&:to_request)
     end
@@ -155,6 +165,28 @@ module Hancock
       post_body << "\r\n--#{Hancock.boundary}--\r\n"
     end
 
+    def reminder_for_params
+      reminder = {
+        reminderEnabled: @reminder.present?
+      }
+      if @reminder
+        reminder[:reminderDelay] = @reminder[:delay]
+        reminder[:reminderFrequency] = @reminder[:frequency]
+      end
+      reminder
+    end
+
+    def expiration_for_params
+      expiration = {
+        expireEnabled: @expiration.present?
+      }
+      if @expiration
+        expiration[:expireAfter] = @expiration[:after]
+        expiration[:expireWarn] = @expiration[:warn]
+      end
+      expiration
+    end
+
     def get_post_params(status)
       {
         emailBlurb: email[:blurb] || Hancock.email_template[:blurb],
@@ -162,6 +194,7 @@ module Hancock
         status: "#{status}",
         documents: documents_for_params,
         recipients: signature_requests_for_params,
+        notification: notification_for_params,
       }
     end
 
