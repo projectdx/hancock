@@ -2,6 +2,9 @@ module Hancock
   class Envelope < Hancock::Base
     class InvalidEnvelopeError < StandardError; end
     class DocusignError < StandardError; end
+    class AlreadySavedError < StandardError; end
+    class AlreadySentError < StandardError; end
+    class NotSavedYet < StandardError; end
 
     attr_accessor :identifier, :status, :documents, :signature_requests, :email, :recipients
 
@@ -47,14 +50,23 @@ module Hancock
     # sends to DocuSign and sets status to "sent," which sends email
     #
     def send!
-      send_envelope("sent")
+      if identifier
+        raise AlreadySentError if status == 'sent'
+        change_status!('sent')
+      else
+        send_envelope("sent")
+      end
     end
 
     #
     # sends to DocuSign but sets status to "created," which makes it a draft
     #
     def save
-      send_envelope("created")
+      if identifier
+        raise AlreadySavedError
+      else
+        send_envelope("created")
+      end
     end
 
     # TODO: Separate 1) assembly of envelope model, 2) sending via DocuSign,
@@ -72,6 +84,25 @@ module Hancock
 
       if response.success?
         self.identifier = response["envelopeId"]
+        reload!
+      else
+        message = response["message"]
+        raise DocusignError.new(message)
+      end
+    end
+
+    #
+    # tells DocuSign to change status of envelope (usually used to actually
+    # send a draft envelope (status "created") by changing its status
+    # to "sent")
+    #
+    def change_status!(status)
+      raise NotSavedYet unless identifier
+      headers = get_headers({'Content-Type' => 'application/json'})
+      post_body = { :status => status }.to_json
+      response = send_put_request("/accounts/#{Hancock.account_id}/envelopes/#{identifier}", post_body, headers)
+
+      if response.success?
         reload!
       else
         message = response["message"]
