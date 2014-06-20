@@ -26,7 +26,7 @@ describe Hancock::DocuSignAdapter do
 
       documents = @connection.documents
 
-      expect(documents).to have(2).items
+      expect(documents.size).to eq(2)
       expect(documents.first["name"]).to eq 'Cool Document'
     end
   end
@@ -39,8 +39,8 @@ describe Hancock::DocuSignAdapter do
 
       recipients = @connection.recipients
 
-      expect(recipients["signers"]).to have(2).items
-      expect(recipients["editors"]).to have(0).items
+      expect(recipients["signers"].size).to eq(2)
+      expect(recipients["editors"].size).to eq(0)
       expect(recipients["signers"].first["name"]).to eq "Darwin Nerdwod"
     end
   end

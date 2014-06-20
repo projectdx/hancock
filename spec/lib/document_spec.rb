@@ -2,11 +2,11 @@ describe Hancock::Document do
   let(:file) { File.open(fixture_path('test.pdf')) }
 
   context 'validations' do
-    it { should have_valid(:name).when('squishy bits') }
-    it { should_not have_valid(:name).when(nil, '') }
+    it { is_expected.to have_valid(:name).when('squishy bits') }
+    it { is_expected.not_to have_valid(:name).when(nil, '') }
 
-    it { should have_valid(:extension).when('.foo') }
-    it { should_not have_valid(:extension).when(nil, '') }
+    it { is_expected.to have_valid(:extension).when('.foo') }
+    it { is_expected.not_to have_valid(:extension).when(nil, '') }
 
     context 'when file is present' do
       before { subject.file = file }
@@ -43,23 +43,23 @@ describe Hancock::Document do
     subject { described_class.new(:file => file) }
     describe '#name' do
       it 'returns name of file' do
-        subject.name.should eq 'test.pdf'
+        expect(subject.name).to eq 'test.pdf'
       end
 
       it 'can be overridden' do
         subject.name = 'moofits.pdf'
-        subject.name.should eq 'moofits.pdf'
+        expect(subject.name).to eq 'moofits.pdf'
       end
     end
 
     describe '#extension' do
       it 'returns extension extracted from filename' do 
-        subject.extension.should eq 'pdf'
+        expect(subject.extension).to eq 'pdf'
       end
 
       it 'can be overridden' do
         subject.extension = 'wild_fans_of_mogwai_county'
-        subject.extension.should eq 'wild_fans_of_mogwai_county'
+        expect(subject.extension).to eq 'wild_fans_of_mogwai_county'
       end
     end
   end

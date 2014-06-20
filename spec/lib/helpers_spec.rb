@@ -1,3 +1,5 @@
+require 'pry'
+
 describe Hancock::Helpers do
   include Hancock::Helpers
 
@@ -9,7 +11,7 @@ describe Hancock::Helpers do
          with(:headers => {'Accept'=>'json', 'Authorization'=>'bearer AnAmazingOAuthTokenShinyAndPink', 'Content-Type'=>'application/json'}).
          to_return(:status => 200, :body => "the body", :headers => {})
       response = send_get_request("/something_exciting")
-      expect(response).to be_success
+      expect(response.success?).to be_truthy
       expect(response.parsed_response).to eq 'the body'
     end
   end
@@ -20,7 +22,7 @@ describe Hancock::Helpers do
          with(:headers => {'Accept'=>'Yourself'}, :body => 'alien sandwiches').
          to_return(:status => 201, :body => "bodylicious", :headers => {})
       response = send_post_request("/whatever", 'alien sandwiches', 'Accept' => 'Yourself')
-      expect(response).to be_success
+      expect(response.success?).to be_truthy
       expect(response.parsed_response).to eq 'bodylicious'
     end
   end
@@ -31,7 +33,7 @@ describe Hancock::Helpers do
          with(:headers => {'Header' => 'Shoulderer'}, :body => 'you will rue bidets').
          to_return(:status => 200, :body => "grassy knolls", :headers => {})
       response = send_put_request("/ghost_racquetball", 'you will rue bidets', 'Header' => 'Shoulderer')
-      expect(response).to be_success
+      expect(response.success?).to be_truthy
       expect(response.parsed_response).to eq 'grassy knolls'
     end
   end
