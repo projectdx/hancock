@@ -54,8 +54,8 @@ describe Hancock::Recipient do
       expect(subject.id_check).to be_truthy
     end
 
-    it 'can be set' do
-      subject.id_check = false
+    it 'can be set to false' do
+      subject = described_class.new(:id_check => false)
       expect(subject.id_check).to be_falsey
     end
   end

@@ -8,21 +8,15 @@ module Hancock
     validates :id_check, :allow_nil => true, :inclusion => [true, false]
     validates :delivery_method, :inclusion => [:email, :embedded, :offline, :paper]
     validates :recipient_type, :inclusion => TYPES
-    validate :email_validition
-
-    def email_validition
-      unless email =~ /\A([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\z/i
-        (errors[:email] ||= []) << 'must be valid email'
-      end
-    end
+    validates :email, :format => { :with => /\A([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\z/i }
 
     def initialize(attributes = {})
       @name            = attributes[:name]
       @email           = attributes[:email]
-      @id_check        = attributes[:id_check]        || true
-      @delivery_method = attributes[:delivery_method] || :email
-      @routing_order   = attributes[:routing_order]   || 1
-      @recipient_type  = attributes[:recipient_type]  || :signer
+      @id_check        = attributes.fetch(:id_check,        true   )
+      @delivery_method = attributes.fetch(:delivery_method, :email )
+      @routing_order   = attributes.fetch(:routing_order,   1      )
+      @recipient_type  = attributes.fetch(:recipient_type,  :signer)
       @identifier      = attributes[:identifier]
     end
 
