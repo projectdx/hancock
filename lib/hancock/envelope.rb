@@ -37,13 +37,14 @@ module Hancock
     end
 
     def add_signature_request(attributes = {})
+      @recipients << attributes[:recipient] unless @recipients.include? attributes[:recipient]
+      @documents << attributes[:document] unless @documents.include? attributes[:document]
+
       @signature_requests << {
         recipient: attributes[:recipient],
         document: attributes[:document],
         tabs: attributes[:tabs]
       }
-
-      @recipients << attributes[:recipient]
     end
 
     #
@@ -54,7 +55,8 @@ module Hancock
         raise AlreadySentError if status == 'sent'
         change_status!('sent')
       else
-        send_envelope("sent")
+        self.status = 'sent'
+        send_envelope
       end
     end
 
@@ -65,22 +67,22 @@ module Hancock
       if identifier
         raise AlreadySavedError
       else
-        send_envelope("created")
+        self.status = 'created'
+        send_envelope
       end
     end
 
     # TODO: Separate 1) assembly of envelope model, 2) sending via DocuSign,
     # and 3) fetching results from DocuSign post-send.  Ideally into completely
     # separate objects.
-    def send_envelope(status)
+    def send_envelope
       raise InvalidEnvelopeError unless valid?
       raise Hancock::ConfigurationMissing unless Hancock.configured?
 
       generate_document_ids!
       generate_recipient_ids!
 
-      post_body = form_post_body(status)
-      response = send_post_request("/accounts/#{Hancock.account_id}/envelopes", post_body, headers)
+      response = send_post_request("/accounts/#{Hancock.account_id}/envelopes", form_post_body, headers)
 
       if response.success?
         self.identifier = response["envelopeId"]
@@ -99,8 +101,8 @@ module Hancock
     def change_status!(status)
       raise NotSavedYet unless identifier
       headers = get_headers({'Content-Type' => 'application/json'})
-      post_body = { :status => status }.to_json
-      response = send_put_request("/accounts/#{Hancock.account_id}/envelopes/#{identifier}", post_body, headers)
+      put_body = { :status => status }.to_json
+      response = send_put_request("/accounts/#{Hancock.account_id}/envelopes/#{identifier}", put_body, headers)
 
       if response.success?
         reload!
@@ -133,8 +135,6 @@ module Hancock
     end
 
     def signature_requests_for_params
-      recipients_by_type = {}
-
       # TODO: Refactor (and move to a new class with sending responsibility)
       recipients = signature_requests.inject({}) { |hsh, request|
         recipient = request[:recipient]
@@ -176,24 +176,28 @@ module Hancock
     private
 
     def generate_document_ids!
-      next_available_document_identifier = (documents.map(&:identifier).compact.max || 0) + 1
+      next_id = next_available_identifier_for(documents)
       documents.each_with_index do |document, index|
-        document.identifier = index + next_available_document_identifier unless document.identifier.present?
+        document.identifier = index + next_id unless document.identifier.present?
       end
     end
 
     def generate_recipient_ids!
-      next_available_recipient_identifier = (recipients.map(&:identifier).compact.max || 0) + 1
+      next_id = next_available_identifier_for(recipients)
       recipients.each_with_index do |recipient, index|
-        recipient.identifier = index + next_available_recipient_identifier unless recipient.identifier.present?
+        recipient.identifier = index + next_id unless recipient.identifier.present?
       end
+    end
+
+    def next_available_identifier_for(items)
+      items.map(&:identifier).compact.max.to_i + 1
     end
 
     def headers
       get_headers({'Content-Type' => "multipart/form-data; boundary=#{Hancock.boundary}"})
     end
 
-    def form_post_body(status)
+    def form_post_body
       post_body =  "\r\n--#{Hancock.boundary}\r\n"
       post_body << "Content-Type: application/json\r\n"
       post_body << "Content-Disposition: form-data\r\n\r\n"
@@ -246,14 +250,19 @@ module Hancock
         unless collection.all?(&:valid?)
           errors.add(field, "one of the #{field} is not valid")
         end
-        unless collection.map(&:identifier).uniq.length == collection.length
-          errors.add(field, "must all be unique")
-        end
       end
     end
 
     def recipient_validity
       check_collection_validity(:recipients, Recipient)
+
+      unless has_unique_emails?
+        errors.add(:recipients, "must all have unique emails")
+      end
+    end
+
+    def has_unique_emails?
+      recipients.map { |r| r.try(:email) }.uniq.length == recipients.length
     end
 
     def document_validity

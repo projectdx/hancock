@@ -6,26 +6,26 @@ describe Hancock::Envelope do
       association
     end
 
+    let(:recipient) do
+      recipient = association(Hancock::Recipient)
+      recipient.email = 'bananana@example.com'
+      allow(recipient).to receive(:valid?).and_return(true)
+      recipient
+    end
+
     it { is_expected.to have_valid(:status).when('yay look a status') }
     it { is_expected.not_to have_valid(:status).when('', nil) }
-    it { is_expected.to have_valid(:recipients).when([association(Hancock::Recipient)]) }
+    it { is_expected.to have_valid(:recipients).when([recipient]) }
     it { is_expected.not_to have_valid(:recipients).when([], nil, [:not_a_recipient], [association(Hancock::Recipient, :validity => false)]) }
     it { is_expected.to have_valid(:documents).when([association(Hancock::Document)]) }
     it { is_expected.not_to have_valid(:documents).when([], nil, [:not_a_document], [association(Hancock::Document, :validity => false)]) }
 
     context 'recipients' do
-      it "should validate uniqueness of ids" do
-        subject.recipients = [association(Hancock::Recipient, :identifier => 2), association(Hancock::Recipient, :identifier => 2)]
+      it "validates uniqueness of emails" do
+        subject.recipients = [recipient, recipient]
         subject.valid?
-        expect(subject.errors[:recipients]).to include("must all be unique")
-      end
-    end
 
-    context 'documents' do
-      it "should validate uniqueness of ids" do
-        subject.documents = [association(Hancock::Document, :identifier => 2), association(Hancock::Document, :identifier => 2)]
-        subject.valid?
-        expect(subject.errors[:documents]).to include("must all be unique")
+        expect(subject.errors[:recipients]).to include("must all have unique emails")
       end
     end
   end
@@ -38,9 +38,17 @@ describe Hancock::Envelope do
     end
 
     describe '#save' do
-      it 'calls #send_envelope with "created" argument' do
-        expect(subject).to receive(:send_envelope).with('created')
+      it 'calls #send_envelope' do
+        expect(subject).to receive(:send_envelope)
         subject.save
+      end
+
+      it 'sets the status to created' do
+        allow(subject).to receive(:send_envelope).and_return true
+
+        subject.status = nil
+        subject.save
+        expect(subject.status).to eq('created')
       end
 
       it 'raises exception if envelope already has identifier' do
@@ -52,9 +60,17 @@ describe Hancock::Envelope do
     end
 
     describe '#send!' do
-      it 'calls #send_envelope with "sent" argument' do
-        expect(subject).to receive(:send_envelope).with('sent')
+      it 'calls #send_envelope' do
+        expect(subject).to receive(:send_envelope)
         subject.send!
+      end
+
+      it 'sets the status to created' do
+        allow(subject).to receive(:send_envelope).and_return true
+
+        subject.status = nil
+        subject.send!
+        expect(subject.status).to eq('sent')
       end
 
       it 'calls #change_status with "sent" argument if draft' do
@@ -107,14 +123,14 @@ describe Hancock::Envelope do
       it 'should raise exception if envelope is not valid' do
         allow(subject).to receive(:valid?).and_return(false)
         expect {
-          subject.send_envelope('foo')
+          subject.send_envelope
         }.to raise_error(described_class::InvalidEnvelopeError)
       end
 
       it 'should raise exception if Hancock not configured' do
         allow(Hancock).to receive(:configured?).and_return(false)
         expect {
-          subject.send_envelope('foo')
+          subject.send_envelope
         }.to raise_error(Hancock::ConfigurationMissing)
       end
 
@@ -127,7 +143,7 @@ describe Hancock::Envelope do
         end
 
         it "should add unique positive integer ids on sending" do
-          subject.send_envelope('foo')
+          subject.send_envelope
 
           expect(subject.documents.map(&:identifier).all?{|x| x.integer? && x > 0}).to be_truthy
           expect(subject.documents.map(&:identifier).uniq.length).to eq(subject.documents.length)
@@ -137,7 +153,7 @@ describe Hancock::Envelope do
           subject.documents[0].identifier = 3
           subject.documents[1].identifier = 4
 
-          subject.send_envelope('foo')
+          subject.send_envelope
 
           expect(subject.documents.map(&:identifier)).to eq([3,4])
         end
@@ -145,7 +161,7 @@ describe Hancock::Envelope do
         it "should preserve existing ids and generate missing ones" do
           subject.documents[1].identifier = 6
 
-          subject.send_envelope('foo')
+          subject.send_envelope
 
           expect(subject.documents.map(&:identifier)).to eq([7,6])
         end
@@ -160,7 +176,7 @@ describe Hancock::Envelope do
         end
 
         it "should add unique positive integer ids on sending" do
-          subject.send_envelope('foo')
+          subject.send_envelope
 
           expect(subject.recipients.map(&:identifier).all?{|x| x.integer? && x > 0}).to be_truthy
           expect(subject.recipients.map(&:identifier).uniq.length).to eq(subject.recipients.length)
@@ -170,7 +186,7 @@ describe Hancock::Envelope do
           subject.recipients[0].identifier = 3
           subject.recipients[1].identifier = 4
 
-          subject.send_envelope('foo')
+          subject.send_envelope
 
           expect(subject.recipients.map(&:identifier)).to eq([3,4])
         end
@@ -178,7 +194,7 @@ describe Hancock::Envelope do
         it "should preserve existing ids and generate missing ones" do
           subject.recipients[1].identifier = 6
 
-          subject.send_envelope('foo')
+          subject.send_envelope
 
           expect(subject.recipients.map(&:identifier)).to eq([7,6])
         end
@@ -191,17 +207,17 @@ describe Hancock::Envelope do
         end
 
         it "sends envelope with given status" do
-          subject.send_envelope('foo')
+          subject.send_envelope
           expect(request_stub).to have_been_requested
         end
 
         it 'calls #reload!' do
           expect(subject).to receive(:reload!)
-          subject.send_envelope('foo')
+          subject.send_envelope
         end
 
         it 'sets the identifier to whatever DocuSign returned' do
-          subject.send_envelope('foo')
+          subject.send_envelope
           expect(subject.identifier).to eq 'a-crazy-envelope-id'
         end
       end
@@ -211,7 +227,7 @@ describe Hancock::Envelope do
 
         it 'raises a DocusignError with the returned message if not successful' do
           expect {
-            subject.send_envelope('foo')
+            subject.send_envelope
           }.to raise_error(described_class::DocusignError, "Nobody actually loves you; they just pretend until payday.")
         end
       end
@@ -400,6 +416,7 @@ describe Hancock::Envelope do
     describe '#form_post_body' do
       it 'assembles body for posting' do
         allow(subject).to receive(:email).and_return({ :subject => 'fubject', :blurb => 'flurb'})
+        allow(subject).to receive(:status).and_return('foo')
         doc1 = double(Hancock::Document, :multipart_form_part => 'Oh my', :to_request => 'horse')
         doc2 = double(Hancock::Document, :multipart_form_part => 'How wondrous', :to_request => 'pony')
         subject.documents = [doc1, doc2]
@@ -407,12 +424,12 @@ describe Hancock::Envelope do
           and_return('the signature requests')
         allow(subject).to receive(:notification_for_params).
           and_return('the_notification')
-        expect(subject.send(:form_post_body, :a_status)).to eq(
+        expect(subject.send(:form_post_body)).to eq(
           "\r\n"\
           "--MYBOUNDARY\r\nContent-Type: application/json\r\n"\
           "Content-Disposition: form-data\r\n\r\n"\
           "{\"emailBlurb\":\"flurb\",\"emailSubject\":\"fubject\","\
-          "\"status\":\"a_status\",\"documents\":[\"horse\",\"pony\"],"\
+          "\"status\":\"foo\",\"documents\":[\"horse\",\"pony\"],"\
           "\"recipients\":\"the signature requests\","\
           "\"notification\":\"the_notification\"}\r\n"\
           "--MYBOUNDARY\r\nOh my\r\n"\
