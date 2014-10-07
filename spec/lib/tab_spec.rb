@@ -13,6 +13,13 @@ describe Hancock::Tab do
     it { is_expected.not_to have_valid(:page_number).when(-3, 2.5, 'three', nil, '') }
   end
 
+  describe '.new' do
+    it 'sets xPosition and yPosition to 0 by default' do
+      expect(subject.to_h[:xPosition]).to eq(0)
+      expect(subject.to_h[:yPosition]).to eq(0)
+    end
+  end
+
   describe "#page_number" do
     it 'defaults to 1' do
       expect(subject.page_number).to eq 1
@@ -26,6 +33,7 @@ describe Hancock::Tab do
 
   describe '#coordinates=' do
     it 'raises ArgumentError if not given an Array' do
+      expect{subject.coordinates = nil}.to raise_error ArgumentError
       expect{subject.coordinates = Object.new}.to raise_error ArgumentError
     end
   end

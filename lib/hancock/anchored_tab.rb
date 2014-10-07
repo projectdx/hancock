@@ -16,8 +16,8 @@ module Hancock
         :anchorString       => anchor_text,
         :anchorXOffset      => coordinates[0],
         :anchorYOffset      => coordinates[1],
-        :IgnoreIfNotPresent => 1,
-        :pageNumber         => page_number
+        :pageNumber         => page_number,
+        :anchorIgnoreIfNotPresent => true
       }
     end
   end
