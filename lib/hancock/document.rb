@@ -61,7 +61,8 @@ module Hancock
       end
 
       def generate_extension
-        File.basename(@file).split('.').last if @file
+        return File.basename(@file).split('.').last if @file
+        return File.basename(@name).split('.').last if @name
       end
 
   end

@@ -34,7 +34,7 @@ module Hancock
     # generate common uri to docusign service
     #
     def build_uri(url)
-      URI.parse("#{Hancock.endpoint}/#{Hancock.api_version}#{url}")
+      "#{Hancock.endpoint}/#{Hancock.api_version}#{url}"
     end
 
     #

@@ -8,7 +8,7 @@ module Hancock
     def initialize(attributes = {})
       @type        = attributes[:type]
       @label       = attributes[:label]
-      @coordinates = attributes[:coordinates]
+      @coordinates = attributes[:coordinates] || [0, 0]
       @page_number = attributes[:page_number] || 1
     end
 

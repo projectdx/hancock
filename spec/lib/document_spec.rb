@@ -57,6 +57,11 @@ describe Hancock::Document do
         expect(subject.extension).to eq 'pdf'
       end
 
+      it 'returns extension extracted from @name when using @data instead of @file' do
+        subject = described_class.new(:data => '', :name => 'superman.docx')
+        expect(subject.extension).to eq 'docx'
+      end
+
       it 'can be overridden' do
         subject.extension = 'wild_fans_of_mogwai_county'
         expect(subject.extension).to eq 'wild_fans_of_mogwai_county'

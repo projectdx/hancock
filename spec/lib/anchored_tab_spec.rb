@@ -15,6 +15,13 @@ describe Hancock::AnchoredTab do
     it { is_expected.not_to have_valid(:page_number).when(-3, 2.5, 'three', nil, '') }
   end
 
+  describe '.new' do
+    it 'sets anchorXOffset and anchorYOffset to 0 by default' do
+      expect(subject.to_h[:anchorXOffset]).to eq(0)
+      expect(subject.to_h[:anchorYOffset]).to eq(0)
+    end
+  end
+
   describe "#page_number" do
     it 'defaults to 1' do
       expect(subject.page_number).to eq 1
@@ -47,7 +54,7 @@ describe Hancock::AnchoredTab do
         :anchorString => 'smarmy vikings',
         :anchorXOffset      => 45,
         :anchorYOffset      => 251,
-        :IgnoreIfNotPresent => 1,
+        :anchorIgnoreIfNotPresent => true,
         :pageNumber         => 5
       })
     end
