@@ -2,19 +2,16 @@ Hancock Signature Gem
 =========================
 Gem for submitting documents to DocuSign with electronic signature tabs.
 
-TODO:
------
+## TODO:
 
-* Allow sending of previously saved envelopes (right now #save followed by
-#send! just generates a new envelope)
+* Allow sending of previously saved envelopes (right now `#save` followed by `#send!` just generates a new envelope)
 
-Interface Specification
-------------------
+## Interface Specification
 
 <a name=".configure"/>
-#### 1. Configuration
+### 1. Configuration
 
-```ruby
+```
 Hancock.configure do |c|
    c.oauth_token     = 'MY-REALLY-LONG-TOKEN'
    c.account_id      = '999999'
@@ -26,15 +23,9 @@ Hancock.configure do |c|
     :blurb => 'whatever '
   }
 end
-
-  -- OR --
-
-Hancock.username = 'awesome@whereever.com'
- : : : : : :
-Hancock.email_template = {}
 ```
 
-##### Description
+#### Description
 
 DocuSign has the ability to make callbacks to a specified URI and provide status on an envelope and recepient.
 This method will allow the client to register a callback uri and select which event to listen to.
@@ -49,16 +40,20 @@ api_version        | Docusign api version (v1, v2)
 email_fields       | components necessary to create outgoing email to signers.
                    | `subject`: subject of email
                    | `blurb`: instruction blurb sent in the email to the recepient
-___
 
-1. Create and send documents for signing
------
+***
 
-```ruby
+### Create an envelope for sending or saving
+
+Create the base Envelope object.
+
+```
 envelope = Hancock::Envelope.new
+```
 
-#######
-# 1. create documents and add them to envelope
+Create all the documents and add them to the base object. This has to be done because these need to be uploaded as part of the multi-part form.
+
+```
 document1 = Hancock::Document.new({
   file: #<File:/tmp/whatever.pdf>,
   # data: 'Base64 Encoded String', # required if no file, invalid if file
@@ -66,9 +61,14 @@ document1 = Hancock::Document.new({
   # extension: 'pdf', # optional if file, defaults to path extension
 })
 
-envelope.documents << document1
+envelope.documents = [document1]
+```
 
-# create recepients and add them to envelope
+Create the recipients and tabs (sign here, date here, etc.) and add them via `#add_signature_request`.
+
+**NOTE: Anchored tabs affect the entire envelope, not just a single document. Do not add the same anchored tab in multiple signature requests or you will see them stack in DocuSign (which is hard to even see, but you won't be able to submit because a bunch of fields are incomplete).**
+
+```
 recipient1 = Hancock::Recipient.new({
   name: 'Owner 1',
   email: 'whoever@whereever.com',
@@ -92,28 +92,36 @@ tab2 = Hancock::Tab.new({
 
 envelope.add_signature_request({
   recepient: recepient1,
-  documenet: document1,
+  document: document1,
   tabs: [tab1, tab2]
 })
+```
 
-envelope.send! # sends to DocuSign and sets status to "sent," which sends email
-envelope.save   # sends to DocuSign but sets status to "created," which makes it a draft
+Send or save the documents. Reload isn't necessary after `#send!` and `#save`.
 
-envelope.reload!   # if envelope has identifier, requests envelope from DocuSign.  Automatically done when 'send!' or 'save' is called
+```
+envelope.send!    # sends to DocuSign and sets status to "sent," which sends email
+envelope.save     # sends to DocuSign but sets status to "created," which makes it a draft
+envelope.reload!  # if envelope has identifier, requests envelope from DocuSign.  Automatically done when 'send!' or 'save' is called
+```
 
-# retrieve an envelope using a docusign envelope id
+### Retrieve an envelope using a docusign envelope id
+
+```
 envelope = Hancock::Envelope.find(envelope_id)
+```
 
-# returns collection of Document objects for this envelope
+Useful methods when you've found an envelope.
+
+```
 envelope.documents
-
-# returns collection of Recipient objects for this envelope
 envelope.recipients
-
-# returns envelope status
 envelope.status
+```
 
-# One call does it all
+### One call does it all
+
+```
 envelope = Hancock::Envelope.new({
   documents: [document1, document2],
   signature_requests: [
@@ -141,9 +149,13 @@ envelope = Hancock::Envelope.new({
 
 ```
 
-Envelope class
-----
-```ruby
+### Full example
+
+Check out `example/example.rb` for a full and complete example with anchored tabs, multiple documents, etc. 
+
+## Envelope class
+
+```
 Envelope.new(options = {})
 ```
 
@@ -266,8 +278,8 @@ delivery_method | (string [default: email])
               | `paper`: print physical copy and snail-mail
 routing_order | (integer [default 1]) routing order of recepient in the envelope.  If missing, then all recepients have the same routing order
 
+***
 
-____
 2. Process Event Notification payload
 -----
 
