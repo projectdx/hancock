@@ -6,7 +6,7 @@ module Hancock
     class AlreadySentError < StandardError; end
     class NotSavedYet < StandardError; end
 
-    attr_accessor :identifier, :status, :documents, :signature_requests, :email, :recipients
+    attr_accessor :identifier, :status, :documents, :signature_requests, :email, :recipients, :status_changed_at
 
     validates :status, :presence => true
     validates :documents, :presence => true
@@ -126,8 +126,9 @@ module Hancock
       if identifier
         response = Hancock::DocuSignAdapter.new(identifier).envelope
 
-        @status = response["status"]
-        @email = {subject: response["emailSubject"], blurb: response["emailBlurb"]}
+        @status = response['status']
+        @status_changed_at = Time.parse(response['statusChangedDateTime'])
+        @email = {subject: response['emailSubject'], blurb: response['emailBlurb']}
         @documents = Document.fetch_all_for_envelope(self)
         @recipients = Recipient.fetch_for_envelope(self)
       end

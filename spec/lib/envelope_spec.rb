@@ -240,6 +240,7 @@ describe Hancock::Envelope do
           with('crayons').
           and_return(double('adapter', :envelope => {
             'status' => 'bullfree',
+            'statusChangedDateTime' => '2014-06-04T23:55:36.7870000Z',
             'emailSubject' => 'Subjacked',
             'emailBlurb' => 'Blurble'
           }))
@@ -252,6 +253,7 @@ describe Hancock::Envelope do
 
         expect(subject.reload!).to eq subject
         expect(subject.status).to eq 'bullfree'
+        expect(subject.status_changed_at).to eq(Time.parse('2014-06-04T23:55:36.7870000Z'))
         expect(subject.email).to eq({:subject => 'Subjacked', :blurb => 'Blurble'})
         expect(subject.documents).to eq :le_documeneaux
         expect(subject.recipients).to eq :le_recipierre
