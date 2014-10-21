@@ -76,7 +76,7 @@ module Hancock
     # and 3) fetching results from DocuSign post-send.  Ideally into completely
     # separate objects.
     def send_envelope
-      raise InvalidEnvelopeError unless valid?
+      raise InvalidEnvelopeError.new(errors.full_messages.join('; ')) unless valid?
       raise Hancock::ConfigurationMissing unless Hancock.configured?
 
       generate_document_ids!

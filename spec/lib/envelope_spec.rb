@@ -122,9 +122,13 @@ describe Hancock::Envelope do
 
       it 'should raise exception if envelope is not valid' do
         allow(subject).to receive(:valid?).and_return(false)
-        expect {
-          subject.send_envelope
-        }.to raise_error(described_class::InvalidEnvelopeError)
+        allow(subject).to receive_message_chain(:errors, :full_messages).and_return(
+          ['rice pudding', 'wheat berries']
+        )
+
+        expect { subject.send_envelope }.to raise_error(
+          described_class::InvalidEnvelopeError, 'rice pudding; wheat berries'
+        )
       end
 
       it 'should raise exception if Hancock not configured' do
