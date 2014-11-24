@@ -331,14 +331,15 @@ describe Hancock::Envelope do
     end
 
     describe '#signature_requests_for_params' do
+      let(:document1) { Hancock::Document.new(:identifier => 1) }
+      let(:document2) { Hancock::Document.new(:identifier => 2) }
+      let(:recipient1) { Hancock::Recipient.new(:email => 'b@mail.com', :name => 'Bob', :recipient_type => :signer, :identifier => 1) }
+      let(:recipient2) { Hancock::Recipient.new(:email => 'e@mail.com', :name => 'Edna', :recipient_type => :signer, :identifier => 2, :id_check => false) }
+      let(:recipient3) { Hancock::Recipient.new(:email => 'f@mail.com', :name => 'Fump', :recipient_type => :editor, :identifier => 3, :id_check => true) }
+      let(:tab1) { double(Hancock::Tab, :type => 'initial_here', :to_h => { :initial => :here }) }
+      let(:tab2) { double(Hancock::Tab, :type => 'sign_here', :to_h => { :sign => :here }) }
+
       it 'returns signature requests grouped by recipient and set up for submission' do
-        document1 = Hancock::Document.new(:identifier => 1)
-        document2 = Hancock::Document.new(:identifier => 2)
-        recipient1 = Hancock::Recipient.new(:email => 'b@mail.com', :name => 'Bob', :recipient_type => :signer, :identifier => 1)
-        recipient2 = Hancock::Recipient.new(:email => 'e@mail.com', :name => 'Edna', :recipient_type => :signer, :identifier => 2)
-        recipient3 = Hancock::Recipient.new(:email => 'f@mail.com', :name => 'Fump', :recipient_type => :editor, :identifier => 3)
-        tab1 = double(Hancock::Tab, :type => 'initial_here', :to_h => { :initial => :here })
-        tab2 = double(Hancock::Tab, :type => 'sign_here', :to_h => { :sign => :here })
         subject = described_class.new({
           :signature_requests => [
             { :recipient => recipient1, :document => document1, :tabs => [tab1] },
@@ -348,10 +349,15 @@ describe Hancock::Envelope do
             { :recipient => recipient3, :document => document2, :tabs => [tab2] },
           ]
         })
-        expect(subject.signature_requests_for_params).to eq({
+        expect(subject.signature_requests_for_params).to match({
           'signers' => [
             {
-              :email => 'b@mail.com', :name => 'Bob', :recipientId => 1, :tabs => {
+              :email => 'b@mail.com',
+              :name => 'Bob',
+              :recipientId => 1,
+              :requireIdLookup => true,
+              :idCheckConfigurationName => 'ID Check $',
+              :tabs => {
                 :initialHereTabs => [
                   { :initial => :here, :documentId => 1 },
                   { :initial => :here, :documentId => 2 },
@@ -362,7 +368,11 @@ describe Hancock::Envelope do
               },
             },
             {
-              :email => 'e@mail.com', :name => 'Edna', :recipientId => 2, :tabs => {
+              :email => 'e@mail.com',
+              :name => 'Edna',
+              :recipientId => 2,
+              :requireIdLookup => false,
+              :tabs => {
                 :initialHereTabs => [
                   { :initial => :here, :documentId => 2 },
                 ],
@@ -374,7 +384,12 @@ describe Hancock::Envelope do
           ],
           'editors' => [
             {
-              :email => 'f@mail.com', :name => 'Fump', :recipientId => 3, :tabs => {
+              :email => 'f@mail.com',
+              :name => 'Fump',
+              :recipientId => 3,
+              :requireIdLookup => true,
+              :idCheckConfigurationName => 'ID Check $',
+              :tabs => {
                 :signHereTabs => [
                   { :sign => :here, :documentId => 2 },
                 ]
@@ -382,6 +397,24 @@ describe Hancock::Envelope do
             }
           ]
         })
+      end
+
+      context 'when not requiring an ID Check' do
+        subject {
+          described_class.new({
+            :signature_requests => [{ :recipient => recipient2, :document => document1, :tabs => [] }]
+          })
+        }
+
+        it 'sets requireIdLookup to false' do
+          expect(subject.signature_requests_for_params['signers']
+            .first[:requireIdLookup]).to be(false)
+        end
+
+        it 'does not include idCheckConfigurationName' do
+          expect(subject.signature_requests_for_params['signers']
+            .first.keys).not_to include(:idCheckConfigurationName)
+        end
       end
     end
 
