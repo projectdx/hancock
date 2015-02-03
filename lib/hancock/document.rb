@@ -14,13 +14,13 @@ module Hancock
     def initialize(attributes = {})
       @file       = attributes[:file]
       @data       = attributes[:data]
-      @name       = attributes[:name]       || generate_name()
-      @extension  = attributes[:extension]  || generate_extension()
+      @name       = attributes[:name]       || generate_name
+      @extension  = attributes[:extension]  || generate_extension
       @identifier = attributes[:identifier]
     end
 
     def to_request
-      { documentId: identifier, name: name }
+      { :documentId => identifier, :name => name }
     end
 
     def data_for_request
@@ -45,25 +45,24 @@ module Hancock
     def self.fetch_all_for_envelope(envelope, options = {})
       options[:types] ||= ['content']
       connection = Hancock::DocuSignAdapter.new(envelope.identifier)
-      connection.documents.map { |document|
-        next unless options[:types].include?(document["type"])
-        identifier = document["documentId"]
+      connection.documents.map do |document|
+        next unless options[:types].include?(document['type'])
+        identifier = document['documentId']
         document_data = connection.document(identifier)
-        identifier = identifier.to_i if !!(identifier =~ /\A[0-9]+\z/)
-        new(name: document["name"], extension: "pdf", data: document_data, identifier: identifier)
-      }.compact
+        identifier = identifier.to_i if identifier =~ /\A[0-9]+\z/
+        new(:name => document['name'], :extension => 'pdf', :data => document_data, :identifier => identifier)
+      end.compact
     end
 
     private
 
-      def generate_name
-        File.basename(@file) if @file
-      end
+    def generate_name
+      File.basename(@file) if @file
+    end
 
-      def generate_extension
-        return File.basename(@file).split('.').last if @file
-        return File.basename(@name).split('.').last if @name
-      end
-
+    def generate_extension
+      return File.basename(@file).split('.').last if @file
+      return File.basename(@name).split('.').last if @name
+    end
   end
 end

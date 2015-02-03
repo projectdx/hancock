@@ -1,6 +1,5 @@
 module Hancock
   module Configuration
-
     include Hancock::Helpers
 
     VALID_CONNECTION_KEYS  = [:endpoint, :api_version, :user_agent, :method].freeze
@@ -15,13 +14,13 @@ module Hancock
     DEFAULT_BOUNDARY       = 'MYBOUNDARY'
     DEFAULT_OAUTH_TOKEN    = nil
     DEFAULT_ACCOUNT_ID     = nil
-    DEFAULT_CA_FILE        = nil 
+    DEFAULT_CA_FILE        = nil
     DEFAULT_FORMAT         = :json
     DEFAULT_EMAIL_TEMPLATE = {}
     DEFAULT_EVENT_NOTIFICATION = {
-        :logging_enabled => false,
-        :uri => 'http://domain.com/hancock/process_callback',
-        :include_documents => false,
+      :logging_enabled => false,
+      :uri => 'http://domain.com/hancock/process_callback',
+      :include_documents => false
     }
 
     attr_accessor *VALID_CONFIG_KEYS

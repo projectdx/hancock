@@ -2,10 +2,9 @@ require 'httparty'
 
 module Hancock
   module Helpers
-
     def send_request(type, url, headers, body = nil)
       uri = build_uri(url)
-      options = { :headers => headers}
+      options = { :headers => headers }
       options[:body] = body if body
       HTTParty.send(type, uri, options)
     end
@@ -27,7 +26,7 @@ module Hancock
     # send get request to set url
     #
     def send_get_request(url)
-      send_request(:get, url, get_headers({ 'Content-Type' => 'application/json' }))
+      send_request(:get, url, get_headers('Content-Type' => 'application/json'))
     end
 
     #
@@ -40,7 +39,7 @@ module Hancock
     #
     # get headers for requests with authentication parameters
     #
-    def get_headers(user_defined_headers={})
+    def get_headers(user_defined_headers = {})
       default = {
         'Accept' => 'json',
         'Authorization' => "bearer #{Hancock.oauth_token}"

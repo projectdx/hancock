@@ -18,7 +18,7 @@ module Hancock
       connection = Hancock::DocuSignAdapter.new(envelope_id)
       envelope_params = connection.envelope
 
-      envelope = self.new(status: envelope_params["status"], identifier: envelope_params["envelopeId"])
+      envelope = new(:status => envelope_params['status'], :identifier => envelope_params['envelopeId'])
       envelope.reload!
     end
 
@@ -41,9 +41,9 @@ module Hancock
       @documents << attributes[:document] unless @documents.include? attributes[:document]
 
       @signature_requests << {
-        recipient: attributes[:recipient],
-        document: attributes[:document],
-        tabs: attributes[:tabs]
+        :recipient => attributes[:recipient],
+        :document => attributes[:document],
+        :tabs => attributes[:tabs]
       }
     end
 
@@ -52,7 +52,7 @@ module Hancock
     #
     def send!
       if identifier
-        raise AlreadySentError if status == 'sent'
+        fail AlreadySentError if status == 'sent'
         change_status!('sent')
       else
         self.status = 'sent'
@@ -65,7 +65,7 @@ module Hancock
     #
     def save
       if identifier
-        raise AlreadySavedError
+        fail AlreadySavedError
       else
         self.status = 'created'
         send_envelope
@@ -76,8 +76,8 @@ module Hancock
     # and 3) fetching results from DocuSign post-send.  Ideally into completely
     # separate objects.
     def send_envelope
-      raise InvalidEnvelopeError.new(errors.full_messages.join('; ')) unless valid?
-      raise Hancock::ConfigurationMissing unless Hancock.configured?
+      fail InvalidEnvelopeError.new(errors.full_messages.join('; ')) unless valid?
+      fail Hancock::ConfigurationMissing unless Hancock.configured?
 
       generate_document_ids!
       generate_recipient_ids!
@@ -85,11 +85,11 @@ module Hancock
       response = send_post_request("/accounts/#{Hancock.account_id}/envelopes", form_post_body, headers)
 
       if response.success?
-        self.identifier = response["envelopeId"]
+        self.identifier = response['envelopeId']
         reload!
       else
-        message = response["message"]
-        raise DocusignError.new(message)
+        message = response['message']
+        fail DocusignError.new(message)
       end
     end
 
@@ -99,16 +99,16 @@ module Hancock
     # to "sent")
     #
     def change_status!(status)
-      raise NotSavedYet unless identifier
-      headers = get_headers({'Content-Type' => 'application/json'})
+      fail NotSavedYet unless identifier
+      headers = get_headers('Content-Type' => 'application/json')
       put_body = { :status => status }.to_json
       response = send_put_request("/accounts/#{Hancock.account_id}/envelopes/#{identifier}", put_body, headers)
 
       if response.success?
         reload!
       else
-        message = response["message"]
-        raise DocusignError.new(message)
+        message = response['message']
+        fail DocusignError.new(message)
       end
     end
 
@@ -128,7 +128,7 @@ module Hancock
 
         @status = response['status']
         @status_changed_at = Time.parse(response['statusChangedDateTime'])
-        @email = {subject: response['emailSubject'], blurb: response['emailBlurb']}
+        @email = { :subject => response['emailSubject'], :blurb => response['emailBlurb'] }
         @documents = Document.fetch_all_for_envelope(self)
         @recipients = Recipient.fetch_for_envelope(self)
       end
@@ -137,13 +137,13 @@ module Hancock
 
     def signature_requests_for_params
       # TODO: Refactor (and move to a new class with sending responsibility)
-      recipients = signature_requests.inject({}) { |hsh, request|
+      recipients = signature_requests.reduce({}) do |hsh, request|
         recipient = request[:recipient]
         recipient_type = docusign_recipient_type(recipient.recipient_type)
         hsh[recipient_type] ||= []
-        entry = hsh[recipient_type].detect { |r|
+        entry = hsh[recipient_type].find do |r|
           r[:recipientId] == recipient.identifier
-        }
+        end
         unless entry
           entry = { :email => recipient.email, :name => recipient.name, :recipientId => recipient.identifier, :requireIdLookup => recipient.id_check }
           entry.merge!(:idCheckConfigurationName => 'ID Check $') if recipient.id_check
@@ -156,14 +156,14 @@ module Hancock
           entry[:tabs][type] << tab.to_h.merge(:documentId => request[:document].identifier)
         end
         hsh
-      }
+      end
     end
 
     def notification_for_params
       {
-        useAccountDefaults: false,
-        reminders: reminder_for_params,
-        expirations: expiration_for_params
+        :useAccountDefaults => false,
+        :reminders => reminder_for_params,
+        :expirations => expiration_for_params
       }
     end
 
@@ -196,7 +196,7 @@ module Hancock
     end
 
     def headers
-      get_headers({'Content-Type' => "multipart/form-data; boundary=#{Hancock.boundary}"})
+      get_headers('Content-Type' => "multipart/form-data; boundary=#{Hancock.boundary}")
     end
 
     def form_post_body
@@ -211,7 +211,7 @@ module Hancock
 
     def reminder_for_params
       reminder = {
-        reminderEnabled: @reminder.present?
+        :reminderEnabled => @reminder.present?
       }
       if @reminder
         reminder[:reminderDelay] = @reminder[:delay]
@@ -222,7 +222,7 @@ module Hancock
 
     def expiration_for_params
       expiration = {
-        expireEnabled: @expiration.present?
+        :expireEnabled => @expiration.present?
       }
       if @expiration
         expiration[:expireAfter] = @expiration[:after]
@@ -233,19 +233,19 @@ module Hancock
 
     def get_post_params(status)
       {
-        emailBlurb: email[:blurb] || Hancock.email_template[:blurb],
-        emailSubject: email[:subject]|| Hancock.email_template[:subject],
-        status: "#{status}",
-        documents: documents_for_params,
-        recipients: signature_requests_for_params,
-        notification: notification_for_params,
+        :emailBlurb => email[:blurb] || Hancock.email_template[:blurb],
+        :emailSubject => email[:subject] || Hancock.email_template[:subject],
+        :status => "#{status}",
+        :documents => documents_for_params,
+        :recipients => signature_requests_for_params,
+        :notification => notification_for_params
       }
     end
 
     def check_collection_validity(field, klass)
       collection = send(field)
       errors.add(field, "can't be empty") if collection.empty?
-      if collection.any? {|item| !(item.is_a?(klass)) }
+      if collection.any? { |item| !(item.is_a?(klass)) }
         errors.add(field, "one of the #{field} is not a #{klass}")
       else
         # TODO: Consider making these one-liners (postfix conditional)
@@ -259,7 +259,7 @@ module Hancock
       check_collection_validity(:recipients, Recipient)
 
       unless has_unique_emails?
-        errors.add(:recipients, "must all have unique emails")
+        errors.add(:recipients, 'must all have unique emails')
       end
     end
 

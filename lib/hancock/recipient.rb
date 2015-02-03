@@ -13,9 +13,9 @@ module Hancock
     def initialize(attributes = {})
       @name            = attributes[:name]
       @email           = attributes[:email]
-      @id_check        = attributes.fetch(:id_check,        true   )
-      @delivery_method = attributes.fetch(:delivery_method, :email )
-      @routing_order   = attributes.fetch(:routing_order,   1      )
+      @id_check        = attributes.fetch(:id_check,        true)
+      @delivery_method = attributes.fetch(:delivery_method, :email)
+      @routing_order   = attributes.fetch(:routing_order,   1)
       @recipient_type  = attributes.fetch(:recipient_type,  :signer)
       @identifier      = attributes[:identifier]
     end
@@ -24,18 +24,16 @@ module Hancock
       connection = Hancock::DocuSignAdapter.new(envelope.identifier)
       envelope_recipients = connection.recipients
 
-      TYPES.map { |type|
-        envelope_recipients[docusign_recipient_type(type)].map { |envelope_recipient|
-          new({
-            name: envelope_recipient["name"],
-            email: envelope_recipient["email"],
-            id_check: nil,
-            routing_order: envelope_recipient["routingOrder"].to_i,
-            recipient_type: type,
-            identifier: envelope_recipient["recipientId"].to_i
-          })
-        }
-      }.flatten
+      TYPES.map do |type|
+        envelope_recipients[docusign_recipient_type(type)].map do |envelope_recipient|
+          new(:name => envelope_recipient['name'],
+              :email => envelope_recipient['email'],
+              :id_check => nil,
+              :routing_order => envelope_recipient['routingOrder'].to_i,
+              :recipient_type => type,
+              :identifier => envelope_recipient['recipientId'].to_i)
+        end
+      end.flatten
     end
   end
 end

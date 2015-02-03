@@ -22,7 +22,7 @@ module Hancock
     end
 
     def coordinates=(coordinates)
-      raise ArgumentError unless coordinates.is_a?(Array)
+      fail ArgumentError unless coordinates.is_a?(Array)
 
       @coordinates = coordinates
     end

@@ -25,6 +25,5 @@ module Hancock
       # collection of tab statuses
       # @todo needs realization
     end
-
   end
 end
