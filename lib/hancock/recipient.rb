@@ -35,5 +35,11 @@ module Hancock
         end
       end.flatten
     end
+    #
+    # format recipient type(symbol) for DocuSign
+    #
+    def self.docusign_recipient_type(type)
+      type.to_s.camelize(:lower).pluralize
+    end
   end
 end

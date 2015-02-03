@@ -1,7 +1,5 @@
 module Hancock
   module Configuration
-    include Hancock::Helpers
-
     VALID_CONNECTION_KEYS  = [:endpoint, :api_version, :user_agent, :method].freeze
     VALID_OPTIONS_KEYS     = [:oauth_token, :account_id, :format, :ca_file, :email_template, :event_notification, :boundary].freeze
 

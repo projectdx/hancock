@@ -82,7 +82,7 @@ module Hancock
       generate_document_ids!
       generate_recipient_ids!
 
-      response = send_post_request("/accounts/#{Hancock.account_id}/envelopes", form_post_body, headers)
+      response = Hancock::Request.send_post_request("/accounts/#{Hancock.account_id}/envelopes", form_post_body, headers)
 
       if response.success?
         self.identifier = response['envelopeId']
@@ -100,9 +100,9 @@ module Hancock
     #
     def change_status!(status)
       fail NotSavedYet unless identifier
-      headers = get_headers('Content-Type' => 'application/json')
+      headers = Hancock::Request.get_headers('Content-Type' => 'application/json')
       put_body = { :status => status }.to_json
-      response = send_put_request("/accounts/#{Hancock.account_id}/envelopes/#{identifier}", put_body, headers)
+      response = Hancock::Request.send_put_request("/accounts/#{Hancock.account_id}/envelopes/#{identifier}", put_body, headers)
 
       if response.success?
         reload!
@@ -196,7 +196,7 @@ module Hancock
     end
 
     def headers
-      get_headers('Content-Type' => "multipart/form-data; boundary=#{Hancock.boundary}")
+      Hancock::Request.get_headers('Content-Type' => "multipart/form-data; boundary=#{Hancock.boundary}")
     end
 
     def form_post_body
@@ -269,6 +269,13 @@ module Hancock
 
     def document_validity
       check_collection_validity(:documents, Document)
+    end
+
+    #
+    # format recipient type(symbol) for DocuSign
+    #
+    def docusign_recipient_type(type)
+      type.to_s.camelize(:lower).pluralize
     end
   end
 end

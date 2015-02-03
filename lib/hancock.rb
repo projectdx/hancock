@@ -3,7 +3,7 @@ require 'active_support/inflector'
 require 'active_support/concern'
 require 'active_model'
 
-require 'hancock/helpers'
+require 'hancock/request'
 require_relative 'hancock/configuration'
 
 require 'nokogiri'

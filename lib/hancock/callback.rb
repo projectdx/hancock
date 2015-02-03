@@ -1,8 +1,5 @@
 module Hancock
   class Callback
-    include Hancock::Helpers
-    extend Hancock::Helpers
-
     attr_accessor :name, :url, :active, :logging, :envelope_events,
       :recipient_events, :include_documents, :all_users, :identifier
 
@@ -19,7 +16,7 @@ module Hancock
     }
 
     def self.all
-      response = send_get_request("/accounts/#{Hancock.account_id}/connect")['configurations']
+      response = Hancock::Request.send_get_request("/accounts/#{Hancock.account_id}/connect")['configurations']
       response.map { |config| from_docusign_response(config) }
     end
 
@@ -59,11 +56,11 @@ module Hancock
       end.merge(:useSoapInterface => false)
 
       url = "/accounts/#{Hancock.account_id}/connect"
-      headers = get_headers('Content-Type' => 'application/json')
+      headers = Hancock::Request.get_headers('Content-Type' => 'application/json')
       response = if existing
-                   send_put_request(url, post_params.to_json, headers)
+                   Hancock::Request.send_put_request(url, post_params.to_json, headers)
       else
-        send_post_request(url, post_params.to_json, headers)
+        Hancock::Request.send_post_request(url, post_params.to_json, headers)
       end
       self.identifier = response['connectId']
     end
