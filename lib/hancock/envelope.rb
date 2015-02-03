@@ -82,7 +82,7 @@ module Hancock
       generate_document_ids!
       generate_recipient_ids!
 
-      response = Hancock::Request.send_post_request("/accounts/#{Hancock.account_id}/envelopes", form_post_body, headers)
+      response = Hancock::Request.send_post_request("/envelopes", form_post_body, headers)
 
       if response.success?
         self.identifier = response['envelopeId']
@@ -102,7 +102,7 @@ module Hancock
       fail NotSavedYet unless identifier
       headers = Hancock::Request.get_headers('Content-Type' => 'application/json')
       put_body = { :status => status }.to_json
-      response = Hancock::Request.send_put_request("/accounts/#{Hancock.account_id}/envelopes/#{identifier}", put_body, headers)
+      response = Hancock::Request.send_put_request("/envelopes/#{identifier}", put_body, headers)
 
       if response.success?
         reload!

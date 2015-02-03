@@ -33,7 +33,7 @@ module Hancock
     # generate common uri to docusign service
     #
     def self.build_uri(url)
-      "#{Hancock.endpoint}/#{Hancock.api_version}#{url}"
+      "#{Hancock.endpoint}/#{Hancock.api_version}/accounts/#{Hancock.account_id}#{url}"
     end
 
     #

@@ -1,9 +1,12 @@
 describe Hancock::Request do
-  before { allow(Hancock).to receive(:oauth_token).and_return('AnAmazingOAuthTokenShinyAndPink') }
+  before do
+    Hancock.account_id = 123456
+    allow(Hancock).to receive(:oauth_token).and_return('AnAmazingOAuthTokenShinyAndPink')
+  end
 
   describe '#send_get_request' do
     it "sends a get request to DocuSign and returns response" do
-      stub_request(:get, "https://demo.docusign.net/restapi/v2/something_exciting").
+      stub_request(:get, "https://demo.docusign.net/restapi/v2/accounts/123456/something_exciting").
          with(:headers => {'Accept'=>'json', 'Authorization'=>'bearer AnAmazingOAuthTokenShinyAndPink', 'Content-Type'=>'application/json'}).
          to_return(:status => 200, :body => "the body", :headers => {})
       response = described_class.send_get_request("/something_exciting")
@@ -14,7 +17,7 @@ describe Hancock::Request do
 
   describe '#send_post_request' do
     it "sends a post request to DocuSign and returns response" do
-      stub_request(:post, "https://demo.docusign.net/restapi/v2/whatever").
+      stub_request(:post, "https://demo.docusign.net/restapi/v2/accounts/123456/whatever").
          with(:headers => {'Accept'=>'Yourself'}, :body => 'alien sandwiches').
          to_return(:status => 201, :body => "bodylicious", :headers => {})
       response = described_class.send_post_request("/whatever", 'alien sandwiches', 'Accept' => 'Yourself')
@@ -25,7 +28,7 @@ describe Hancock::Request do
 
   describe '#send_put_request' do
     it "sends a put request to DocuSign and returns response" do
-      stub_request(:put, "https://demo.docusign.net/restapi/v2/ghost_racquetball").
+      stub_request(:put, "https://demo.docusign.net/restapi/v2/accounts/123456/ghost_racquetball").
          with(:headers => {'Header' => 'Shoulderer'}, :body => 'you will rue bidets').
          to_return(:status => 200, :body => "grassy knolls", :headers => {})
       response = described_class.send_put_request("/ghost_racquetball", 'you will rue bidets', 'Header' => 'Shoulderer')

@@ -16,7 +16,7 @@ module Hancock
     }
 
     def self.all
-      response = Hancock::Request.send_get_request("/accounts/#{Hancock.account_id}/connect")['configurations']
+      response = Hancock::Request.send_get_request("/connect")['configurations']
       response.map { |config| from_docusign_response(config) }
     end
 
@@ -55,7 +55,7 @@ module Hancock
         hsh[config] = send(attribute); hsh
       end.merge(:useSoapInterface => false)
 
-      url = "/accounts/#{Hancock.account_id}/connect"
+      url = "/connect"
       headers = Hancock::Request.get_headers('Content-Type' => 'application/json')
       response = if existing
                    Hancock::Request.send_put_request(url, post_params.to_json, headers)
