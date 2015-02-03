@@ -30,6 +30,13 @@ module Hancock
     end
 
     #
+    # send delete request to set url
+    #
+    def self.send_delete_request(url)
+      send_request(:delete, url, get_headers('Content-Type' => 'application/json'))
+    end
+
+    #
     # generate common uri to docusign service
     #
     def self.build_uri(url)

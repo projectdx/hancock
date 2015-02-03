@@ -15,6 +15,17 @@ describe Hancock::Request do
     end
   end
 
+  describe '#send_delete_request' do
+    it "sends a delete request to DocuSign and returns response" do
+      stub_request(:delete, "https://demo.docusign.net/restapi/v2/accounts/123456/something_exciting").
+         with(:headers => {'Accept'=>'json', 'Authorization'=>'bearer AnAmazingOAuthTokenShinyAndPink', 'Content-Type'=>'application/json'}).
+         to_return(:status => 200, :body => "the body", :headers => {})
+      response = described_class.send_delete_request("/something_exciting")
+      expect(response.success?).to be_truthy
+      expect(response.parsed_response).to eq 'the body'
+    end
+  end
+
   describe '#send_post_request' do
     it "sends a post request to DocuSign and returns response" do
       stub_request(:post, "https://demo.docusign.net/restapi/v2/accounts/123456/whatever").
