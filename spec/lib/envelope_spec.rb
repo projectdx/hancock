@@ -108,7 +108,7 @@ describe Hancock::Envelope do
         stub_status_change('smokey-heaven', 'floosh', 'failed_status_change', 400)
         expect {
           subject.change_status!('floosh')
-        }.to raise_error(described_class::DocusignError, "Umbrella smoothie is bad idea.")
+        }.to raise_error(Hancock::Request::RequestError, '400 - UNEDUCATED_FELON_ERROR - Umbrella smoothie is bad idea.')
       end
     end
 
@@ -232,7 +232,7 @@ describe Hancock::Envelope do
         it 'raises a DocusignError with the returned message if not successful' do
           expect {
             subject.send_envelope
-          }.to raise_error(described_class::DocusignError, "Nobody actually loves you; they just pretend until payday.")
+          }.to raise_error(Hancock::Request::RequestError, '500 - YOU_ARE_A_BANANA - Bananas are not allowed to bank.')
         end
       end
     end

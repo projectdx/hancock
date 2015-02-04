@@ -1,7 +1,6 @@
 module Hancock
   class Envelope < Hancock::Base
     class InvalidEnvelopeError < StandardError; end
-    class DocusignError < StandardError; end
     class AlreadySavedError < StandardError; end
     class AlreadySentError < StandardError; end
     class NotSavedYet < StandardError; end
@@ -84,13 +83,8 @@ module Hancock
 
       response = Hancock::Request.send_post_request("/envelopes", form_post_body, headers)
 
-      if response.success?
-        self.identifier = response['envelopeId']
-        reload!
-      else
-        message = response['message']
-        fail DocusignError.new(message)
-      end
+      self.identifier = response['envelopeId']
+      reload!
     end
 
     #
@@ -103,13 +97,7 @@ module Hancock
       headers = Hancock::Request.get_headers('Content-Type' => 'application/json')
       put_body = { :status => status }.to_json
       response = Hancock::Request.send_put_request("/envelopes/#{identifier}", put_body, headers)
-
-      if response.success?
-        reload!
-      else
-        message = response['message']
-        fail DocusignError.new(message)
-      end
+      reload!
     end
 
     #
@@ -130,7 +118,7 @@ module Hancock
         @status_changed_at = Time.parse(response['statusChangedDateTime'])
         @email = { :subject => response['emailSubject'], :blurb => response['emailBlurb'] }
         @documents = Document.fetch_all_for_envelope(self)
-        @recipients = Recipient.fetch_for_envelope(self)
+        @recipients = Recipient.fetch_for_envelope(identifier)
       end
       self
     end

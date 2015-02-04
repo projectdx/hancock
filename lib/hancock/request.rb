@@ -2,12 +2,22 @@ require 'httparty'
 
 module Hancock
   class Request
+    RequestError = Class.new(StandardError)
+
     def self.send_request(type, url, headers, body = nil)
       uri = build_uri(url)
       options = { :headers => headers }
       options[:body] = body if body
-      HTTParty.send(type, uri, options)
+      response = HTTParty.send(type, uri, options)
+
+      unless response.success?
+        parsed_response = JSON.parse(response.body)
+        fail RequestError, "#{response.response.code} - #{parsed_response['errorCode']} - #{parsed_response['message']}"
+      end
+
+      response
     end
+
     #
     # send post request to set uri with post body and headers
     #
@@ -32,8 +42,8 @@ module Hancock
     #
     # send delete request to set url
     #
-    def self.send_delete_request(url)
-      send_request(:delete, url, get_headers('Content-Type' => 'application/json'))
+    def self.send_delete_request(url, body_post)
+      send_request(:delete, url, get_headers('Content-Type' => 'application/json'), body_post)
     end
 
     #
