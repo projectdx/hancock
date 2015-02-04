@@ -2,11 +2,15 @@ module Hancock
   class Recipient < Hancock::Base
     TYPES = [:agent, :carbon_copy, :certified_delivery, :editor, :in_person_signer, :intermediary, :signer]
 
-    attr_accessor :name, :email, :id_check, :delivery_method, :routing_order, :identifier, :recipient_type
+    attr_accessor :email,
+      :id_check,
+      :identifier,
+      :name,
+      :recipient_type,
+      :routing_order
 
     validates :name, :email, :presence => true
     validates :id_check, :allow_nil => true, :inclusion => [true, false]
-    validates :delivery_method, :inclusion => [:email, :embedded, :offline, :paper]
     validates :recipient_type, :inclusion => TYPES
     validates :email, :format => { :with => /\A([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\z/i }
 
@@ -14,7 +18,6 @@ module Hancock
       @name            = attributes[:name]
       @email           = attributes[:email]
       @id_check        = attributes.fetch(:id_check,        true)
-      @delivery_method = attributes.fetch(:delivery_method, :email)
       @routing_order   = attributes.fetch(:routing_order,   1)
       @recipient_type  = attributes.fetch(:recipient_type,  :signer)
       @identifier      = attributes[:identifier]

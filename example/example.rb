@@ -42,7 +42,6 @@ recipient1 = Hancock::Recipient.new({
   name: 'Owner 1',
   email: 'test@example.com',
   # id_check: true,
-  # delivery_method: email, # email, embedded, offline, paper
   # routing_order: 1
 })
 

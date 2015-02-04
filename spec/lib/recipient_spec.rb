@@ -1,8 +1,6 @@
 describe Hancock::Recipient do
-  context 'validations' do
-    it { is_expected.to have_valid(:delivery_method).when(:email, :embedded, :offline, :paper) }
-    it { is_expected.not_to have_valid(:delivery_method).when(:goofy, nil, '') }
 
+  context 'validations' do
     it { is_expected.to have_valid(:name).when('Soup Can Sam') }
     it { is_expected.not_to have_valid(:name).when(nil, '') }
 
@@ -57,17 +55,6 @@ describe Hancock::Recipient do
     it 'can be set to false' do
       subject = described_class.new(:id_check => false)
       expect(subject.id_check).to be_falsey
-    end
-  end
-
-  describe '#delivery_method' do
-    it 'returns :email by default' do
-      expect(subject.delivery_method).to eq :email
-    end
-
-    it 'can be set' do
-      subject.delivery_method = :aerokraft
-      expect(subject.delivery_method).to eq :aerokraft
     end
   end
 

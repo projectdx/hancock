@@ -73,7 +73,6 @@ recipient1 = Hancock::Recipient.new({
   name: 'Owner 1',
   email: 'whoever@whereever.com',
   # id_check: true,
-  # delivery_method: email, # email, embedded, offline, paper
   # routing_order: 1
 })
 
@@ -261,7 +260,6 @@ recipient1 = Hancock::Recipient.new({
   name: 'Owner 1',
   email: 'whoever@whereever.com',
   # id_check: true,
-  # delivery_method: email, # email, embedded, offline, paper
   # routing_order: 1
 })
 ```
@@ -271,11 +269,6 @@ Key           | Description
 name          | (string) Name of signer
 email         | (string) Email address of signer
 id_check      | (boolean [default: true]) true to enable [ID Check functionality](http://www.docusign.com/partner/docusign-id-check-powered-by-lexisnexis-risk-solutions)
-delivery_method | (string [default: email])
-              | `email`: send through email and sign online
-              | `embedded`: embedded iframe
-              | `offline`: sign offline on tablet
-              | `paper`: print physical copy and snail-mail
 routing_order | (integer [default 1]) routing order of recepient in the envelope.  If missing, then all recepients have the same routing order
 
 ***
