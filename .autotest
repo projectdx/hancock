@@ -1,4 +1,6 @@
+require 'autotest/bundler'
 require 'autotest/restart'
+require 'autotest/growl'
 
 Autotest.add_hook :initialize do |autotest|
   %w{.git .svn .hg .DS_Store ._* tmp/ log/ doc/}.each do |exception|
@@ -6,4 +8,8 @@ Autotest.add_hook :initialize do |autotest|
   end
   autotest.add_exception 'coverage'
   autotest.add_exception 'coverage.info'
+
+  autotest.add_mapping %r%^lib/hancock/(.*)\.rb$% do |_, m|
+    "spec/lib/#{m[1]}_spec.rb"
+  end
 end
