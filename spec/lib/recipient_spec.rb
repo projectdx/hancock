@@ -1,4 +1,7 @@
 describe Hancock::Recipient do
+  before do
+    allow(Hancock).to receive(:account_id).and_return(123_456)
+  end
 
   context 'validations' do
     it { is_expected.to have_valid(:name).when('Soup Can Sam') }
@@ -61,11 +64,10 @@ describe Hancock::Recipient do
   describe '.fetch_for_envelope' do
     it 'reloads recipients from DocuSign envelope' do
       envelope = Hancock::Envelope.new(:identifier => 'a-crazy-envelope-id')
-      allow(Hancock::DocuSignAdapter).to receive(:new).
-        with('a-crazy-envelope-id').
-        and_return(double(Hancock::DocuSignAdapter, :recipients => JSON.parse(response_body('recipients'))))
+      stub_request(:get, 'https://demo.docusign.net/restapi/v2/accounts/123456/envelopes/a-crazy-envelope-id/recipients').
+        to_return(:status => 200, :body => response_body('recipients').to_json, :headers => {'Content-Type' => 'application/json'})
 
-      recipients = described_class.fetch_for_envelope(envelope)
+      recipients = described_class.fetch_for_envelope(envelope.identifier)
       expect(recipients.map(&:email)).
         to match_array(['darwin@example.com', 'salli@example.com'])
       expect(recipients.map(&:identifier)).

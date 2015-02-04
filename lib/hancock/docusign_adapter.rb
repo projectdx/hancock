@@ -2,7 +2,7 @@ module Hancock
   class DocuSignAdapter < Hancock::Base
     attr_accessor :envelope_id
 
-    def initialize(envelope_id = nil)
+    def initialize(envelope_id)
       @envelope_id = envelope_id
     end
 
@@ -32,8 +32,6 @@ module Hancock
     #
     def recipients
       Hancock::Request.send_get_request("/envelopes/#{envelope_id}/recipients")
-    end
-
     end
   end
 end

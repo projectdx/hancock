@@ -1,6 +1,6 @@
 describe Hancock::Request do
   before do
-    Hancock.account_id = 123456
+    allow(Hancock).to receive(:account_id).and_return(123_456)
     allow(Hancock).to receive(:oauth_token).and_return('AnAmazingOAuthTokenShinyAndPink')
   end
 
