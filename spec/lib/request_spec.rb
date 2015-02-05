@@ -76,17 +76,17 @@ describe Hancock::Request do
     end
   end
 
-  describe '#get_headers' do
+  describe '#merge_headers' do
     let(:default_headers) { { 'Accept' => 'json', 'Authorization' => "bearer AnAmazingOAuthTokenShinyAndPink" } }
 
     it "returns Accept and Authorization headers" do
-      expect(described_class.get_headers).to eq default_headers
+      expect(described_class.merge_headers).to eq default_headers
     end
 
     it 'merges given headers with default headers' do
       content_headers = { 'Content-Type' => "multipart/form-data, boundary='AAA'"}
 
-      expect(described_class.get_headers(content_headers)).
+      expect(described_class.merge_headers(content_headers)).
         to eq default_headers.merge!(content_headers)
     end
   end

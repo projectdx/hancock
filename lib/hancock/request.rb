@@ -21,29 +21,29 @@ module Hancock
     #
     # send post request to set uri with post body and headers
     #
-    def self.send_post_request(url, body_post, headers)
-      send_request(:post, url, headers, body_post)
+    def self.send_post_request(url, body_post, headers = {})
+      send_request(:post, url, merge_headers(headers), body_post)
     end
 
     #
     # send put request to set url
     #
-    def self.send_put_request(url, body_post, headers)
-      send_request(:put, url, headers, body_post)
+    def self.send_put_request(url, body_post, headers = {})
+      send_request(:put, url, merge_headers(headers), body_post)
     end
 
     #
     # send get request to set url
     #
     def self.send_get_request(url)
-      send_request(:get, url, get_headers('Content-Type' => 'application/json'))
+      send_request(:get, url, merge_headers('Content-Type' => 'application/json'))
     end
 
     #
     # send delete request to set url
     #
     def self.send_delete_request(url, body_post)
-      send_request(:delete, url, get_headers('Content-Type' => 'application/json'), body_post)
+      send_request(:delete, url, merge_headers('Content-Type' => 'application/json'), body_post)
     end
 
     #
@@ -54,9 +54,9 @@ module Hancock
     end
 
     #
-    # get headers for requests with authentication parameters
+    # Merge default headers with these headers
     #
-    def self.get_headers(user_defined_headers = {})
+    def self.merge_headers(user_defined_headers = {})
       default = {
         'Accept' => 'json',
         'Authorization' => "bearer #{Hancock.oauth_token}"
