@@ -10,10 +10,14 @@ module Hancock
       options[:body] = body if body
       response = HTTParty.send(type, uri, options)
 
+      Hancock.logger.info("#{type.upcase}: #{uri}\n#{options}")
+
       unless response.success?
-        parsed_response = JSON.parse(response.body)
-        fail RequestError, "#{response.response.code} - #{parsed_response['errorCode']} - #{parsed_response['message']}"
+        Hancock.logger.error("#{response.response.code}:\n#{response}")
+        fail RequestError, "#{response.response.code} - #{response['errorCode']} - #{response['message']}"
       end
+
+      Hancock.logger.debug("#{response.response.code}: #{response}")
 
       response
     end

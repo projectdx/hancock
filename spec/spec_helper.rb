@@ -17,4 +17,8 @@ RSpec.configure do |config|
   config.order = 'random'
   config.include PathHelper
   config.include RequestStubHelper
+
+  config.before :each do |_|
+    Hancock.logger = Logger.new('/dev/null')
+  end
 end

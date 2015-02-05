@@ -1,7 +1,7 @@
 module Hancock
   module Configuration
     VALID_CONNECTION_KEYS  = [:endpoint, :api_version, :user_agent, :method].freeze
-    VALID_OPTIONS_KEYS     = [:oauth_token, :account_id, :format, :ca_file, :email_template, :event_notification, :boundary].freeze
+    VALID_OPTIONS_KEYS     = [:oauth_token, :account_id, :format, :ca_file, :email_template, :event_notification, :boundary, :logger].freeze
 
     VALID_CONFIG_KEYS      = VALID_CONNECTION_KEYS + VALID_OPTIONS_KEYS
 
@@ -38,6 +38,7 @@ module Hancock
       self.email_template     = DEFAULT_EMAIL_TEMPLATE
       self.event_notification = DEFAULT_EVENT_NOTIFICATION
       self.boundary           = DEFAULT_BOUNDARY
+      self.logger             = Logger.new($stdout)
     end
 
     def configure
