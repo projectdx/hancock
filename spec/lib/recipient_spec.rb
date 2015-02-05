@@ -75,4 +75,158 @@ describe Hancock::Recipient do
       expect(recipients.map(&:class).uniq).to eq [described_class]
     end
   end
+
+  describe '.find_or_initialize' do
+    context 'when a matching envelope exists' do
+      let(:kermie) { double() }
+
+      it 'returns a recipient if one was found' do
+        allow(Hancock::Recipient::DocusignRecipient).to receive(:find)
+          .and_return(kermie)
+
+        expect(
+          described_class.find_or_initialize('envelope_identifier', :identifier => 'kerms')
+        ).to eq(kermie)
+      end
+
+      it 'creates a new recipient if no match was found' do
+        allow(Hancock::Recipient::DocusignRecipient).to receive(:find)
+          .and_return(nil)
+
+        new_recipient = described_class.find_or_initialize('1234', :name => 'MacGyver')
+        expect(new_recipient.name).to eq('MacGyver')
+        expect(new_recipient.instance_variable_get :@envelope_identifier).to eq('1234')
+      end
+    end
+  end
+
+  describe '#change_access_method_to' do
+    context 'when new access method is the same as the old' do
+      subject {
+        described_class.new(
+          :envelope_identifier => 'bluh',
+          :client_user_id => 'uniquity',
+          :identifier => 42)
+      }
+
+      it 'returns true' do
+        expect(subject.change_access_method_to(:embedded)).to eq(true)
+      end
+
+      it 'does not attempt to delete and recreate the recipient' do
+        expect_any_instance_of(Hancock::Recipient::DocusignRecipient)
+          .not_to receive(:delete)
+        expect_any_instance_of(Hancock::Recipient::DocusignRecipient)
+          .not_to receive(:create)
+        expect_any_instance_of(Hancock::Recipient::DocusignRecipient)
+          .not_to receive(:tabs)
+        expect_any_instance_of(Hancock::Recipient::DocusignRecipient)
+          .not_to receive(:create_tabs_from_json)
+
+        subject.change_access_method_to(:embedded)
+      end
+    end
+
+    context 'when setting access method to :embedded' do
+      subject {
+        described_class.new(
+          :envelope_identifier => 'bluh',
+          :identifier => 42)
+      }
+
+      before(:each) do
+        expect_any_instance_of(Hancock::Recipient::DocusignRecipient)
+          .to receive(:delete)
+          .and_return(double(:success? => true))
+        expect_any_instance_of(Hancock::Recipient::DocusignRecipient)
+          .to receive(:create)
+          .and_return(double(:success? => true))
+        expect_any_instance_of(Hancock::Recipient::DocusignRecipient)
+          .to receive(:tabs)
+          .and_return(double(:success? => true))
+        expect_any_instance_of(Hancock::Recipient::DocusignRecipient)
+          .to receive(:create_tabs_from_json)
+          .and_return(double(:success? => true))
+      end
+
+      it 'sets the client_user_id to the identifier' do
+        expect(subject.client_user_id).to be nil
+
+        subject.change_access_method_to(:embedded)
+
+        expect(subject.client_user_id).to eq(subject.identifier)
+      end
+    end
+
+    context 'when setting access method to :remote' do
+      subject {
+        described_class.new(
+          :envelope_identifier => 'bluh',
+          :client_user_id => 'susketchuwon',
+          :identifier => 42)
+      }
+
+      before(:each) do
+        expect_any_instance_of(Hancock::Recipient::DocusignRecipient)
+          .to receive(:delete)
+          .and_return(double(:success? => true))
+        expect_any_instance_of(Hancock::Recipient::DocusignRecipient)
+          .to receive(:create)
+          .and_return(double(:success? => true))
+        expect_any_instance_of(Hancock::Recipient::DocusignRecipient)
+          .to receive(:tabs)
+          .and_return(double(:success? => true))
+        expect_any_instance_of(Hancock::Recipient::DocusignRecipient)
+          .to receive(:create_tabs_from_json)
+          .and_return(double(:success? => true))
+      end
+
+      it 'sets the client_user_id to the nil' do
+        expect(subject.client_user_id).to eq('susketchuwon')
+
+        subject.change_access_method_to(:remote)
+
+        expect(subject.client_user_id).to be(nil)
+      end
+    end
+
+    context 'when setting access method to :something_unknown_and_silly' do
+      subject {
+        described_class.new(
+          :envelope_identifier => 'bluh',
+          :identifier => 42)
+      }
+
+      it 'sets the client_user_id to the nil' do
+        expect {
+          subject.change_access_method_to(:something_unknown_and_silly)
+        }.to raise_error ArgumentError
+      end
+    end
+
+    context 'when, for once, things go accordingly to plans laid best by mice and men' do
+      subject {
+        described_class.new(
+          :envelope_identifier => 'bluh',
+          :identifier => 'squirrel')
+      }
+
+      it 'returns true' do
+        expect_any_instance_of(Hancock::Recipient::DocusignRecipient)
+          .to receive(:delete)
+          .and_return(double(:success? => true))
+        expect_any_instance_of(Hancock::Recipient::DocusignRecipient)
+          .to receive(:create)
+          .and_return(double(:success? => true))
+        expect_any_instance_of(Hancock::Recipient::DocusignRecipient)
+          .to receive(:tabs)
+          .and_return(double(:success? => true))
+        expect_any_instance_of(Hancock::Recipient::DocusignRecipient)
+          .to receive(:create_tabs_from_json)
+          .and_return(double(:success? => true))
+
+        expect(subject.change_access_method_to(:embedded)).to be true
+      end
+    end
+  end
 end
