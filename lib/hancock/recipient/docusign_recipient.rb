@@ -32,7 +32,7 @@ module Hancock
         Hancock::Request.send_post_request(
           "/envelopes/#{envelope_identifier}/recipients/#{identifier}/tabs",
           tabs
-          )
+        )
       end
 
       def delete
@@ -41,14 +41,14 @@ module Hancock
         Hancock::Request.send_delete_request(
           "/envelopes/#{envelope_identifier}/recipients",
           json_body
-          )
+        )
       end
 
       def create
         Hancock::Request.send_post_request(
           "/envelopes/#{envelope_identifier}/recipients",
           { :signers => [to_hash] }.to_json
-          )
+        )
       end
 
       private

@@ -85,7 +85,7 @@ module Hancock
     private
 
     def docusign_recipient
-      @docusign_recipient  ||= DocusignRecipient.new(self)
+      @docusign_recipient ||= DocusignRecipient.new(self)
     end
 
     def access_method
