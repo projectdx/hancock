@@ -40,14 +40,14 @@ module Hancock
     # send get request to set url
     #
     def self.send_get_request(url)
-      send_request(:get, url, merge_headers('Content-Type' => 'application/json'))
+      send_request(:get, url, merge_headers)
     end
 
     #
     # send delete request to set url
     #
-    def self.send_delete_request(url, body_post)
-      send_request(:delete, url, merge_headers('Content-Type' => 'application/json'), body_post)
+    def self.send_delete_request(url, body_post, headers = {})
+      send_request(:delete, url, merge_headers(headers), body_post)
     end
 
     #
@@ -61,12 +61,17 @@ module Hancock
     # Merge default headers with these headers
     #
     def self.merge_headers(user_defined_headers = {})
-      default = {
-        'Accept' => 'json',
-        'Authorization' => "bearer #{Hancock.oauth_token}"
+      default_headers = {
+        'Accept' => 'application/json',
+        'Authorization' => "bearer #{Hancock.oauth_token}",
+        'Content-Type' => 'application/json'
       }
 
-      default.merge!(user_defined_headers) if user_defined_headers
+      user_defined_headers.each do |key, value|
+        default_headers[key] = value
+      end
+
+      default_headers
     end
   end
 end

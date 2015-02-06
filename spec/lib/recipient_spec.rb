@@ -65,7 +65,7 @@ describe Hancock::Recipient do
     it 'reloads recipients from DocuSign envelope' do
       envelope = Hancock::Envelope.new(:identifier => 'a-crazy-envelope-id')
       stub_request(:get, 'https://demo.docusign.net/restapi/v2/accounts/123456/envelopes/a-crazy-envelope-id/recipients').
-        to_return(:status => 200, :body => response_body('recipients').to_json, :headers => {'Content-Type' => 'application/json'})
+        to_return(:status => 200, :body => response_body('recipients'), :headers => {'Content-Type' => 'application/json'})
 
       recipients = described_class.fetch_for_envelope(envelope.identifier)
       expect(recipients.map(&:email)).

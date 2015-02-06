@@ -8,7 +8,7 @@ describe Hancock::DocuSignAdapter do
   describe '#envelope' do
     it "returns info for the requested envelope" do
       stub_request(:get, "https://demo.docusign.net/restapi/v2/accounts/123456/envelopes/a-crazy-envelope-id").
-        with(:headers => {'Accept'=>'json', 'Authorization'=>'bearer AnAmazingOAuthTokenShinyAndPink', 'Content-Type'=>'application/json'}).
+        with(:headers => {'Accept'=>'application/json', 'Authorization'=>'bearer AnAmazingOAuthTokenShinyAndPink', 'Content-Type'=>'application/json'}).
         to_return(:status => 200, :body => response_body('envelope'), :headers => { 'Content-Type' => 'application/json' })
 
       response = @connection.envelope
@@ -21,7 +21,7 @@ describe Hancock::DocuSignAdapter do
   describe '#documents' do
     it "return document info for all of the requested envelopes' documents" do
       stub_request(:get, "https://demo.docusign.net/restapi/v2/accounts/123456/envelopes/a-crazy-envelope-id/documents").
-        with(:headers => {'Accept'=>'json', 'Authorization'=>'bearer AnAmazingOAuthTokenShinyAndPink', 'Content-Type'=>'application/json'}).
+        with(:headers => {'Accept'=>'application/json', 'Authorization'=>'bearer AnAmazingOAuthTokenShinyAndPink', 'Content-Type'=>'application/json'}).
         to_return(:status => 200, :body => response_body('documents'), :headers => { 'Content-Type' => 'application/json' })
 
       documents = @connection.documents
@@ -34,7 +34,7 @@ describe Hancock::DocuSignAdapter do
   describe '#recipients' do
     it "returns info about the recipients for the current envelope" do
       stub_request(:get, "https://demo.docusign.net/restapi/v2/accounts/123456/envelopes/a-crazy-envelope-id/recipients").
-        with(:headers => {'Accept'=>'json', 'Authorization'=>'bearer AnAmazingOAuthTokenShinyAndPink', 'Content-Type'=>'application/json'}).
+        with(:headers => {'Accept'=>'application/json', 'Authorization'=>'bearer AnAmazingOAuthTokenShinyAndPink', 'Content-Type'=>'application/json'}).
         to_return(:status => 200, :body => response_body('recipients'), :headers => { 'Content-Type' => 'application/json' })
 
       recipients = @connection.recipients
@@ -48,7 +48,7 @@ describe Hancock::DocuSignAdapter do
   describe '#document' do
     it "returns the bytes for the requested document on an envelope" do
       stub_request(:get, "https://demo.docusign.net/restapi/v2/accounts/123456/envelopes/a-crazy-envelope-id/documents/123").
-        with(:headers => {'Accept'=>'json', 'Authorization'=>'bearer AnAmazingOAuthTokenShinyAndPink', 'Content-Type'=>'application/json'}).
+        with(:headers => {'Accept'=>'application/json', 'Authorization'=>'bearer AnAmazingOAuthTokenShinyAndPink', 'Content-Type'=>'application/json'}).
         to_return(:status => 200, :body => File.read(fixture_path('test.pdf')).strip, :headers => { 'Content-Type' => 'application/pdf' })
 
       document = @connection.document("123")

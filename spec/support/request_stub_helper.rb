@@ -19,7 +19,7 @@ module RequestStubHelper
 
   def auth_headers
     {
-      'Accept' => 'json',
+      'Accept' => 'application/json',
       'Authorization' => 'bearer AnAmazingOAuthTokenShinyAndPink'
     }
   end

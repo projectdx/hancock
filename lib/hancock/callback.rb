@@ -56,11 +56,10 @@ module Hancock
       end.merge(:useSoapInterface => false)
 
       url = "/connect"
-      headers = Hancock::Request.get_headers('Content-Type' => 'application/json')
       response = if existing
-                   Hancock::Request.send_put_request(url, post_params.to_json, headers)
+        Hancock::Request.send_put_request(url, post_params.to_json)
       else
-        Hancock::Request.send_post_request(url, post_params.to_json, headers)
+        Hancock::Request.send_post_request(url, post_params.to_json)
       end
       self.identifier = response['connectId']
     end

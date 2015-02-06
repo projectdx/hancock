@@ -94,9 +94,8 @@ module Hancock
     #
     def change_status!(status)
       fail NotSavedYet unless identifier
-      headers = Hancock::Request.get_headers('Content-Type' => 'application/json')
       put_body = { :status => status }.to_json
-      response = Hancock::Request.send_put_request("/envelopes/#{identifier}", put_body, headers)
+      response = Hancock::Request.send_put_request("/envelopes/#{identifier}", put_body)
       reload!
     end
 
@@ -184,7 +183,7 @@ module Hancock
     end
 
     def headers
-      Hancock::Request.get_headers('Content-Type' => "multipart/form-data; boundary=#{Hancock.boundary}")
+      { 'Content-Type' => "multipart/form-data; boundary=#{Hancock.boundary}" }
     end
 
     def form_post_body

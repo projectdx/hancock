@@ -38,11 +38,10 @@ module Hancock
     #   .change_access_method_to(:embedded)
 
     def self.fetch_for_envelope(envelope_identifier)
-      response = DocusignRecipient.all_for(envelope_identifier)
-      parsed_response = JSON.parse(response)
+      response = DocusignRecipient.all_for(envelope_identifier).parsed_response
 
       TYPES.map do |type|
-        parsed_response[docusign_recipient_type(type)].map do |envelope_recipient|
+        response[docusign_recipient_type(type)].map do |envelope_recipient|
           new(:name => envelope_recipient['name'],
               :email => envelope_recipient['email'],
               :id_check => nil,

@@ -9,7 +9,7 @@ describe Hancock::Callback do
   describe '.all' do
     it 'returns all existing connect configurations' do
       stub_request(:get, "https://demo.docusign.net/restapi/v2/accounts/123456/connect").
-        with(:headers => {'Accept'=>'json', 'Authorization'=>'bearer AnAmazingOAuthTokenShinyAndPink', 'Content-Type'=>'application/json'}).
+        with(:headers => {'Accept'=>'application/json', 'Authorization'=>'bearer AnAmazingOAuthTokenShinyAndPink', 'Content-Type'=>'application/json'}).
         to_return(:status => 200, :body => response_body('connect_configurations'), :headers => { 'Content-Type' => 'application/json'})
 
       allow(described_class).to receive(:from_docusign_response).
@@ -58,7 +58,7 @@ describe Hancock::Callback do
     it "updates an existing connect configuration with same name" do
       stub_request(:put, "https://demo.docusign.net/restapi/v2/accounts/123456/connect").
          with(:body => "{\"name\":\"cadger\",\"urlToPublishTo\":null,\"allowEnvelopePublish\":false,\"enableLog\":false,\"envelopeEvents\":null,\"recipientEvents\":null,\"includeDocuments\":false,\"allUsers\":false,\"connectId\":\"45\",\"useSoapInterface\":false}",
-              :headers => {'Accept'=>'json', 'Authorization'=>'bearer AnAmazingOAuthTokenShinyAndPink', 'Content-Type'=>'application/json'}).
+              :headers => {'Accept'=>'application/json', 'Authorization'=>'bearer AnAmazingOAuthTokenShinyAndPink', 'Content-Type'=>'application/json'}).
          to_return(:status => 200, :body => '{"connectId":"45"}', :headers => { 'Content-Type' => 'application/json' })
 
       connect1 = described_class.new(:name => 'cadger', :identifier => '45')
@@ -72,7 +72,7 @@ describe Hancock::Callback do
     it "creates a new connect configuration if name doesn't exist" do
       stub_request(:post, "https://demo.docusign.net/restapi/v2/accounts/123456/connect").
          with(:body => "{\"name\":\"cadger\",\"urlToPublishTo\":null,\"allowEnvelopePublish\":false,\"enableLog\":false,\"envelopeEvents\":null,\"recipientEvents\":null,\"includeDocuments\":false,\"allUsers\":false,\"connectId\":null,\"useSoapInterface\":false}",
-              :headers => {'Accept'=>'json', 'Authorization'=>'bearer AnAmazingOAuthTokenShinyAndPink', 'Content-Type'=>'application/json'}).
+              :headers => {'Accept'=>'application/json', 'Authorization'=>'bearer AnAmazingOAuthTokenShinyAndPink', 'Content-Type'=>'application/json'}).
          to_return(:status => 200, :body => '{"connectId":"1856"}', :headers => { 'Content-Type' => 'application/json' })
 
       connect1 = described_class.new(:name => 'cadger')
