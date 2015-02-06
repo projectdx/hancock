@@ -46,7 +46,7 @@ describe Hancock::Recipient::DocusignRecipient do
 
   describe '#delete' do
     it 'makes a request' do
-      json = { :signers => [{ :recipient_id => 'snorkel-puffer' }] }.to_json
+      json = { :signers => [{ :recipientId => 'snorkel-puffer' }] }.to_json
 
       expect(Hancock::Request).to receive(:send_delete_request)
         .with('/envelopes/fiji/recipients', json)

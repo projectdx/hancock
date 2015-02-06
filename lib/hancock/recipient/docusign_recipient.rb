@@ -36,7 +36,7 @@ module Hancock
       end
 
       def delete
-        json_body = { :signers => [{ :recipient_id => identifier }] }.to_json
+        json_body = { :signers => [{ :recipientId => identifier }] }.to_json
 
         Hancock::Request.send_delete_request(
           "/envelopes/#{envelope_identifier}/recipients",
