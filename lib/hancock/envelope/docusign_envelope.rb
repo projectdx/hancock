@@ -13,7 +13,7 @@ module Hancock
       end
 
       def viewing_url
-        Hancock::Request.send_post_request("/envelopes/#{identifier}/views/sender")
+        Hancock::Request.send_post_request("/envelopes/#{identifier}/views/sender", '{}')
       end
     end
   end

@@ -14,7 +14,7 @@ describe Hancock::Envelope::DocusignEnvelope do
   describe '#viewing_url' do
     it 'makes a request to Docusign' do
       expect(Hancock::Request).to receive(:send_post_request)
-        .with('/envelopes/maui/views/sender')
+        .with('/envelopes/maui/views/sender', '{}')
 
       subject.viewing_url
     end
