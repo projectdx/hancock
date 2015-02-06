@@ -116,7 +116,8 @@ module Hancock
         @status = response['status']
         @status_changed_at = Time.parse(response['statusChangedDateTime'])
         @email = { :subject => response['emailSubject'], :blurb => response['emailBlurb'] }
-        @documents = Document.fetch_all_for_envelope(self)
+        # FIXME: This shouldn't download all the docs every time. We need a better way!
+        # @documents = Document.fetch_all_for_envelope(self)
         @recipients = Recipient.fetch_for_envelope(identifier)
       end
       self

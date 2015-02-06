@@ -248,18 +248,19 @@ describe Hancock::Envelope do
             'emailSubject' => 'Subjacked',
             'emailBlurb' => 'Blurble'
           }))
-        allow(Hancock::Document).to receive(:fetch_all_for_envelope).
-          with(subject).
-          and_return(:le_documeneaux)
+        # FIXME: This downloads all the documents, we must find a better way
+        # allow(Hancock::Document).to receive(:fetch_all_for_envelope).
+        #   with(subject).
+        #   and_return(:le_documeneaux)
         allow(Hancock::Recipient).to receive(:fetch_for_envelope).
-          with(subject).
+          with(subject.identifier).
           and_return(:le_recipierre)
 
         expect(subject.reload!).to eq subject
         expect(subject.status).to eq 'bullfree'
         expect(subject.status_changed_at).to eq(Time.parse('2014-06-04T23:55:36.7870000Z'))
         expect(subject.email).to eq({:subject => 'Subjacked', :blurb => 'Blurble'})
-        expect(subject.documents).to eq :le_documeneaux
+        # expect(subject.documents).to eq :le_documeneaux
         expect(subject.recipients).to eq :le_recipierre
       end
 
