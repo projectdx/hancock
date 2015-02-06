@@ -114,14 +114,7 @@ describe Hancock::Recipient do
       end
 
       it 'does not attempt to delete and recreate the recipient' do
-        expect_any_instance_of(Hancock::Recipient::DocusignRecipient)
-          .not_to receive(:delete)
-        expect_any_instance_of(Hancock::Recipient::DocusignRecipient)
-          .not_to receive(:create)
-        expect_any_instance_of(Hancock::Recipient::DocusignRecipient)
-          .not_to receive(:tabs)
-        expect_any_instance_of(Hancock::Recipient::DocusignRecipient)
-          .not_to receive(:create_tabs_from_json)
+        expect(a_request(:any, /docusign.net/)).not_to have_been_made
 
         subject.change_access_method_to(:embedded)
       end
@@ -137,16 +130,10 @@ describe Hancock::Recipient do
       before(:each) do
         expect_any_instance_of(Hancock::Recipient::DocusignRecipient)
           .to receive(:delete)
-          .and_return(double(:success? => true))
         expect_any_instance_of(Hancock::Recipient::DocusignRecipient)
           .to receive(:create)
-          .and_return(double(:success? => true))
         expect_any_instance_of(Hancock::Recipient::DocusignRecipient)
-          .to receive(:tabs)
-          .and_return(double(:success? => true))
-        expect_any_instance_of(Hancock::Recipient::DocusignRecipient)
-          .to receive(:create_tabs_from_json)
-          .and_return(double(:success? => true))
+          .to receive(:tabs).and_return(double(:parsed_response => {}))
       end
 
       it 'sets the client_user_id to the identifier' do
@@ -169,16 +156,10 @@ describe Hancock::Recipient do
       before(:each) do
         expect_any_instance_of(Hancock::Recipient::DocusignRecipient)
           .to receive(:delete)
-          .and_return(double(:success? => true))
         expect_any_instance_of(Hancock::Recipient::DocusignRecipient)
           .to receive(:create)
-          .and_return(double(:success? => true))
         expect_any_instance_of(Hancock::Recipient::DocusignRecipient)
-          .to receive(:tabs)
-          .and_return(double(:success? => true))
-        expect_any_instance_of(Hancock::Recipient::DocusignRecipient)
-          .to receive(:create_tabs_from_json)
-          .and_return(double(:success? => true))
+          .to receive(:tabs).and_return(double(:parsed_response => {}))
       end
 
       it 'sets the client_user_id to the nil' do
@@ -211,21 +192,40 @@ describe Hancock::Recipient do
           :identifier => 'squirrel')
       }
 
-      it 'returns true' do
+      before(:each) do
         expect_any_instance_of(Hancock::Recipient::DocusignRecipient)
           .to receive(:delete)
-          .and_return(double(:success? => true))
         expect_any_instance_of(Hancock::Recipient::DocusignRecipient)
           .to receive(:create)
-          .and_return(double(:success? => true))
+        allow_any_instance_of(Hancock::Recipient::DocusignRecipient)
+          .to receive(:tabs)
+          .and_return(double(:parsed_response => {}, :body => '{}'))
+      end
+
+      it 'creates tabs if there were originally some' do
         expect_any_instance_of(Hancock::Recipient::DocusignRecipient)
           .to receive(:tabs)
-          .and_return(double(:success? => true))
+          .and_return(double(
+            :parsed_response => {:something => 'hashy'},
+            :body => '{"something": "hashy"}'
+          ))
         expect_any_instance_of(Hancock::Recipient::DocusignRecipient)
           .to receive(:create_tabs_from_json)
-          .and_return(double(:success? => true))
+          .with('{"something": "hashy"}')
 
-        expect(subject.change_access_method_to(:embedded)).to be true
+        subject.change_access_method_to(:embedded)
+      end
+
+      it 'does not create tabs if there were originally none' do
+        expect_any_instance_of(Hancock::Recipient::DocusignRecipient)
+          .to receive(:tabs).and_return(double(:parsed_response => {}))
+        expect(a_request(:any, /docusign.net/)).not_to have_been_made
+
+        subject.change_access_method_to(:embedded)
+      end
+
+      it 'returns true' do
+        expect(subject.change_access_method_to(:embedded)).to eq(true)
       end
     end
   end

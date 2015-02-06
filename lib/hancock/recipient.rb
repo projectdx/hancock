@@ -72,9 +72,14 @@ module Hancock
       end
 
       tabs = docusign_recipient.tabs
-      docusign_recipient.delete.success? &&
-        docusign_recipient.create.success? &&
-        docusign_recipient.create_tabs_from_json(tabs).success?
+      docusign_recipient.delete
+      docusign_recipient.create
+
+      unless tabs.parsed_response.empty?
+        docusign_recipient.create_tabs_from_json(tabs.body)
+      end
+
+      true
     end
 
     private
