@@ -229,4 +229,47 @@ describe Hancock::Recipient do
       end
     end
   end
+
+  describe '#signing_url' do
+    before(:each) do
+      allow(subject).to receive(:access_method).and_return(:embedded)
+    end
+
+    subject {
+      described_class.new(
+        :envelope_identifier => 'bluh',
+        :identifier => 'squirrel')
+    }
+
+    it 'returns a url' do
+      parsed_body = { 'url' => 'https://demo.docusign.net/linky-linky' }
+
+      allow_any_instance_of(Hancock::Recipient::DocusignRecipient)
+        .to receive(:signing_url)
+        .and_return(double(:parsed_response => parsed_body))
+
+      expect(subject.signing_url('redirect-us-here-afters-please'))
+        .to eq('https://demo.docusign.net/linky-linky')
+    end
+
+    it 'allows an optional return url' do
+      parsed_body = { 'url' => 'https://demo.docusign.net/another-linky' }
+
+      expect_any_instance_of(Hancock::Recipient::DocusignRecipient)
+        .to receive(:signing_url)
+        .with('http://example.com/fish-tacos')
+        .and_return(double(:parsed_response => parsed_body))
+
+      expect(subject.signing_url('http://example.com/fish-tacos'))
+        .to eq('https://demo.docusign.net/another-linky')
+    end
+
+    it 'fails if the access_method is remote' do
+      allow(subject).to receive(:access_method).and_return(:remote)
+
+      expect { subject.signing_url('return-me-here-yo') }.to raise_error(
+        Hancock::Recipient::SigningUrlError,
+        'This recipient is not setup for in-person signing'
+      )
+    end
 end

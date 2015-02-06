@@ -2,9 +2,27 @@ describe Hancock::Recipient::DocusignRecipient do
   let(:recipient) {
     Hancock::Recipient.new(
       :envelope_identifier => 'fiji',
-      :identifier => 'snorkel-puffer')
+      :identifier => 'snorkel-puffer'
+    )
   }
+
   subject { described_class.new(recipient) }
+
+  describe '.new' do
+    it 'requires an envelope identifier' do
+      recipient.instance_variable_set(:@envelope_identifier, nil)
+
+      expect{ described_class.new(recipient) }
+        .to raise_error('recipient requires an envelope_identifier')
+    end
+
+    it 'requires an identifier' do
+      recipient.identifier = nil
+
+      expect{ described_class.new(recipient) }
+        .to raise_error('recipient requires an identifier')
+    end
+  end
 
   describe '.all_for' do
     it 'makes a request' do
@@ -21,6 +39,35 @@ describe Hancock::Recipient::DocusignRecipient do
         .with('/envelopes/yosemite-sam/recipients/bugs-bunny')
 
       described_class.find('yosemite-sam', 'bugs-bunny')
+    end
+  end
+
+  describe '#signing_url' do
+    let(:recipient) {
+      Hancock::Recipient.new(
+        :client_user_id => '37',
+        :email => 'james@example.com',
+        :name => 'James Dean',
+        :recipient_type => 'signer',
+        :identifier => '42',
+        :id_check => true,
+        :envelope_identifier => 'amelia-badelia'
+      )
+    }
+
+    it 'makes a request to Docusign' do
+      json_body = {
+        :authenticationMethod => 'none',
+        :email => 'james@example.com',
+        :returnUrl => 'http://afterwards-I-wanna-go-here.example.com',
+        :userName => 'James Dean',
+        :clientUserId => '37'
+      }.to_json
+
+      expect(Hancock::Request).to receive(:send_post_request)
+        .with('/envelopes/amelia-badelia/views/recipient', json_body)
+
+      subject.signing_url('http://afterwards-I-wanna-go-here.example.com')
     end
   end
 

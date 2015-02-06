@@ -1,3 +1,5 @@
+require_relative 'envelope/docusign_envelope'
+
 module Hancock
   class Envelope < Hancock::Base
     class InvalidEnvelopeError < StandardError; end
@@ -163,7 +165,15 @@ module Hancock
       documents.map(&:multipart_form_part)
     end
 
+    def viewing_url
+      docusign_envelope.viewing_url.parsed_response['url']
+    end
+
     private
+
+    def docusign_envelope
+      @docusign_envelope ||= DocusignEnvelope.new(self)
+    end
 
     def generate_document_ids!
       next_id = next_available_identifier_for(documents)

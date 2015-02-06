@@ -51,6 +51,20 @@ module Hancock
         )
       end
 
+      def signing_url(return_url = nil)
+        json_body = {
+          :authenticationMethod => 'none',
+          :email => recipient.email,
+          :returnUrl => return_url,
+          :userName => recipient.name,
+          :clientUserId => recipient.client_user_id
+        }.to_json
+        Hancock::Request.send_post_request(
+          "/envelopes/#{envelope_identifier}/views/recipient/signer",
+          json_body
+        )
+      end
+
       private
 
       def to_hash

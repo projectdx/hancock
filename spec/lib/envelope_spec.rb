@@ -1,4 +1,8 @@
 describe Hancock::Envelope do
+  before do
+    allow(Hancock).to receive(:account_id).and_return(123_456)
+  end
+
   context 'validations' do
     def association(klass, identifier: nil, validity: true)
       association = klass.new(identifier: identifier)
@@ -477,6 +481,20 @@ describe Hancock::Envelope do
           "--MYBOUNDARY--\r\n"
         )
       end
+    end
+  end
+
+  describe '#viewing_url' do
+    subject { described_class.new(:identifier => '1234') }
+
+    it 'returns a url' do
+      parsed_body = { 'url' => 'https://demo.docusign.net/linky-linky' }
+
+      allow_any_instance_of(Hancock::Envelope::DocusignEnvelope)
+        .to receive(:viewing_url)
+        .and_return(double(:parsed_response => parsed_body))
+
+      expect(subject.viewing_url).to eq('https://demo.docusign.net/linky-linky')
     end
   end
 end

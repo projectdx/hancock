@@ -2,6 +2,8 @@ require_relative 'recipient/docusign_recipient'
 
 module Hancock
   class Recipient < Hancock::Base
+    SigningUrlError = Class.new(StandardError)
+
     TYPES = [:agent, :carbon_copy, :certified_delivery, :editor, :in_person_signer, :intermediary, :signer]
 
     attr_accessor :email,
@@ -80,6 +82,14 @@ module Hancock
       end
 
       true
+    end
+
+    def signing_url(return_url = nil)
+      unless access_method == :embedded
+        fail SigningUrlError, 'This recipient is not setup for in-person signing'
+      end
+
+      docusign_recipient.signing_url(return_url).parsed_response['url']
     end
 
     private
