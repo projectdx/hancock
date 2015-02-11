@@ -33,12 +33,6 @@ module Hancock
       @recipient_type      = attributes.fetch(:recipient_type, :signer)
     end
 
-    # In Panda
-    # Hancock::Recipient
-    #   .fetch_for_envelope(@envelope_identifier)
-    #   .find_or_initialize{}
-    #   .change_access_method_to(:embedded)
-
     def self.fetch_for_envelope(envelope_identifier)
       response = DocusignRecipient.all_for(envelope_identifier).parsed_response
 
@@ -96,23 +90,15 @@ module Hancock
     end
 
     def to_hash
-      hsh = {
-        :clientUserId  => client_user_id,
-        :email         => email,
-        :name          => name,
-        :recipientId   => identifier,
-        :routingOrder  => routing_order,
-        :requireIdLookup => false
+      {
+        :clientUserId    => client_user_id,
+        :email           => email,
+        :name            => name,
+        :recipientId     => identifier,
+        :routingOrder    => routing_order,
+        :requireIdLookup => id_check,
+        :idCheckConfigurationName => id_check ? 'ID Check $' : nil
       }
-
-      if id_check
-        hsh.merge!(
-          :requireIdLookup => true,
-          :idCheckConfigurationName => 'ID Check $'
-        )
-      end
-
-      hsh
     end
 
     private
