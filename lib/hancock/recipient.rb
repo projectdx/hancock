@@ -78,7 +78,7 @@ module Hancock
       true
     end
 
-    def signing_url(return_url = nil)
+    def signing_url(return_url)
       # FIXME: We need to check the status somehow
       # fail unless status == :sent
 

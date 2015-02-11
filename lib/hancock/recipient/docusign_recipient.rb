@@ -51,7 +51,7 @@ module Hancock
         )
       end
 
-      def signing_url(return_url = nil)
+      def signing_url(return_url)
         json_body = {
           :authenticationMethod => 'none',
           :email => recipient.email,
@@ -60,7 +60,7 @@ module Hancock
           :clientUserId => recipient.client_user_id
         }.to_json
         Hancock::Request.send_post_request(
-          "/envelopes/#{envelope_identifier}/views/recipient/signer",
+          "/envelopes/#{envelope_identifier}/views/recipient",
           json_body
         )
       end
