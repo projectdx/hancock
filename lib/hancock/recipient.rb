@@ -85,11 +85,34 @@ module Hancock
     end
 
     def signing_url(return_url = nil)
+      # FIXME: We need to check the status somehow
+      # fail unless status == :sent
+
       unless access_method == :embedded
         fail SigningUrlError, 'This recipient is not setup for in-person signing'
       end
 
       docusign_recipient.signing_url(return_url).parsed_response['url']
+    end
+
+    def to_hash
+      hsh = {
+        :clientUserId  => client_user_id,
+        :email         => email,
+        :name          => name,
+        :recipientId   => identifier,
+        :routingOrder  => routing_order,
+        :requireIdLookup => false
+      }
+
+      if id_check
+        hsh.merge!(
+          :requireIdLookup => true,
+          :idCheckConfigurationName => 'ID Check $'
+        )
+      end
+
+      hsh
     end
 
     private

@@ -357,9 +357,11 @@ describe Hancock::Envelope do
         expect(subject.signature_requests_for_params).to match({
           'signers' => [
             {
+              :clientUserId => nil,
               :email => 'b@mail.com',
               :name => 'Bob',
               :recipientId => 1,
+              :routingOrder => 1,
               :requireIdLookup => true,
               :idCheckConfigurationName => 'ID Check $',
               :tabs => {
@@ -373,9 +375,11 @@ describe Hancock::Envelope do
               },
             },
             {
+              :clientUserId => nil,
               :email => 'e@mail.com',
               :name => 'Edna',
               :recipientId => 2,
+              :routingOrder => 1,
               :requireIdLookup => false,
               :tabs => {
                 :initialHereTabs => [
@@ -389,9 +393,11 @@ describe Hancock::Envelope do
           ],
           'editors' => [
             {
+              :clientUserId => nil,
               :email => 'f@mail.com',
               :name => 'Fump',
               :recipientId => 3,
+              :routingOrder => 1,
               :requireIdLookup => true,
               :idCheckConfigurationName => 'ID Check $',
               :tabs => {

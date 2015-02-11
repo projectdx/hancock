@@ -135,8 +135,7 @@ module Hancock
           r[:recipientId] == recipient.identifier
         end
         unless entry
-          entry = { :email => recipient.email, :name => recipient.name, :recipientId => recipient.identifier, :requireIdLookup => recipient.id_check }
-          entry.merge!(:idCheckConfigurationName => 'ID Check $') if recipient.id_check
+          entry = recipient.to_hash
           hsh[recipient_type] << entry
         end
         entry[:tabs] ||= {}

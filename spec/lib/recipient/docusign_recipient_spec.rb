@@ -121,10 +121,11 @@ describe Hancock::Recipient::DocusignRecipient do
           {
             :clientUserId => '1',
             :email => 'jimmy@example.com',
-            :idCheck => true,
             :name => 'Jimmy Stewart',
             :recipientId => '42',
-            :routingOrder => 1
+            :routingOrder => 1,
+            :requireIdLookup => true,
+            :idCheckConfigurationName => 'ID Check $'
           }
         ]
       }.to_json
