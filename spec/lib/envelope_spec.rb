@@ -381,6 +381,7 @@ describe Hancock::Envelope do
               :recipientId => 2,
               :routingOrder => 1,
               :requireIdLookup => false,
+              :idCheckConfigurationName => nil,
               :tabs => {
                 :initialHereTabs => [
                   { :initial => :here, :documentId => 2 },
@@ -424,7 +425,7 @@ describe Hancock::Envelope do
 
         it 'does not include idCheckConfigurationName' do
           expect(subject.signature_requests_for_params['signers']
-            .first.keys).not_to include(:idCheckConfigurationName)
+            .first[:idCheckConfigurationName]).to be_nil
         end
       end
     end
