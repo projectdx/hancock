@@ -1,8 +1,13 @@
 describe Hancock::Recipient::DocusignRecipient do
   let(:recipient) {
     Hancock::Recipient.new(
-      :envelope_identifier => 'fiji',
-      :identifier => 'snorkel-puffer'
+      :client_user_id => '37',
+      :email => 'james@example.com',
+      :name => 'James Dean',
+      :recipient_type => 'signer',
+      :identifier => '42',
+      :id_check => true,
+      :envelope_identifier => 'amelia-badelia'
     )
   }
 
@@ -43,20 +48,8 @@ describe Hancock::Recipient::DocusignRecipient do
   end
 
   describe '#signing_url' do
-    let(:recipient) {
-      Hancock::Recipient.new(
-        :client_user_id => '37',
-        :email => 'james@example.com',
-        :name => 'James Dean',
-        :recipient_type => 'signer',
-        :identifier => '42',
-        :id_check => true,
-        :envelope_identifier => 'amelia-badelia'
-      )
-    }
-
     it 'makes a request to Docusign' do
-      json_body = {
+      expected_json = {
         :authenticationMethod => 'none',
         :email => 'james@example.com',
         :returnUrl => 'http://afterwards-I-wanna-go-here.example.com',
@@ -65,7 +58,7 @@ describe Hancock::Recipient::DocusignRecipient do
       }.to_json
 
       expect(Hancock::Request).to receive(:send_post_request)
-        .with('/envelopes/amelia-badelia/views/recipient', json_body)
+        .with('/envelopes/amelia-badelia/views/recipient', expected_json)
 
       subject.signing_url('http://afterwards-I-wanna-go-here.example.com')
     end
@@ -74,7 +67,7 @@ describe Hancock::Recipient::DocusignRecipient do
   describe '#tabs' do
     it 'makes a request' do
       expect(Hancock::Request).to receive(:send_get_request)
-        .with('/envelopes/fiji/recipients/snorkel-puffer/tabs')
+        .with('/envelopes/amelia-badelia/recipients/42/tabs')
 
       subject.tabs
     end
@@ -85,7 +78,7 @@ describe Hancock::Recipient::DocusignRecipient do
       json = '{ "some": "thingy" }'
 
       expect(Hancock::Request).to receive(:send_post_request)
-        .with('/envelopes/fiji/recipients/snorkel-puffer/tabs', json)
+        .with('/envelopes/amelia-badelia/recipients/42/tabs', json)
 
       subject.create_tabs_from_json(json)
     end
@@ -93,35 +86,23 @@ describe Hancock::Recipient::DocusignRecipient do
 
   describe '#delete' do
     it 'makes a request' do
-      json = { :signers => [{ :recipientId => 'snorkel-puffer' }] }.to_json
+      expected_json = { :signers => [{ :recipientId => '42' }] }.to_json
 
       expect(Hancock::Request).to receive(:send_delete_request)
-        .with('/envelopes/fiji/recipients', json)
+        .with('/envelopes/amelia-badelia/recipients', expected_json)
 
       subject.delete
     end
   end
 
   describe '#create' do
-    let(:recipient) {
-      Hancock::Recipient.new(
-        :client_user_id => '1',
-        :email => 'jimmy@example.com',
-        :name => 'Jimmy Stewart',
-        :recipient_type => 'signer',
-        :identifier => '42',
-        :id_check => true,
-        :envelope_identifier => 'barbra-streisand'
-      )
-    }
-
-    it 'makes a request' do
-      json = {
+    let(:expected_json) {
+      {
         :signers => [
           {
-            :clientUserId => '1',
-            :email => 'jimmy@example.com',
-            :name => 'Jimmy Stewart',
+            :clientUserId => '37',
+            :email => 'james@example.com',
+            :name => 'James Dean',
             :recipientId => '42',
             :routingOrder => 1,
             :requireIdLookup => true,
@@ -130,35 +111,25 @@ describe Hancock::Recipient::DocusignRecipient do
           }
         ]
       }.to_json
+    }
 
+    it 'makes a request' do
       expect(Hancock::Request).to receive(:send_post_request)
-        .with('/envelopes/barbra-streisand/recipients', json)
+        .with('/envelopes/amelia-badelia/recipients', expected_json)
 
       subject.create
     end
   end
 
   describe '#update' do
-    let(:recipient) {
-      Hancock::Recipient.new(
-        :client_user_id => '1_000_000',
-        :email => 'jackson5@example.com',
-        :name => 'The Jacksons',
-        :recipient_type => 'signer',
-        :identifier => '38',
-        :id_check => true,
-        :envelope_identifier => 'sing-and-dance'
-      )
-    }
-
     let(:expected_json) {
       {
         :signers => [
           {
-            :clientUserId => '1_000_000',
-            :email => 'jackson5@example.com',
-            :name => 'The Jacksons',
-            :recipientId => '38',
+            :clientUserId => '37',
+            :email => 'james@example.com',
+            :name => 'James Dean',
+            :recipientId => '42',
             :routingOrder => 1,
             :requireIdLookup => true,
             :idCheckConfigurationName => 'ID Check $'
@@ -169,14 +140,14 @@ describe Hancock::Recipient::DocusignRecipient do
 
     it 'makes a request' do
       expect(Hancock::Request).to receive(:send_put_request)
-        .with('/envelopes/sing-and-dance/recipients?resend_envelope=false', expected_json)
+        .with('/envelopes/amelia-badelia/recipients?resend_envelope=false', expected_json)
 
       subject.update
     end
 
     it 'allows resending of the envelope' do
       expect(Hancock::Request).to receive(:send_put_request)
-        .with('/envelopes/sing-and-dance/recipients?resend_envelope=true', expected_json)
+        .with('/envelopes/amelia-badelia/recipients?resend_envelope=true', expected_json)
 
       subject.update(resend_envelope: true)
     end
