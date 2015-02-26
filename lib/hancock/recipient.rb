@@ -97,11 +97,15 @@ module Hancock
         :recipientId     => identifier,
         :routingOrder    => routing_order,
         :requireIdLookup => id_check,
-        :idCheckConfigurationName => id_check ? 'ID Check $' : nil
+        :idCheckConfigurationName => id_check_configuration_name
       }
     end
 
     private
+
+    def id_check_configuration_name
+      id_check ? 'ID Check $' : nil
+    end
 
     def docusign_recipient
       @docusign_recipient ||= DocusignRecipient.new(self)
