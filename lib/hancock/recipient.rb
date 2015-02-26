@@ -31,7 +31,7 @@ module Hancock
       @identifier          = attributes[:identifier]
       @name                = attributes[:name]
       @routing_order       = attributes.fetch(:routing_order, 1)
-      @recipient_type      = attributes.fetch(:recipient_type, :signer)
+      @recipient_type      = attributes.fetch(:recipient_type, :signer).to_sym
       @embedded_start_url  = attributes.fetch(:embedded_start_url, 'SIGN_AT_DOCUSIGN')
     end
 

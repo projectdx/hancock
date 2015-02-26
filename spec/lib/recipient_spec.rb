@@ -48,6 +48,11 @@ describe Hancock::Recipient do
       subject.recipient_type = :swooner
       expect(subject.recipient_type).to eq :swooner
     end
+
+    it 'is set as a symbol' do
+      subject = described_class.new(:recipient_type => 'spinner')
+      expect(subject.recipient_type).to eq :spinner
+    end
   end
 
   describe '#id_check' do
