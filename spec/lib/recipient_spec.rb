@@ -61,6 +61,18 @@ describe Hancock::Recipient do
     end
   end
 
+  describe '#embedded_start_url' do
+    it 'defaults to the "SIGN_AT_DOCUSIGN" magic value' do
+      subject = described_class.new()
+      expect(subject.embedded_start_url).to eq 'SIGN_AT_DOCUSIGN'
+    end
+
+    it 'can be set' do
+      subject = described_class.new(:embedded_start_url => 'sign-now.example.com')
+      expect(subject.embedded_start_url).to eq 'sign-now.example.com'
+    end
+  end
+
   describe '.fetch_for_envelope' do
     it 'reloads recipients from DocuSign envelope' do
       envelope = Hancock::Envelope.new(:identifier => 'a-crazy-envelope-id')
@@ -272,4 +284,5 @@ describe Hancock::Recipient do
         'This recipient is not setup for in-person signing'
       )
     end
+  end
 end

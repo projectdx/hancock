@@ -15,7 +15,8 @@ module Hancock
 
     attr_reader :client_user_id,
       :envelope_identifier,
-      :docusign_recipient
+      :docusign_recipient,
+      :embedded_start_url
 
     validates :name, :email, :presence => true
     validates :id_check, :allow_nil => true, :inclusion => [true, false]
@@ -31,6 +32,7 @@ module Hancock
       @name                = attributes[:name]
       @routing_order       = attributes.fetch(:routing_order, 1)
       @recipient_type      = attributes.fetch(:recipient_type, :signer)
+      @embedded_start_url  = attributes.fetch(:embedded_start_url, 'SIGN_AT_DOCUSIGN')
     end
 
     def self.fetch_for_envelope(envelope_identifier)
@@ -97,7 +99,8 @@ module Hancock
         :recipientId     => identifier,
         :routingOrder    => routing_order,
         :requireIdLookup => id_check,
-        :idCheckConfigurationName => id_check_configuration_name
+        :idCheckConfigurationName => id_check_configuration_name,
+        :embeddedRecipientStartURL => embedded_start_url
       }
     end
 

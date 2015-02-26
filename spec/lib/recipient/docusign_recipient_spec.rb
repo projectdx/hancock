@@ -125,7 +125,8 @@ describe Hancock::Recipient::DocusignRecipient do
             :recipientId => '42',
             :routingOrder => 1,
             :requireIdLookup => true,
-            :idCheckConfigurationName => 'ID Check $'
+            :idCheckConfigurationName => 'ID Check $',
+            :embeddedRecipientStartURL => 'SIGN_AT_DOCUSIGN'
           }
         ]
       }.to_json

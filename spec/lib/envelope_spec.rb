@@ -340,7 +340,6 @@ describe Hancock::Envelope do
       let(:document2) { Hancock::Document.new(:identifier => 2) }
       let(:recipient1) { Hancock::Recipient.new(:email => 'b@mail.com', :name => 'Bob', :recipient_type => :signer, :identifier => 1) }
       let(:recipient2) { Hancock::Recipient.new(:email => 'e@mail.com', :name => 'Edna', :recipient_type => :signer, :identifier => 2, :id_check => false) }
-      let(:recipient3) { Hancock::Recipient.new(:email => 'f@mail.com', :name => 'Fump', :recipient_type => :editor, :identifier => 3, :id_check => true) }
       let(:tab1) { double(Hancock::Tab, :type => 'initial_here', :to_h => { :initial => :here }) }
       let(:tab2) { double(Hancock::Tab, :type => 'sign_here', :to_h => { :sign => :here }) }
 
@@ -350,8 +349,7 @@ describe Hancock::Envelope do
             { :recipient => recipient1, :document => document1, :tabs => [tab1] },
             { :recipient => recipient1, :document => document2, :tabs => [tab1, tab2] },
             { :recipient => recipient2, :document => document1, :tabs => [tab2] },
-            { :recipient => recipient2, :document => document2, :tabs => [tab1] },
-            { :recipient => recipient3, :document => document2, :tabs => [tab2] },
+            { :recipient => recipient2, :document => document2, :tabs => [tab1] }
           ]
         })
         expect(subject.signature_requests_for_params).to match({
@@ -364,6 +362,7 @@ describe Hancock::Envelope do
               :routingOrder => 1,
               :requireIdLookup => true,
               :idCheckConfigurationName => 'ID Check $',
+              :embeddedRecipientStartURL => 'SIGN_AT_DOCUSIGN',
               :tabs => {
                 :initialHereTabs => [
                   { :initial => :here, :documentId => 1 },
@@ -382,28 +381,13 @@ describe Hancock::Envelope do
               :routingOrder => 1,
               :requireIdLookup => false,
               :idCheckConfigurationName => nil,
+              :embeddedRecipientStartURL => 'SIGN_AT_DOCUSIGN',
               :tabs => {
                 :initialHereTabs => [
                   { :initial => :here, :documentId => 2 },
                 ],
                 :signHereTabs => [
                   { :sign => :here, :documentId => 1 },
-                ]
-              }
-            }
-          ],
-          'editors' => [
-            {
-              :clientUserId => nil,
-              :email => 'f@mail.com',
-              :name => 'Fump',
-              :recipientId => 3,
-              :routingOrder => 1,
-              :requireIdLookup => true,
-              :idCheckConfigurationName => 'ID Check $',
-              :tabs => {
-                :signHereTabs => [
-                  { :sign => :here, :documentId => 2 },
                 ]
               }
             }
