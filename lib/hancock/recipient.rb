@@ -51,11 +51,6 @@ module Hancock
       end.flatten
     end
 
-    def self.find_or_initialize(envelope_identifier, attrs)
-      DocusignRecipient.find(envelope_identifier, attrs[:identifier]) ||
-        new(attrs.merge(:envelope_identifier => envelope_identifier))
-    end
-
     # Add/remove the client_user_id to allow email vs URL access to sign documents
     def change_access_method_to(new_access_method)
       return true if new_access_method == access_method

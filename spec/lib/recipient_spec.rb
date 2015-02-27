@@ -88,30 +88,6 @@ describe Hancock::Recipient do
     end
   end
 
-  describe '.find_or_initialize' do
-    context 'when a matching envelope exists' do
-      let(:kermie) { double() }
-
-      it 'returns a recipient if one was found' do
-        allow(Hancock::Recipient::DocusignRecipient).to receive(:find)
-          .and_return(kermie)
-
-        expect(
-          described_class.find_or_initialize('envelope_identifier', :identifier => 'kerms')
-        ).to eq(kermie)
-      end
-
-      it 'creates a new recipient if no match was found' do
-        allow(Hancock::Recipient::DocusignRecipient).to receive(:find)
-          .and_return(nil)
-
-        new_recipient = described_class.find_or_initialize('1234', :name => 'MacGyver')
-        expect(new_recipient.name).to eq('MacGyver')
-        expect(new_recipient.instance_variable_get :@envelope_identifier).to eq('1234')
-      end
-    end
-  end
-
   describe '#change_access_method_to' do
     context 'when new access method is the same as the old' do
       subject {
