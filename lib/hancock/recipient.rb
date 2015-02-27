@@ -51,6 +51,21 @@ module Hancock
       end.flatten
     end
 
+    def resend_email
+      # NOTE: This method has a (fairly intense!) side-effect of not only
+      # resending the official DocuSign email but also updating any attributes
+      # that differ between the in-memory Hancock::Recipient and the recipient
+      # that DocuSign has on the envelope.
+      #
+      # This is not a problem if you keep a copy of the recipient data locally
+      # and use that when you initialize a Hancock::Recipient. If this becomes a
+      # problem, a fix might be to first fetch the Recipient from DocuSign, then
+      # "update" the Recipient with the exact info returned from DocuSign.
+
+      docusign_recipient.update(resend_envelope: true)
+      true
+    end
+
     # Add/remove the client_user_id to allow email vs URL access to sign documents
     def change_access_method_to(new_access_method)
       return true if new_access_method == access_method

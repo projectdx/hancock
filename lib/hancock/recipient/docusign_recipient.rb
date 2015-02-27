@@ -51,6 +51,13 @@ module Hancock
         )
       end
 
+      def update(resend_envelope: false)
+        Hancock::Request.send_put_request(
+          "/envelopes/#{envelope_identifier}/recipients?resend_envelope=#{resend_envelope}",
+          { :signers => [to_hash] }.to_json
+        )
+      end
+
       def signing_url(return_url)
         json_body = {
           :authenticationMethod => 'none',
