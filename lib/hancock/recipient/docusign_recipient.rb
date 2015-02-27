@@ -52,9 +52,15 @@ module Hancock
       end
 
       def update(resend_envelope: false)
+        if resend_envelope
+          data_to_update = { :recipientId => identifier, :name => recipient.name }
+        else
+          data_to_update = to_hash
+        end
+
         Hancock::Request.send_put_request(
           "/envelopes/#{envelope_identifier}/recipients?resend_envelope=#{resend_envelope}",
-          { :signers => [to_hash] }.to_json
+          { :signers => [data_to_update] }.to_json
         )
       end
 

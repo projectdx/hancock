@@ -52,10 +52,10 @@ module Hancock
     end
 
     def resend_email
-      # NOTE: This method has a (fairly intense!) side-effect of not only
-      # resending the official DocuSign email but also updating any attributes
-      # that differ between the in-memory Hancock::Recipient and the recipient
-      # that DocuSign has on the envelope.
+      # NOTE: This method has a side-effect of not only resending the official
+      # DocuSign email but also updating the recipient name if the name on the
+      # in-memory Hancock::Recipient and the name on the recipient at DocuSign
+      # differ.
       #
       # This is not a problem if you keep a copy of the recipient data locally
       # and use that when you initialize a Hancock::Recipient. If this becomes a
