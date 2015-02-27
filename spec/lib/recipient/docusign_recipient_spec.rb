@@ -122,34 +122,43 @@ describe Hancock::Recipient::DocusignRecipient do
   end
 
   describe '#update' do
-    let(:expected_json) {
-      {
-        :signers => [
-          {
-            :clientUserId => '37',
-            :email => 'james@example.com',
-            :name => 'James Dean',
-            :recipientId => '42',
-            :routingOrder => 1,
-            :requireIdLookup => true,
-            :idCheckConfigurationName => 'ID Check $'
-          }
-        ]
-      }.to_json
-    }
+    context 'when not resending the envelope' do
+      let(:expected_json) {
+        {
+          :signers => [
+            {
+              :clientUserId => '37',
+              :email => 'james@example.com',
+              :name => 'James Dean',
+              :recipientId => '42',
+              :routingOrder => 1,
+              :requireIdLookup => true,
+              :idCheckConfigurationName => 'ID Check $',
+              :embeddedRecipientStartURL => 'SIGN_AT_DOCUSIGN'
+            }
+          ]
+        }.to_json
+      }
 
-    it 'makes a request' do
-      expect(Hancock::Request).to receive(:send_put_request)
-        .with('/envelopes/amelia-badelia/recipients?resend_envelope=false', expected_json)
+      it 'makes a request' do
+        expect(Hancock::Request).to receive(:send_put_request)
+          .with('/envelopes/amelia-badelia/recipients?resend_envelope=false', expected_json)
 
-      subject.update
+        subject.update
+      end
     end
 
-    it 'allows resending of the envelope' do
-      expect(Hancock::Request).to receive(:send_put_request)
-        .with('/envelopes/amelia-badelia/recipients?resend_envelope=true', expected_json)
+    context 'when resending the envelope' do
+      let(:expected_json) {
+        { :signers => [{ :recipientId => '42', :name => 'James Dean' }] }.to_json
+      }
 
-      subject.update(resend_envelope: true)
+      it 'allows resending of the envelope' do
+        expect(Hancock::Request).to receive(:send_put_request)
+          .with('/envelopes/amelia-badelia/recipients?resend_envelope=true', expected_json)
+
+        subject.update(resend_envelope: true)
+      end
     end
   end
 end
