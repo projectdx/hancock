@@ -137,5 +137,49 @@ describe Hancock::Recipient::DocusignRecipient do
       subject.create
     end
   end
+
+  describe '#update' do
+    let(:recipient) {
+      Hancock::Recipient.new(
+        :client_user_id => '1_000_000',
+        :email => 'jackson5@example.com',
+        :name => 'The Jacksons',
+        :recipient_type => 'signer',
+        :identifier => '38',
+        :id_check => true,
+        :envelope_identifier => 'sing-and-dance'
+      )
+    }
+
+    let(:expected_json) {
+      {
+        :signers => [
+          {
+            :clientUserId => '1_000_000',
+            :email => 'jackson5@example.com',
+            :name => 'The Jacksons',
+            :recipientId => '38',
+            :routingOrder => 1,
+            :requireIdLookup => true,
+            :idCheckConfigurationName => 'ID Check $'
+          }
+        ]
+      }.to_json
+    }
+
+    it 'makes a request' do
+      expect(Hancock::Request).to receive(:send_put_request)
+        .with('/envelopes/sing-and-dance/recipients?resend_envelope=false', expected_json)
+
+      subject.update
+    end
+
+    it 'allows resending of the envelope' do
+      expect(Hancock::Request).to receive(:send_put_request)
+        .with('/envelopes/sing-and-dance/recipients?resend_envelope=true', expected_json)
+
+      subject.update(resend_envelope: true)
+    end
+  end
 end
 

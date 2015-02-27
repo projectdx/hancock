@@ -88,6 +88,31 @@ describe Hancock::Recipient do
     end
   end
 
+  describe '#resend_email' do
+    subject {
+      described_class.new(
+        :envelope_identifier => 'yuppie-kittens',
+        :identifier => 'hey now'
+      )
+    }
+
+    before(:each) do
+      stub_request(:put, 'https://demo.docusign.net/restapi/v2/accounts/123456/envelopes/yuppie-kittens/recipients?resend_envelope=true')
+        .to_return(:body => '{}', :status => 200, :headers => {'Content-Type' => 'application/json'})
+    end
+
+    it 'updates the recipient, passing along the "resend_envelope" flag' do
+      expect(subject.send(:docusign_recipient))
+        .to receive(:update).with(:resend_envelope => true).and_call_original
+
+      subject.resend_email
+    end
+
+    it 'returns true' do
+      expect(subject.resend_email).to eq(true)
+    end
+  end
+
   describe '#change_access_method_to' do
     context 'when new access method is the same as the old' do
       subject {
