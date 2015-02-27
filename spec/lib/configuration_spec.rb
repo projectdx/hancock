@@ -1,19 +1,19 @@
 describe Hancock::Configuration do
   let(:config_hash) do
     {
-      :oauth_token    => ***REMOVED***,
-      :account_id     => ***REMOVED***,
-      :endpoint       => 'https://demo.docusign.net/restapi',
-      :api_version    => 'v2',
+      :oauth_token    => 'abc-123-def-456-and-so-forth',
+      :account_id     => 'the account ID of our account',
+      :endpoint       => 'https://fake.docusign.example.com',
+      :api_version    => 'of the future',
       :email_template => {
         :subject => 'subject from configuration',
-        :blurb => 'blurb from configuration '
+        :blurb => 'blurb from configuration'
       }
     }
   end
 
 
-  before do 
+  before do
     Hancock.configure do |config|
       config.oauth_token        = config_hash[:oauth_token]
       config.account_id         = config_hash[:account_id]
@@ -29,25 +29,25 @@ describe Hancock::Configuration do
 
   describe 'It changes configurations with configure method' do
 
-    it 'should change default oauth_token' do 
-      expect(Hancock.oauth_token).to eq(config_hash[:oauth_token])
+    it 'should change default oauth_token' do
+      expect(Hancock.oauth_token).to eq('abc-123-def-456-and-so-forth')
     end
 
     it 'should change default account_id' do
-      expect(Hancock.account_id).to eq(config_hash[:account_id])
+      expect(Hancock.account_id).to eq('the account ID of our account')
     end
 
     it 'should change default endpoint' do
-      expect(Hancock.endpoint).to eq(config_hash[:endpoint])
+      expect(Hancock.endpoint).to eq('https://fake.docusign.example.com')
     end
 
     it 'should change default api_version' do
-      expect(Hancock.api_version).to eq(config_hash[:api_version])
+      expect(Hancock.api_version).to eq('of the future')
     end
 
     it 'should change default email_template' do
-      expect(Hancock.email_template).to eq(config_hash[:email_template])
+      expect(Hancock.email_template[:subject]).to eq('subject from configuration')
+      expect(Hancock.email_template[:blurb]).to eq('blurb from configuration')
     end
-
   end
 end
