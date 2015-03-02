@@ -181,7 +181,7 @@ describe Hancock::Recipient do
           :identifier => 42)
       }
 
-      it 'sets the client_user_id to the nil' do
+      it 'raises an exception' do
         expect {
           subject.change_access_method_to(:something_unknown_and_silly)
         }.to raise_error ArgumentError
