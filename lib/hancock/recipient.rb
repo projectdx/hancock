@@ -66,7 +66,8 @@ module Hancock
       true
     end
 
-    # Add/remove the client_user_id to allow email vs URL access to sign documents
+    # The DocuSign API provides no way to change the access method for an
+    # existing recipient, so we must delete and recreate the recipient.
     def change_access_method_to(new_access_method)
       return true if new_access_method == access_method
 
@@ -79,15 +80,7 @@ module Hancock
         fail ArgumentError, 'access_method must be :embedded or :remote'
       end
 
-      tabs = docusign_recipient.tabs
-      docusign_recipient.delete
-      docusign_recipient.create
-
-      unless tabs.parsed_response.empty?
-        docusign_recipient.create_tabs_from_json(tabs.body)
-      end
-
-      true
+      recreate_recipient_and_tabs
     end
 
     def signing_url(return_url)
@@ -115,6 +108,19 @@ module Hancock
     end
 
     private
+
+    def recreate_recipient_and_tabs
+      tabs = docusign_recipient.tabs
+
+      docusign_recipient.delete
+      docusign_recipient.create
+
+      unless tabs.parsed_response.empty?
+        docusign_recipient.create_tabs_from_json(tabs.body)
+      end
+
+      true
+    end
 
     def id_check_configuration_name
       id_check ? 'ID Check $' : nil

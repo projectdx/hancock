@@ -202,49 +202,50 @@ describe Hancock::Recipient do
         }.to raise_error ArgumentError
       end
     end
+  end
 
-    context 'when, for once, things go accordingly to plans laid best by mice and men' do
-      subject {
-        described_class.new(
-          :envelope_identifier => 'bluh',
-          :identifier => 'squirrel')
-      }
+  describe '#recreate_recipient_and_tabs' do
+    subject {
+      described_class.new(
+        :envelope_identifier => 'bluh',
+        :identifier => 'squirrel')
+    }
 
-      before(:each) do
-        expect_any_instance_of(Hancock::Recipient::DocusignRecipient)
-          .to receive(:delete)
-        expect_any_instance_of(Hancock::Recipient::DocusignRecipient)
-          .to receive(:create)
-        allow_any_instance_of(Hancock::Recipient::DocusignRecipient)
-          .to receive(:tabs)
-          .and_return(double(:parsed_response => {}, :body => '{}'))
-      end
+    before(:each) do
+      expect_any_instance_of(Hancock::Recipient::DocusignRecipient)
+        .to receive(:delete)
+      expect_any_instance_of(Hancock::Recipient::DocusignRecipient)
+        .to receive(:create)
+      allow_any_instance_of(Hancock::Recipient::DocusignRecipient)
+        .to receive(:tabs)
+        .and_return(double(:parsed_response => {}, :body => '{}'))
+    end
 
-      it 'creates tabs if there were originally some' do
-        expect_any_instance_of(Hancock::Recipient::DocusignRecipient)
-          .to receive(:tabs)
-          .and_return(double(
-            :parsed_response => {:something => 'hashy'},
-            :body => '{"something": "hashy"}'
-          ))
-        expect_any_instance_of(Hancock::Recipient::DocusignRecipient)
-          .to receive(:create_tabs_from_json)
-          .with('{"something": "hashy"}')
+    it 'recreates tabs if there were any' do
+      expect_any_instance_of(Hancock::Recipient::DocusignRecipient)
+        .to receive(:tabs)
+        .and_return(double(
+          :parsed_response => {:something => 'hashy'},
+          :body => '{"something": "hashy"}'
+        ))
+      expect_any_instance_of(Hancock::Recipient::DocusignRecipient)
+        .to receive(:create_tabs_from_json)
+        .with('{"something": "hashy"}')
 
-        subject.change_access_method_to(:embedded)
-      end
+      subject.send(:recreate_recipient_and_tabs)
+    end
 
-      it 'does not create tabs if there were originally none' do
-        expect_any_instance_of(Hancock::Recipient::DocusignRecipient)
-          .to receive(:tabs).and_return(double(:parsed_response => {}))
-        expect(a_request(:any, /docusign.net/)).not_to have_been_made
+    it 'does not create tabs if there were originally none' do
+      expect_any_instance_of(Hancock::Recipient::DocusignRecipient)
+        .to receive(:tabs).and_return(double(:parsed_response => {}))
+      expect_any_instance_of(Hancock::Recipient::DocusignRecipient)
+        .not_to receive(:create_tabs_from_json)
 
-        subject.change_access_method_to(:embedded)
-      end
+      subject.send(:recreate_recipient_and_tabs)
+    end
 
-      it 'returns true' do
-        expect(subject.change_access_method_to(:embedded)).to eq(true)
-      end
+    it 'returns true' do
+      expect(subject.send(:recreate_recipient_and_tabs)).to eq(true)
     end
   end
 
