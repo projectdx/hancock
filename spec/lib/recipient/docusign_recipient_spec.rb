@@ -73,14 +73,14 @@ describe Hancock::Recipient::DocusignRecipient do
     end
   end
 
-  describe '#create_tabs_from_json' do
+  describe '#create_tabs' do
     it 'makes a request' do
-      json = '{ "some": "thingy" }'
+      tabs = { :some => 'thingy' }
 
       expect(Hancock::Request).to receive(:send_post_request)
-        .with('/envelopes/amelia-badelia/recipients/42/tabs', json)
+        .with('/envelopes/amelia-badelia/recipients/42/tabs', tabs.to_json)
 
-      subject.create_tabs_from_json(json)
+      subject.create_tabs(tabs)
     end
   end
 
@@ -122,43 +122,28 @@ describe Hancock::Recipient::DocusignRecipient do
   end
 
   describe '#update' do
-    context 'when not resending the envelope' do
-      let(:expected_json) {
-        {
-          :signers => [
-            {
-              :clientUserId => '37',
-              :email => 'james@example.com',
-              :name => 'James Dean',
-              :recipientId => '42',
-              :routingOrder => 1,
-              :requireIdLookup => true,
-              :idCheckConfigurationName => 'ID Check $',
-              :embeddedRecipientStartURL => 'SIGN_AT_DOCUSIGN'
-            }
-          ]
-        }.to_json
-      }
+    let(:expected_json) {
+      {
+        :signers => [
+          {
+            :clientUserId => '37',
+            :email => 'james@example.com',
+            :name => 'James Dean',
+            :recipientId => '42',
+            :routingOrder => 1,
+            :requireIdLookup => true,
+            :idCheckConfigurationName => 'ID Check $',
+            :embeddedRecipientStartURL => 'SIGN_AT_DOCUSIGN'
+          }
+        ]
+      }.to_json
+    }
 
-      it 'makes a request' do
-        expect(Hancock::Request).to receive(:send_put_request)
-          .with('/envelopes/amelia-badelia/recipients?resend_envelope=false', expected_json)
+    it 'makes a request' do
+      expect(Hancock::Request).to receive(:send_put_request)
+        .with('/envelopes/amelia-badelia/recipients', expected_json)
 
-        subject.update
-      end
-    end
-
-    context 'when resending the envelope' do
-      let(:expected_json) {
-        { :signers => [{ :recipientId => '42', :name => 'James Dean' }] }.to_json
-      }
-
-      it 'allows resending of the envelope' do
-        expect(Hancock::Request).to receive(:send_put_request)
-          .with('/envelopes/amelia-badelia/recipients?resend_envelope=true', expected_json)
-
-        subject.update(resend_envelope: true)
-      end
+      subject.update
     end
   end
 end
