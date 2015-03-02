@@ -28,10 +28,10 @@ module Hancock
           "/envelopes/#{envelope_identifier}/recipients/#{identifier}/tabs")
       end
 
-      def create_tabs_from_json(tabs)
+      def create_tabs(tabs)
         Hancock::Request.send_post_request(
           "/envelopes/#{envelope_identifier}/recipients/#{identifier}/tabs",
-          tabs
+          tabs.to_json
         )
       end
 
@@ -51,16 +51,10 @@ module Hancock
         )
       end
 
-      def update(resend_envelope: false)
-        if resend_envelope
-          data_to_update = { :recipientId => identifier, :name => recipient.name }
-        else
-          data_to_update = to_hash
-        end
-
+      def update
         Hancock::Request.send_put_request(
-          "/envelopes/#{envelope_identifier}/recipients?resend_envelope=#{resend_envelope}",
-          { :signers => [data_to_update] }.to_json
+          "/envelopes/#{envelope_identifier}/recipients",
+          { :signers => [to_hash] }.to_json
         )
       end
 

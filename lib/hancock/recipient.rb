@@ -1,4 +1,5 @@
 require_relative 'recipient/docusign_recipient'
+require_relative 'recipient/recreator'
 
 module Hancock
   class Recipient < Hancock::Base
@@ -51,19 +52,10 @@ module Hancock
       end.flatten
     end
 
+    # DocuSign currently provides no way to resend an envelope for a
+    # recipient with embedded signing enabled. So we use a workaround.
     def resend_email
-      # NOTE: This method has a side-effect of not only resending the official
-      # DocuSign email but also updating the recipient name if the name on the
-      # in-memory Hancock::Recipient and the name on the recipient at DocuSign
-      # differ.
-      #
-      # This is not a problem if you keep a copy of the recipient data locally
-      # and use that when you initialize a Hancock::Recipient. If this becomes a
-      # problem, a fix might be to first fetch the Recipient from DocuSign, then
-      # "update" the Recipient with the exact info returned from DocuSign.
-
-      docusign_recipient.update(resend_envelope: true)
-      true
+      recreate_recipient_and_tabs
     end
 
     # The DocuSign API provides no way to change the access method for an
@@ -110,16 +102,7 @@ module Hancock
     private
 
     def recreate_recipient_and_tabs
-      tabs = docusign_recipient.tabs
-
-      docusign_recipient.delete
-      docusign_recipient.create
-
-      unless tabs.parsed_response.empty?
-        docusign_recipient.create_tabs_from_json(tabs.body)
-      end
-
-      true
+      Recipient::Recreator.new(docusign_recipient).recreate_with_tabs
     end
 
     def id_check_configuration_name
