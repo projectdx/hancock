@@ -26,6 +26,8 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'simplecov'
   spec.add_development_dependency 'pry'
   spec.add_development_dependency 'rspec-autotest'
+  spec.add_development_dependency 'ZenTest'
+  spec.add_development_dependency 'autotest-growl'
 
   spec.add_dependency "nokogiri"
   spec.add_dependency 'activesupport'
