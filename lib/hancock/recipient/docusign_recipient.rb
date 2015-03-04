@@ -28,10 +28,10 @@ module Hancock
           "/envelopes/#{envelope_identifier}/recipients/#{identifier}/tabs")
       end
 
-      def create_tabs_from_json(tabs)
+      def create_tabs(tabs)
         Hancock::Request.send_post_request(
           "/envelopes/#{envelope_identifier}/recipients/#{identifier}/tabs",
-          tabs
+          tabs.to_json
         )
       end
 
@@ -46,6 +46,13 @@ module Hancock
 
       def create
         Hancock::Request.send_post_request(
+          "/envelopes/#{envelope_identifier}/recipients",
+          { :signers => [to_hash] }.to_json
+        )
+      end
+
+      def update
+        Hancock::Request.send_put_request(
           "/envelopes/#{envelope_identifier}/recipients",
           { :signers => [to_hash] }.to_json
         )
