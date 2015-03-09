@@ -19,11 +19,4 @@ describe Hancock::Envelope::DocusignEnvelope do
       subject.viewing_url
     end
   end
-
-  describe '#send_envelope' do
-    xit 'sets the status of each signer to "sent"' do
-      # PUT v2/accounts/:accountId/envelopes/:envelopeId
-      # { "status": "sent" }
-    end
-  end
 end
