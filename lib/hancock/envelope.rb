@@ -73,22 +73,6 @@ module Hancock
       end
     end
 
-    # TODO: Separate 1) assembly of envelope model, 2) sending via DocuSign,
-    # and 3) fetching results from DocuSign post-send.  Ideally into completely
-    # separate objects.
-    def send_envelope
-      fail InvalidEnvelopeError.new(errors.full_messages.join('; ')) unless valid?
-      fail Hancock::ConfigurationMissing unless Hancock.configured?
-
-      generate_document_ids!
-      generate_recipient_ids!
-
-      response = Hancock::Request.send_post_request("/envelopes", form_post_body, headers)
-
-      self.identifier = response['envelopeId']
-      reload!
-    end
-
     #
     # tells DocuSign to change status of envelope (usually used to actually
     # send a draft envelope (status "created") by changing its status
@@ -125,29 +109,6 @@ module Hancock
       self
     end
 
-    def signature_requests_for_params
-      # TODO: Refactor (and move to a new class with sending responsibility)
-      recipients = signature_requests.reduce({}) do |hsh, request|
-        recipient = request[:recipient]
-        recipient_type = docusign_recipient_type(recipient.recipient_type)
-        hsh[recipient_type] ||= []
-        entry = hsh[recipient_type].find do |r|
-          r[:recipientId] == recipient.identifier
-        end
-        unless entry
-          entry = recipient.to_hash
-          hsh[recipient_type] << entry
-        end
-        entry[:tabs] ||= {}
-        request[:tabs].each do |tab|
-          type = "#{tab.type}_tabs".camelize(:lower).to_sym
-          entry[:tabs][type] ||= []
-          entry[:tabs][type] << tab.to_h.merge(:documentId => request[:document].identifier)
-        end
-        hsh
-      end
-    end
-
     def notification_for_params
       {
         :useAccountDefaults => false,
@@ -158,10 +119,6 @@ module Hancock
 
     def documents_for_params
       documents.map(&:to_request)
-    end
-
-    def documents_for_body
-      documents.map(&:multipart_form_part)
     end
 
     def viewing_url
@@ -196,6 +153,34 @@ module Hancock
       { 'Content-Type' => "multipart/form-data; boundary=#{Hancock.boundary}" }
     end
 
+    # TODO: Separate 1) assembly of envelope model, 2) sending via DocuSign,
+    # and 3) fetching results from DocuSign post-send.  Ideally into completely
+    # separate objects.
+    def send_envelope
+      fail InvalidEnvelopeError.new(errors.full_messages.join('; ')) unless valid?
+      fail Hancock::ConfigurationMissing unless Hancock.configured?
+
+      generate_document_ids!
+      generate_recipient_ids!
+
+      # Embedded carbon copy recipients need to get attached after the initial send
+      ecc_recipients = embedded_carbon_copy_recipients
+      if ecc_recipients.present?
+        self.recipients = normal_recipients
+      end
+
+      response = Hancock::Request.send_post_request("/envelopes", form_post_body, headers)
+      self.identifier = response['envelopeId']
+
+      if ecc_recipients.present?
+        ecc_recipients.each do |recipient|
+          recipient.create(envelope_identifier: identifier)
+        end
+      end
+
+      reload!
+    end
+
     def form_post_body
       post_body =  "\r\n--#{Hancock.boundary}\r\n"
       post_body << "Content-Type: application/json\r\n"
@@ -204,6 +189,46 @@ module Hancock
       post_body << "\r\n--#{Hancock.boundary}\r\n"
       post_body << documents_for_body.join("\r\n--#{Hancock.boundary}\r\n")
       post_body << "\r\n--#{Hancock.boundary}--\r\n"
+    end
+
+    def get_post_params(status)
+      {
+        :emailBlurb => email[:blurb] || Hancock.email_template[:blurb],
+        :emailSubject => email[:subject] || Hancock.email_template[:subject],
+        :status => "#{status}",
+        :documents => documents_for_params,
+        :recipients => signature_requests_for_params,
+        :notification => notification_for_params
+      }
+    end
+
+    # TODO: Refactor (and move to a new class with sending responsibility)
+    def signature_requests_for_params
+      return {} unless signature_requests
+
+      recipients = signature_requests.reduce({}) do |hsh, request|
+        recipient = request[:recipient]
+        recipient_type = recipient.docusign_recipient_type
+        hsh[recipient_type] ||= []
+        entry = hsh[recipient_type].find do |r|
+          r[:recipientId] == recipient.identifier
+        end
+        unless entry
+          entry = recipient.to_hash
+          hsh[recipient_type] << entry
+        end
+        entry[:tabs] ||= {}
+        request[:tabs].each do |tab|
+          type = "#{tab.type}_tabs".camelize(:lower).to_sym
+          entry[:tabs][type] ||= []
+          entry[:tabs][type] << tab.to_h.merge(:documentId => request[:document].identifier)
+        end
+        hsh
+      end
+    end
+
+    def documents_for_body
+      documents.map(&:multipart_form_part)
     end
 
     def reminder_for_params
@@ -226,17 +251,6 @@ module Hancock
         expiration[:expireWarn] = @expiration[:warn]
       end
       expiration
-    end
-
-    def get_post_params(status)
-      {
-        :emailBlurb => email[:blurb] || Hancock.email_template[:blurb],
-        :emailSubject => email[:subject] || Hancock.email_template[:subject],
-        :status => "#{status}",
-        :documents => documents_for_params,
-        :recipients => signature_requests_for_params,
-        :notification => notification_for_params
-      }
     end
 
     def check_collection_validity(field, klass)

@@ -130,7 +130,7 @@ describe Hancock::Envelope do
           ['rice pudding', 'wheat berries']
         )
 
-        expect { subject.send_envelope }.to raise_error(
+        expect { subject.send! }.to raise_error(
           described_class::InvalidEnvelopeError, 'rice pudding; wheat berries'
         )
       end
@@ -138,7 +138,7 @@ describe Hancock::Envelope do
       it 'should raise exception if Hancock not configured' do
         allow(Hancock).to receive(:configured?).and_return(false)
         expect {
-          subject.send_envelope
+          subject.send!
         }.to raise_error(Hancock::ConfigurationMissing)
       end
 
@@ -151,7 +151,7 @@ describe Hancock::Envelope do
         end
 
         it "should add unique positive integer ids on sending" do
-          subject.send_envelope
+          subject.send!
 
           expect(subject.documents.map(&:identifier).all?{|x| x.integer? && x > 0}).to be_truthy
           expect(subject.documents.map(&:identifier).uniq.length).to eq(subject.documents.length)
@@ -161,7 +161,7 @@ describe Hancock::Envelope do
           subject.documents[0].identifier = 3
           subject.documents[1].identifier = 4
 
-          subject.send_envelope
+          subject.send!
 
           expect(subject.documents.map(&:identifier)).to eq([3,4])
         end
@@ -169,7 +169,7 @@ describe Hancock::Envelope do
         it "should preserve existing ids and generate missing ones" do
           subject.documents[1].identifier = 6
 
-          subject.send_envelope
+          subject.send!
 
           expect(subject.documents.map(&:identifier)).to eq([7,6])
         end
@@ -184,7 +184,7 @@ describe Hancock::Envelope do
         end
 
         it "should add unique positive integer ids on sending" do
-          subject.send_envelope
+          subject.send!
 
           expect(subject.recipients.map(&:identifier).all?{|x| x.integer? && x > 0}).to be_truthy
           expect(subject.recipients.map(&:identifier).uniq.length).to eq(subject.recipients.length)
@@ -194,7 +194,7 @@ describe Hancock::Envelope do
           subject.recipients[0].identifier = 3
           subject.recipients[1].identifier = 4
 
-          subject.send_envelope
+          subject.send!
 
           expect(subject.recipients.map(&:identifier)).to eq([3,4])
         end
@@ -202,7 +202,7 @@ describe Hancock::Envelope do
         it "should preserve existing ids and generate missing ones" do
           subject.recipients[1].identifier = 6
 
-          subject.send_envelope
+          subject.send!
 
           expect(subject.recipients.map(&:identifier)).to eq([7,6])
         end
@@ -215,17 +215,17 @@ describe Hancock::Envelope do
         end
 
         it "sends envelope with given status" do
-          subject.send_envelope
+          subject.send!
           expect(request_stub).to have_been_requested
         end
 
         it 'calls #reload!' do
           expect(subject).to receive(:reload!)
-          subject.send_envelope
+          subject.send!
         end
 
         it 'sets the identifier to whatever DocuSign returned' do
-          subject.send_envelope
+          subject.send!
           expect(subject.identifier).to eq 'a-crazy-envelope-id'
         end
       end
@@ -235,7 +235,7 @@ describe Hancock::Envelope do
 
         it 'raises a DocusignError with the returned message if not successful' do
           expect {
-            subject.send_envelope
+            subject.send!
           }.to raise_error(Hancock::Request::RequestError, '500 - YOU_ARE_A_BANANA - Bananas are not allowed to bank.')
         end
       end
@@ -352,7 +352,7 @@ describe Hancock::Envelope do
             { :recipient => recipient2, :document => document2, :tabs => [tab1] }
           ]
         })
-        expect(subject.signature_requests_for_params).to match({
+        expect(subject.send(:signature_requests_for_params)).to match({
           'signers' => [
             {
               :clientUserId => nil,
@@ -403,12 +403,12 @@ describe Hancock::Envelope do
         }
 
         it 'sets requireIdLookup to false' do
-          expect(subject.signature_requests_for_params['signers']
+          expect(subject.send(:signature_requests_for_params)['signers']
             .first[:requireIdLookup]).to be(false)
         end
 
         it 'does not include idCheckConfigurationName' do
-          expect(subject.signature_requests_for_params['signers']
+          expect(subject.send(:signature_requests_for_params)['signers']
             .first[:idCheckConfigurationName]).to be_nil
         end
       end
