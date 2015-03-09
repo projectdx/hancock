@@ -31,20 +31,26 @@ module Hancock
       @status = attributes[:status]
       @documents = attributes[:documents] || []
       @recipients = attributes[:recipients] || []
-      @signature_requests = attributes[:signature_requests] || []
       @email = attributes[:email] || {}
       @reminder = attributes[:reminder]
       @expiration = attributes[:expiration]
+
+      @signature_requests = []
+      if attributes[:signature_requests]
+        attributes[:signature_requests].map do |signature_request|  
+          add_signature_request(signature_request)
+        end
+      end
     end
 
-    def add_signature_request(attributes = {})
-      @recipients << attributes[:recipient] unless @recipients.include? attributes[:recipient]
-      @documents << attributes[:document] unless @documents.include? attributes[:document]
+    def add_signature_request(recipient: , document: nil, tabs: nil)
+      @recipients << recipient unless @recipients.include? recipient
+      @documents << document unless @documents.include? document
 
       @signature_requests << {
-        :recipient => attributes[:recipient],
-        :document => attributes[:document],
-        :tabs => attributes[:tabs]
+        :recipient => recipient,
+        :document => document,
+        :tabs => tabs
       }
     end
 

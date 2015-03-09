@@ -304,22 +304,60 @@ describe Hancock::Envelope do
 
     describe '#add_signature_request' do
       it 'adds a signature request to the envelope, and caches recipients' do
+        recipient = instance_double(Hancock::Recipient, :recipient_type => :signer)
         attributes = {
-          :recipient => :a_recipient,
+          :recipient => recipient,
           :document => :a_document,
           :tabs => [:tab1, :tab2]
         }
+
         subject.add_signature_request(attributes)
+
         expect(subject.signature_requests).to eq [attributes]
-        expect(subject.recipients).to eq [:a_recipient]
+        expect(subject.recipients).to eq [recipient]
+      end
+
+      it 'adds regular carbon_copy recipients to the list of signature requests' do
+        recipient = instance_double(Hancock::Recipient, 
+          :recipient_type => :carbon_copy,
+          :client_user_id => nil)
+        attributes = {
+          :recipient => recipient,
+          :document => :a_document
+        }
+
+        subject.add_signature_request(attributes)
+
+        expect(subject.signature_requests).to eq [attributes.merge({:tabs => nil})]
+        expect(subject.recipients).to eq [recipient]
+        expect(subject.signature_requests.first[:tabs]).to eq(nil)
+      end
+
+      it 'does not add embedded carbon_copy recipients to the list of signature requests' do
+        recipient = instance_double(Hancock::Recipient, 
+          :recipient_type => :carbon_copy,
+          :client_user_id => 123)
+        attributes = {
+          :recipient => recipient,
+          :document => :a_document
+        }
+
+        subject.add_signature_request(attributes)
+
+        expect(subject.signature_requests).to eq []
+        expect(subject.recipients).to eq [recipient]
       end
     end
 
     describe '#new' do
       it "can set params on initialization" do
+        recipient = instance_double(Hancock::Recipient, :recipient_type => :signer)
         envelope = Hancock::Envelope.new({
           documents: [:document],
-          signature_requests: [:signature_request],
+          signature_requests: [{
+            :recipient => recipient, 
+            :document => :document, 
+            :tabs => [:tabs]}],
           email: {
             subject: 'Hello there',
             blurb: 'Please sign this!'
@@ -327,7 +365,7 @@ describe Hancock::Envelope do
         })
 
         expect(envelope.documents).to eq [:document]
-        expect(envelope.signature_requests).to eq [:signature_request]
+        expect(envelope.recipients).to eq [recipient]
         expect(envelope.email).to eq({
           subject: 'Hello there',
           blurb: 'Please sign this!'
