@@ -71,6 +71,16 @@ module Hancock
           json_body
         )
       end
+
+      #
+      # format recipient type(symbol) for DocuSign
+      #
+      def self.docusign_recipient_type(recipient_type)
+        recipient_type.to_s.camelize(:lower).pluralize
+      end
+      def docusign_recipient_type
+        recipient_type.to_s.camelize(:lower).pluralize
+      end
     end
   end
 end

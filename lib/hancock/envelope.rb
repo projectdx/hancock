@@ -287,12 +287,5 @@ module Hancock
     def document_validity
       check_collection_validity(:documents, Document)
     end
-
-    #
-    # format recipient type(symbol) for DocuSign
-    #
-    def docusign_recipient_type(type)
-      type.to_s.camelize(:lower).pluralize
-    end
   end
 end

@@ -99,6 +99,16 @@ module Hancock
       }
     end
 
+    #
+    # format recipient_type(symbol) for DocuSign
+    #
+    def self.docusign_recipient_type(recipient_type)
+      DocusignRecipient.docusign_recipient_type(recipient_type)
+    end
+    def docusign_recipient_type
+      DocusignRecipient.docusign_recipient_type(recipient_type)
+    end
+
     private
 
     def recreate_recipient_and_tabs
@@ -115,13 +125,6 @@ module Hancock
 
     def access_method
       client_user_id.nil? ? :remote : :embedded
-    end
-
-    #
-    # format recipient type(symbol) for DocuSign
-    #
-    def self.docusign_recipient_type(type)
-      type.to_s.camelize(:lower).pluralize
     end
   end
 end
