@@ -25,7 +25,7 @@ describe Hancock::Envelope do
     it { is_expected.not_to have_valid(:documents).when([], nil, [:not_a_document], [association(Hancock::Document, :validity => false)]) }
 
     context 'recipients' do
-      it "validates uniqueness of emails" do
+      it 'validates uniqueness of emails' do
         subject.recipients = [recipient, recipient]
         subject.valid?
 
@@ -124,7 +124,7 @@ describe Hancock::Envelope do
         allow(subject).to receive(:email).and_return({ :subject => 'fubject', :blurb => 'flurb'})
       end
 
-      it 'should raise exception if envelope is not valid' do
+      it 'raises an exception if envelope is not valid' do
         allow(subject).to receive(:valid?).and_return(false)
         allow(subject).to receive_message_chain(:errors, :full_messages).and_return(
           ['rice pudding', 'wheat berries']
@@ -135,7 +135,7 @@ describe Hancock::Envelope do
         )
       end
 
-      it 'should raise exception if Hancock not configured' do
+      it 'raises an exception if Hancock not configured' do
         allow(Hancock).to receive(:configured?).and_return(false)
         expect {
           subject.send!
