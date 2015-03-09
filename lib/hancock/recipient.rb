@@ -7,15 +7,15 @@ module Hancock
 
     TYPES = [:agent, :carbon_copy, :certified_delivery, :editor, :in_person_signer, :intermediary, :signer]
 
-    attr_accessor :email,
+    attr_accessor :client_user_id,
+      :email,
       :id_check,
       :identifier,
       :name,
       :recipient_type,
       :routing_order
 
-    attr_reader :client_user_id,
-      :envelope_identifier,
+    attr_reader :envelope_identifier,
       :docusign_recipient,
       :embedded_start_url
 
@@ -84,6 +84,11 @@ module Hancock
       end
 
       docusign_recipient.signing_url(return_url).parsed_response['url']
+    end
+
+    def create(envelope_identifier: )
+      @envelope_identifier = envelope_identifier
+      docusign_recipient.create
     end
 
     def to_hash

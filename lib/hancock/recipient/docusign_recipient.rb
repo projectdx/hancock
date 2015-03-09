@@ -4,7 +4,11 @@ module Hancock
       attr_reader :recipient
 
       extend Forwardable
-      def_delegators :@recipient, :envelope_identifier, :identifier, :to_hash
+      def_delegators :@recipient, 
+        :envelope_identifier, 
+        :identifier,
+        :recipient_type,
+        :to_hash
 
       def initialize(recipient)
         fail 'recipient requires an envelope_identifier' unless recipient.envelope_identifier
@@ -47,7 +51,7 @@ module Hancock
       def create
         Hancock::Request.send_post_request(
           "/envelopes/#{envelope_identifier}/recipients",
-          { :signers => [to_hash] }.to_json
+          { docusign_recipient_type => [to_hash] }.to_json
         )
       end
 

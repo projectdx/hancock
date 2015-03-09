@@ -47,6 +47,8 @@ module Hancock
       @recipients << recipient unless @recipients.include? recipient
       @documents << document unless @documents.include? document
 
+      return if recipient.recipient_type == :carbon_copy && recipient.client_user_id.present?
+
       @signature_requests << {
         :recipient => recipient,
         :document => document,
@@ -132,6 +134,18 @@ module Hancock
     end
 
     private
+
+    # CarbonCopy recipients who have a clientUserId cannot be added at creation
+    # unlike most other recipients. 
+    def embedded_carbon_copy_recipients
+      recipients.select do |recipient| 
+        recipient.recipient_type == :carbon_copy && recipient.client_user_id.present?
+      end
+    end
+
+    def normal_recipients
+      recipients - embedded_carbon_copy_recipients
+    end
 
     def docusign_envelope
       @docusign_envelope ||= DocusignEnvelope.new(self)

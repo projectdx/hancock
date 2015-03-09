@@ -208,6 +208,99 @@ describe Hancock::Envelope do
         end
       end
 
+      context 'carbon-copy embedded viewers' do
+        let(:document1) { Hancock::Document.new(:identifier => 1, :name => 'test.pdf', :data => 'happiness is mine!') }
+        let(:recipient1) { Hancock::Recipient.new(:email => 'b@mail.com', :name => 'Bob', :recipient_type => :signer, :identifier => 1) }
+        let(:recipient2) { Hancock::Recipient.new(:email => 'e@mail.com', :name => 'Edna', :recipient_type => :signer, :identifier => 2, :id_check => false) }
+        let(:tab1) { instance_double(Hancock::Tab, :type => 'initial_here', :to_h => { :initial => :here }) }
+
+        subject {
+          described_class.new(
+            :signature_requests => [
+              { :recipient => recipient1, :document => document1, :tabs => [tab1] },
+            ],
+            :email => { :subject => 'fubject', :blurb => 'flurb'}
+          )
+        }
+
+        before do
+          allow(subject).to receive(:signature_requests_for_params).and_call_original
+          allow(subject).to receive(:reload!)
+        end
+
+        it 'only sends normal recipients in the first post' do
+          subject.add_signature_request({ :recipient => recipient2, :document => document1, :tabs => [tab1] })
+
+          expect(Hancock::Request)
+            .to receive(:send_post_request)
+            .with('/envelopes', anything, anything)
+            .and_return({ 'envelopeId' => 'a-crazy-envelope-id' })
+          expect(Hancock::Request)
+            .to_not receive(:send_post_request)
+            .with('/envelopes/a-crazy-envelope-id/recipients', anything)
+          subject.send!
+        end
+
+        it 'adds regular carbon-copy recipients in the first post' do
+          recipient2.recipient_type = :carbon_copy
+          subject.add_signature_request({ :recipient => recipient2, :document => document1, :tabs => [tab1] })
+          
+          expect(Hancock::Request)
+            .to receive(:send_post_request)
+            .with('/envelopes', /.*carbonCopies.*/, anything)
+            .and_return({ 'envelopeId' => 'a-crazy-envelope-id' })
+          expect(Hancock::Request)
+            .to_not receive(:send_post_request)
+            .with('/envelopes/a-crazy-envelope-id/recipients', anything)
+          subject.send!
+        end
+
+        it 'sends embedded carbon-copy recipients in a second post' do
+          recipient2.recipient_type = :carbon_copy
+          recipient2.client_user_id = '13'
+          subject.add_signature_request({ :recipient => recipient2, :document => document1, :tabs => [tab1] })
+
+          expect(Hancock::Request)
+            .to_not receive(:send_post_request)
+            .with('/envelopes', /.*carbonCopies.*/, anything)
+          expect(Hancock::Request)
+            .to receive(:send_post_request)
+            .with('/envelopes', /.*signers.*/, anything)
+            .and_return({ 'envelopeId' => 'a-crazy-envelope-id' })
+          expect(Hancock::Request)
+            .to receive(:send_post_request)
+            .with('/envelopes/a-crazy-envelope-id/recipients', /.*carbonCopies.*/)
+          subject.send!
+        end
+
+        it 'creates a blank envelope if there are only carbon_copy recipients' do
+          recipient1.recipient_type = :carbon_copy
+          recipient1.client_user_id = '12'
+          recipient2.recipient_type = :carbon_copy
+          recipient2.client_user_id = '13'
+          subject = described_class.new(
+            :signature_requests => [
+              { :recipient => recipient1, :document => document1, :tabs => [tab1] },
+              { :recipient => recipient2, :document => document1, :tabs => [tab1] }
+            ],
+            :email => { :subject => 'fubject', :blurb => 'flurb'}
+          )
+          allow(subject).to receive(:signature_requests_for_params).and_call_original
+          allow(subject).to receive(:reload!)
+
+          expect(Hancock::Request)
+            .to receive(:send_post_request)
+            .with('/envelopes', /.*\"recipients\":{}.*/, anything)
+            .and_return({ 'envelopeId' => 'a-crazy-envelope-id' })
+          expect(Hancock::Request)
+            .to receive(:send_post_request)
+            .with('/envelopes/a-crazy-envelope-id/recipients', /.*carbonCopies.*/)
+            .twice
+
+          subject.send!
+        end
+      end
+
       context 'successful send' do
         let!(:request_stub) { stub_envelope_creation('send_envelope', 'envelope_sent') }
         before do
