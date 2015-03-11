@@ -12,7 +12,8 @@ describe Hancock::Recipient::Recreator do
         :identifier          => '7890',
         :name                => 'Fred Flinstone',
         :recipient_type      => :signer,
-        :embedded_start_url  => 'SIGN_AT_DOCUSIGN'
+        :embedded_start_url  => 'place to start!',
+        :routing_order       => 2_000
       )
     }
     let(:docusign_recipient) { recipient.send(:docusign_recipient) }
@@ -31,8 +32,7 @@ describe Hancock::Recipient::Recreator do
 
       expect(WebMock).to have_requested(:post, "https://demo.docusign.net/restapi/v2/accounts/123456/envelopes/1234-5678-9012/recipients")
         .with(
-          :body => "{\"signers\":[{\"clientUserId\":\"123-placeholder-id\",\"email\":\"placeholder@example.com\",\"name\":\"Placeholder while recreating recipient\",\"recipientId\":\"123-placeholder-id\",\"routingOrder\":1,\"requireIdLookup\":true,\"idCheckConfigurationName\":\"ID Check $\",\"embeddedRecipientStartURL\":null}]}",
-          :headers => {'Accept'=>'application/json', 'Authorization'=>'bearer', 'Content-Type'=>'application/json'}
+          :body => "{\"signers\":[{\"clientUserId\":\"123-placeholder-id\",\"email\":\"placeholder@example.com\",\"name\":\"Placeholder while recreating recipient\",\"recipientId\":\"123-placeholder-id\",\"routingOrder\":2000,\"requireIdLookup\":true,\"idCheckConfigurationName\":\"ID Check $\",\"embeddedRecipientStartURL\":null}]}"
         )
     end
 
@@ -40,9 +40,7 @@ describe Hancock::Recipient::Recreator do
       subject.recreate_with_tabs
 
       expect(WebMock).to have_requested(:delete, "https://demo.docusign.net/restapi/v2/accounts/123456/envelopes/1234-5678-9012/recipients")
-        .with(
-          :body => "{\"signers\":[{\"recipientId\":\"7890\"}]}",
-          :headers => {'Accept'=>'application/json', 'Authorization'=>'bearer', 'Content-Type'=>'application/json'})
+        .with(:body => "{\"signers\":[{\"recipientId\":\"7890\"}]}")
     end
 
     it 'recreates the recipient' do
@@ -50,17 +48,15 @@ describe Hancock::Recipient::Recreator do
 
       expect(WebMock).to have_requested(:post, "https://demo.docusign.net/restapi/v2/accounts/123456/envelopes/1234-5678-9012/recipients")
         .with(
-          :body => "{\"signers\":[{\"clientUserId\":\"7890\",\"email\":\"actual_recipient@example.com\",\"name\":\"Fred Flinstone\",\"recipientId\":\"7890\",\"routingOrder\":1,\"requireIdLookup\":true,\"idCheckConfigurationName\":\"ID Check $\",\"embeddedRecipientStartURL\":\"SIGN_AT_DOCUSIGN\"}]}",
-          :headers => {'Accept'=>'application/json', 'Authorization'=>'bearer', 'Content-Type'=>'application/json'})
+          :body => "{\"signers\":[{\"clientUserId\":\"7890\",\"email\":\"actual_recipient@example.com\",\"name\":\"Fred Flinstone\",\"recipientId\":\"7890\",\"routingOrder\":2000,\"requireIdLookup\":true,\"idCheckConfigurationName\":\"ID Check $\",\"embeddedRecipientStartURL\":\"place to start!\"}]}"
+        )
     end
 
     it 'recreates tabs for the recipient if there were any' do
       subject.recreate_with_tabs
 
       expect(WebMock).to have_requested(:post, "https://demo.docusign.net/restapi/v2/accounts/123456/envelopes/1234-5678-9012/recipients/7890/tabs")
-        .with(
-          :body => "{\"rainbows\":\"butterflies\"}",
-          :headers => {'Accept'=>'application/json', 'Authorization'=>'bearer', 'Content-Type'=>'application/json'})
+        .with(:body => "{\"rainbows\":\"butterflies\"}")
     end
 
     it 'does not recreate tabs if there were originally none' do
@@ -76,8 +72,7 @@ describe Hancock::Recipient::Recreator do
 
       expect(WebMock).to have_requested(:delete, "https://demo.docusign.net/restapi/v2/accounts/123456/envelopes/1234-5678-9012/recipients")
         .with(
-          :body => "{\"signers\":[{\"recipientId\":\"123-placeholder-id\"}]}",
-          :headers => {'Accept'=>'application/json', 'Authorization'=>'bearer', 'Content-Type'=>'application/json'})
+          :body => "{\"signers\":[{\"recipientId\":\"123-placeholder-id\"}]}")
     end
   end
 end

@@ -4,10 +4,12 @@ module Hancock
       attr_reader :recipient
 
       extend Forwardable
-      def_delegators :@recipient, 
-        :envelope_identifier, 
+
+      def_delegators :@recipient,
+        :envelope_identifier,
         :identifier,
         :recipient_type,
+        :routing_order,
         :to_hash
 
       def initialize(recipient)
