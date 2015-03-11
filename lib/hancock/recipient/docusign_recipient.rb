@@ -4,7 +4,12 @@ module Hancock
       attr_reader :recipient
 
       extend Forwardable
-      def_delegators :@recipient, :envelope_identifier, :identifier, :to_hash
+      def_delegators :@recipient,
+        :envelope_identifier,
+        :identifier,
+        :recipient_type,
+        :routing_order,
+        :to_hash
 
       def initialize(recipient)
         fail 'recipient requires an envelope_identifier' unless recipient.envelope_identifier

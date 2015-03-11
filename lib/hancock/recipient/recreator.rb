@@ -32,11 +32,12 @@ module Hancock
       def placeholder_recipient
         Recipient.new(
           :client_user_id      => placeholder_identifier, # Don't send an email
-          :email               => 'placeholder@example.com',
-          :envelope_identifier => docusign_recipient.envelope_identifier,
           :identifier          => placeholder_identifier,
+          :email               => 'placeholder@example.com',
           :name                => 'Placeholder while recreating recipient',
-          :recipient_type      => :signer,
+          :envelope_identifier => docusign_recipient.envelope_identifier,
+          :recipient_type      => docusign_recipient.recipient_type,
+          :routing_order       => docusign_recipient.routing_order,
           :embedded_start_url  => nil # No really, don't send an email
         )
       end
