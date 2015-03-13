@@ -457,6 +457,21 @@ describe Hancock::Envelope do
       end
     end
 
+    describe '#current_routing_order' do
+      subject { described_class.new(:identifier => 'smokey-joe') }
+
+      it 'uses DocusignRecipient because that\'s what the API requires :(' do
+        stub_request(:get, 'https://demo.docusign.net/restapi/v2/accounts/123456/envelopes/smokey-joe/recipients').
+          to_return(
+            :status => 200,
+            :body => '{"currentRoutingOrder":"7","other":"stuff"}',
+            :headers => {'Content-Type' => 'application/json'}
+          )
+
+        expect(subject.current_routing_order).to eq(7)
+      end
+    end
+
     describe '#signature_requests_for_params' do
       let(:document1) { Hancock::Document.new(:identifier => 1) }
       let(:document2) { Hancock::Document.new(:identifier => 2) }

@@ -37,7 +37,7 @@ module Hancock
 
       @signature_requests = []
       if attributes[:signature_requests]
-        attributes[:signature_requests].map do |signature_request|  
+        attributes[:signature_requests].map do |signature_request|
           add_signature_request(signature_request)
         end
       end
@@ -117,6 +117,11 @@ module Hancock
       self
     end
 
+    def current_routing_order
+      Recipient::DocusignRecipient.all_for(identifier)
+        .parsed_response['currentRoutingOrder'].to_i
+    end
+
     def notification_for_params
       {
         :useAccountDefaults => false,
@@ -136,9 +141,9 @@ module Hancock
     private
 
     # CarbonCopy recipients who have a clientUserId cannot be added at creation
-    # unlike most other recipients. 
+    # unlike most other recipients.
     def embedded_carbon_copy_recipients
-      recipients.select do |recipient| 
+      recipients.select do |recipient|
         recipient.recipient_type == :carbon_copy && recipient.client_user_id.present?
       end
     end
