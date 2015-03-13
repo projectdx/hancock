@@ -52,10 +52,19 @@ module Hancock
       end.flatten
     end
 
-    # DocuSign currently provides no way to resend an envelope for a
-    # recipient with embedded signing enabled. So we use a workaround.
     def resend_email
-      recreate_recipient_and_tabs
+      if access_method == :remote
+        # The API seems to require more than just recipientId
+        docusign_recipient.update(
+          :recipientId => identifier,
+          :name => name,
+          :resend_envelope => true
+        )
+      elsif access_method == :embedded
+        # DocuSign currently provides no way to resend an envelope for a
+        # recipient with embedded signing enabled. So we use a workaround.
+        recreate_recipient_and_tabs
+      end
     end
 
     # The DocuSign API provides no way to change the access method for an

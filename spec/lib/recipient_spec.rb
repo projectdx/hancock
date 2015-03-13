@@ -101,14 +101,38 @@ describe Hancock::Recipient do
       )
     }
 
-    it 'recreates the recipient' do
-      recreator = double(Hancock::Recipient::Recreator)
+    context 'when access method is "remote"' do
+      before(:each) do
+        allow(subject).to receive(:access_method).and_return(:remote)
+      end
 
-      allow(Hancock::Recipient::Recreator).to receive(:new)
-        .and_return(recreator)
-      expect(recreator).to receive(:recreate_with_tabs)
+      it 'updates the recipient and triggers a resend of the envelope' do
+        docusign_recipient = subject.send(:docusign_recipient)
+        expect(docusign_recipient).to receive(:update)
+          .with(
+            :recipientId => subject.identifier,
+            :name => subject.name,
+            :resend_envelope => true
+          )
 
-      subject.resend_email
+        subject.resend_email
+      end
+    end
+
+    context 'when access method is "embedded"' do
+      before(:each) do
+        allow(subject).to receive(:access_method).and_return(:embedded)
+      end
+
+      it 'entirely recreates the recipient' do
+        recreator = double(Hancock::Recipient::Recreator)
+
+        allow(Hancock::Recipient::Recreator).to receive(:new)
+          .and_return(recreator)
+        expect(recreator).to receive(:recreate_with_tabs)
+
+        subject.resend_email
+      end
     end
   end
 

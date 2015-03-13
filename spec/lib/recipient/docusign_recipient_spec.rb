@@ -139,11 +139,41 @@ describe Hancock::Recipient::DocusignRecipient do
       }.to_json
     }
 
-    it 'makes a request' do
+    it 'sets "resend_envelope" to false by default' do
       expect(Hancock::Request).to receive(:send_put_request)
-        .with('/envelopes/amelia-badelia/recipients', expected_json)
+        .with('/envelopes/amelia-badelia/recipients?resend_envelope=false', expected_json)
 
       subject.update
+    end
+
+    it 'allows "resend_envelope" to be specified' do
+      expect(Hancock::Request).to receive(:send_put_request)
+        .with('/envelopes/amelia-badelia/recipients?resend_envelope=true', expected_json)
+
+      subject.update(:resend_envelope => true)
+    end
+
+    it 'raises an Exception if "resend_envelope" is not true or false' do
+      expect{ subject.update(:resend_envelope => 'jibburrish') }.to raise_error
+    end
+
+    it 'defaults to updating all values from `to_hash`' do
+      allow(recipient).to receive(:to_hash).and_return({ :humpty => 'dumpty' })
+      expected_json = { :signers => [{ :humpty => 'dumpty' }] }.to_json
+
+      expect(Hancock::Request).to receive(:send_put_request)
+        .with('/envelopes/amelia-badelia/recipients?resend_envelope=false', expected_json)
+
+      subject.update
+    end
+
+    it 'defaults to updating all values from `to_hash`' do
+      expected_json = { :signers => [{ :cheshire => 'cat' }] }.to_json
+
+      expect(Hancock::Request).to receive(:send_put_request)
+        .with('/envelopes/amelia-badelia/recipients?resend_envelope=false', expected_json)
+
+      subject.update(:cheshire => 'cat')
     end
   end
 end
