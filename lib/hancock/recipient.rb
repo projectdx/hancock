@@ -37,10 +37,19 @@ module Hancock
     end
 
     def self.fetch_for_envelope(envelope_identifier)
-      response = DocusignRecipient.all_for(envelope_identifier).parsed_response
+      parsed_response = DocusignRecipient.all_for(envelope_identifier).parsed_response
+      recipients_from(envelope_identifier, parsed_response)
+    end
 
+    def self.at_current_routing_order_for(envelope_identifier)
+      parsed_response = DocusignRecipient.all_for(envelope_identifier).parsed_response
+      recipients_from(envelope_identifier, parsed_response)
+        .select {|r| r.routing_order == parsed_response['currentRoutingOrder'].to_i }
+    end
+
+    def self.recipients_from(envelope_identifier, parsed_response)
       TYPES.map do |type|
-        response[docusign_recipient_type(type)].map do |envelope_recipient|
+        parsed_response[docusign_recipient_type(type)].map do |envelope_recipient|
           new(:name => envelope_recipient['name'],
               :email => envelope_recipient['email'],
               :id_check => nil,
