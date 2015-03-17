@@ -23,15 +23,6 @@ describe Hancock::Envelope do
     it { is_expected.not_to have_valid(:recipients).when([], nil, [:not_a_recipient], [association(Hancock::Recipient, :validity => false)]) }
     it { is_expected.to have_valid(:documents).when([association(Hancock::Document)]) }
     it { is_expected.not_to have_valid(:documents).when([], nil, [:not_a_document], [association(Hancock::Document, :validity => false)]) }
-
-    context 'recipients' do
-      it "validates uniqueness of emails" do
-        subject.recipients = [recipient, recipient]
-        subject.valid?
-
-        expect(subject.errors[:recipients]).to include("must all have unique emails")
-      end
-    end
   end
 
   context 'with valid envelope' do
