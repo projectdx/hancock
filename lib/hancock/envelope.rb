@@ -288,14 +288,6 @@ module Hancock
 
     def recipient_validity
       check_collection_validity(:recipients, Recipient)
-
-      unless has_unique_emails?
-        errors.add(:recipients, 'must all have unique emails')
-      end
-    end
-
-    def has_unique_emails?
-      recipients.map { |r| r.try(:email) }.uniq.length == recipients.length
     end
 
     def document_validity

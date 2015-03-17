@@ -23,15 +23,6 @@ describe Hancock::Envelope do
     it { is_expected.not_to have_valid(:recipients).when([], nil, [:not_a_recipient], [association(Hancock::Recipient, :validity => false)]) }
     it { is_expected.to have_valid(:documents).when([association(Hancock::Document)]) }
     it { is_expected.not_to have_valid(:documents).when([], nil, [:not_a_document], [association(Hancock::Document, :validity => false)]) }
-
-    context 'recipients' do
-      it 'validates uniqueness of emails' do
-        subject.recipients = [recipient, recipient]
-        subject.valid?
-
-        expect(subject.errors[:recipients]).to include("must all have unique emails")
-      end
-    end
   end
 
   context 'with valid envelope' do
@@ -244,7 +235,7 @@ describe Hancock::Envelope do
         it 'adds regular carbon-copy recipients in the first post' do
           recipient2.recipient_type = :carbon_copy
           subject.add_signature_request({ :recipient => recipient2, :document => document1, :tabs => [tab1] })
-          
+
           expect(Hancock::Request)
             .to receive(:send_post_request)
             .with('/envelopes', /.*carbonCopies.*/, anything)
@@ -411,7 +402,7 @@ describe Hancock::Envelope do
       end
 
       it 'adds regular carbon_copy recipients to the list of signature requests' do
-        recipient = instance_double(Hancock::Recipient, 
+        recipient = instance_double(Hancock::Recipient,
           :recipient_type => :carbon_copy,
           :client_user_id => nil)
         attributes = {
@@ -427,7 +418,7 @@ describe Hancock::Envelope do
       end
 
       it 'does not add embedded carbon_copy recipients to the list of signature requests' do
-        recipient = instance_double(Hancock::Recipient, 
+        recipient = instance_double(Hancock::Recipient,
           :recipient_type => :carbon_copy,
           :client_user_id => 123)
         attributes = {
@@ -448,8 +439,8 @@ describe Hancock::Envelope do
         envelope = Hancock::Envelope.new({
           documents: [:document],
           signature_requests: [{
-            :recipient => recipient, 
-            :document => :document, 
+            :recipient => recipient,
+            :document => :document,
             :tabs => [:tabs]}],
           email: {
             subject: 'Hello there',
