@@ -48,6 +48,11 @@ describe Hancock::Recipient do
       subject.recipient_type = :swooner
       expect(subject.recipient_type).to eq :swooner
     end
+
+    it 'is set as a symbol' do
+      subject = described_class.new(:recipient_type => 'spinner')
+      expect(subject.recipient_type).to eq :spinner
+    end
   end
 
   describe '#id_check' do
@@ -88,21 +93,46 @@ describe Hancock::Recipient do
     end
   end
 
-  describe '#change_access_method_to' do
-    context 'when new access method is the same as the old' do
-      subject {
-        described_class.new(
-          :envelope_identifier => 'bluh',
-          :client_user_id => 'uniquity',
-          :identifier => 42)
-      }
+  describe '#resend_email' do
+    subject {
+      described_class.new(
+        :envelope_identifier => 'yuppie-kittens',
+        :identifier => 'hey-now'
+      )
+    }
 
+    it 'recreates the recipient' do
+      recreator = double(Hancock::Recipient::Recreator)
+
+      allow(Hancock::Recipient::Recreator).to receive(:new)
+        .and_return(recreator)
+      expect(recreator).to receive(:recreate_with_tabs)
+
+      subject.resend_email
+    end
+  end
+
+  describe '#change_access_method_to' do
+    let(:recreator) { double(Hancock::Recipient::Recreator) }
+
+    subject {
+      described_class.new(
+        :envelope_identifier => 'bluh',
+        :client_user_id => 'uniquity',
+        :identifier => 42)
+    }
+
+    before(:each) do
+      allow(Hancock::Recipient::Recreator).to receive(:new).and_return(recreator)
+    end
+
+    context 'when new access method is the same as the old' do
       it 'returns true' do
         expect(subject.change_access_method_to(:embedded)).to eq(true)
       end
 
       it 'does not attempt to delete and recreate the recipient' do
-        expect(a_request(:any, /docusign.net/)).not_to have_been_made
+        expect(a_request(:any, /.*docusign.net.*/)).not_to have_been_made
 
         subject.change_access_method_to(:embedded)
       end
@@ -115,47 +145,32 @@ describe Hancock::Recipient do
           :identifier => 42)
       }
 
-      before(:each) do
-        expect_any_instance_of(Hancock::Recipient::DocusignRecipient)
-          .to receive(:delete)
-        expect_any_instance_of(Hancock::Recipient::DocusignRecipient)
-          .to receive(:create)
-        expect_any_instance_of(Hancock::Recipient::DocusignRecipient)
-          .to receive(:tabs).and_return(double(:parsed_response => {}))
+      it 'sets the client_user_id to the identifier' do
+        allow(recreator).to receive(:recreate_with_tabs)
+
+        expect(subject.client_user_id).to be nil
+        subject.change_access_method_to(:embedded)
+        expect(subject.client_user_id).to eq(42)
       end
 
-      it 'sets the client_user_id to the identifier' do
-        expect(subject.client_user_id).to be nil
-
+      it 'recreates the recipient' do
+        expect(recreator).to receive(:recreate_with_tabs)
         subject.change_access_method_to(:embedded)
-
-        expect(subject.client_user_id).to eq(subject.identifier)
       end
     end
 
     context 'when setting access method to :remote' do
-      subject {
-        described_class.new(
-          :envelope_identifier => 'bluh',
-          :client_user_id => 'susketchuwon',
-          :identifier => 42)
-      }
+      it 'sets the client_user_id to nil' do
+        allow(recreator).to receive(:recreate_with_tabs)
 
-      before(:each) do
-        expect_any_instance_of(Hancock::Recipient::DocusignRecipient)
-          .to receive(:delete)
-        expect_any_instance_of(Hancock::Recipient::DocusignRecipient)
-          .to receive(:create)
-        expect_any_instance_of(Hancock::Recipient::DocusignRecipient)
-          .to receive(:tabs).and_return(double(:parsed_response => {}))
+        expect(subject.client_user_id).to eq('uniquity')
+        subject.change_access_method_to(:remote)
+        expect(subject.client_user_id).to be(nil)
       end
 
-      it 'sets the client_user_id to the nil' do
-        expect(subject.client_user_id).to eq('susketchuwon')
-
+      it 'recreates the recipient' do
+        expect(recreator).to receive(:recreate_with_tabs)
         subject.change_access_method_to(:remote)
-
-        expect(subject.client_user_id).to be(nil)
       end
     end
 
@@ -166,54 +181,10 @@ describe Hancock::Recipient do
           :identifier => 42)
       }
 
-      it 'sets the client_user_id to the nil' do
+      it 'raises an exception' do
         expect {
           subject.change_access_method_to(:something_unknown_and_silly)
         }.to raise_error ArgumentError
-      end
-    end
-
-    context 'when, for once, things go accordingly to plans laid best by mice and men' do
-      subject {
-        described_class.new(
-          :envelope_identifier => 'bluh',
-          :identifier => 'squirrel')
-      }
-
-      before(:each) do
-        expect_any_instance_of(Hancock::Recipient::DocusignRecipient)
-          .to receive(:delete)
-        expect_any_instance_of(Hancock::Recipient::DocusignRecipient)
-          .to receive(:create)
-        allow_any_instance_of(Hancock::Recipient::DocusignRecipient)
-          .to receive(:tabs)
-          .and_return(double(:parsed_response => {}, :body => '{}'))
-      end
-
-      it 'creates tabs if there were originally some' do
-        expect_any_instance_of(Hancock::Recipient::DocusignRecipient)
-          .to receive(:tabs)
-          .and_return(double(
-            :parsed_response => {:something => 'hashy'},
-            :body => '{"something": "hashy"}'
-          ))
-        expect_any_instance_of(Hancock::Recipient::DocusignRecipient)
-          .to receive(:create_tabs_from_json)
-          .with('{"something": "hashy"}')
-
-        subject.change_access_method_to(:embedded)
-      end
-
-      it 'does not create tabs if there were originally none' do
-        expect_any_instance_of(Hancock::Recipient::DocusignRecipient)
-          .to receive(:tabs).and_return(double(:parsed_response => {}))
-        expect(a_request(:any, /docusign.net/)).not_to have_been_made
-
-        subject.change_access_method_to(:embedded)
-      end
-
-      it 'returns true' do
-        expect(subject.change_access_method_to(:embedded)).to eq(true)
       end
     end
   end

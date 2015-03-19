@@ -1,4 +1,5 @@
 require_relative 'recipient/docusign_recipient'
+require_relative 'recipient/recreator'
 
 module Hancock
   class Recipient < Hancock::Base
@@ -31,7 +32,7 @@ module Hancock
       @identifier          = attributes[:identifier]
       @name                = attributes[:name]
       @routing_order       = attributes.fetch(:routing_order, 1)
-      @recipient_type      = attributes.fetch(:recipient_type, :signer)
+      @recipient_type      = attributes.fetch(:recipient_type, :signer).to_sym
       @embedded_start_url  = attributes.fetch(:embedded_start_url, 'SIGN_AT_DOCUSIGN')
     end
 
@@ -51,7 +52,14 @@ module Hancock
       end.flatten
     end
 
-    # Add/remove the client_user_id to allow email vs URL access to sign documents
+    # DocuSign currently provides no way to resend an envelope for a
+    # recipient with embedded signing enabled. So we use a workaround.
+    def resend_email
+      recreate_recipient_and_tabs
+    end
+
+    # The DocuSign API provides no way to change the access method for an
+    # existing recipient, so we must delete and recreate the recipient.
     def change_access_method_to(new_access_method)
       return true if new_access_method == access_method
 
@@ -64,15 +72,7 @@ module Hancock
         fail ArgumentError, 'access_method must be :embedded or :remote'
       end
 
-      tabs = docusign_recipient.tabs
-      docusign_recipient.delete
-      docusign_recipient.create
-
-      unless tabs.parsed_response.empty?
-        docusign_recipient.create_tabs_from_json(tabs.body)
-      end
-
-      true
+      recreate_recipient_and_tabs
     end
 
     def signing_url(return_url)
@@ -100,6 +100,10 @@ module Hancock
     end
 
     private
+
+    def recreate_recipient_and_tabs
+      Recipient::Recreator.new(docusign_recipient).recreate_with_tabs
+    end
 
     def id_check_configuration_name
       id_check ? 'ID Check $' : nil
