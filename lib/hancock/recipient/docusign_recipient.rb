@@ -24,11 +24,6 @@ module Hancock
           "/envelopes/#{envelope_identifier}/recipients")
       end
 
-      def self.find(envelope_identifier, identifier)
-        Hancock::Request.send_get_request(
-          "/envelopes/#{envelope_identifier}/recipients/#{identifier}")
-      end
-
       def tabs
         Hancock::Request.send_get_request(
           "/envelopes/#{envelope_identifier}/recipients/#{identifier}/tabs")

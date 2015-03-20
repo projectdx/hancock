@@ -38,15 +38,6 @@ describe Hancock::Recipient::DocusignRecipient do
     end
   end
 
-  describe '.find' do
-    it 'makes a request' do
-      expect(Hancock::Request).to receive(:send_get_request)
-        .with('/envelopes/yosemite-sam/recipients/bugs-bunny')
-
-      described_class.find('yosemite-sam', 'bugs-bunny')
-    end
-  end
-
   describe '#signing_url' do
     it 'makes a request to Docusign' do
       expected_json = {
