@@ -38,25 +38,19 @@ module Hancock
 
     def self.fetch_for_envelope(envelope_identifier)
       parsed_response = DocusignRecipient.all_for(envelope_identifier).parsed_response
-      recipients_from(envelope_identifier, parsed_response)
-    end
 
-    def self.at_current_routing_order_for(envelope_identifier)
-      parsed_response = DocusignRecipient.all_for(envelope_identifier).parsed_response
-      recipients_from(envelope_identifier, parsed_response)
-        .select {|r| r.routing_order == parsed_response['currentRoutingOrder'].to_i }
-    end
-
-    def self.recipients_from(envelope_identifier, parsed_response)
       TYPES.map do |type|
         parsed_response[docusign_recipient_type(type)].map do |envelope_recipient|
-          new(:name => envelope_recipient['name'],
-              :email => envelope_recipient['email'],
-              :id_check => nil,
-              :routing_order => envelope_recipient['routingOrder'].to_i,
-              :recipient_type => type,
-              :identifier => envelope_recipient['recipientId'].to_i,
-              :envelope_identifier => envelope_identifier)
+          new(
+            :client_user_id => envelope_recipient['clientUserId'],
+            :email => envelope_recipient['email'],
+            :envelope_identifier => envelope_identifier,
+            :id_check => nil,
+            :identifier => envelope_recipient['recipientId'].to_i,
+            :name => envelope_recipient['name'],
+            :routing_order => envelope_recipient['routingOrder'].to_i,
+            :recipient_type => type
+          )
         end
       end.flatten
     end
@@ -94,9 +88,6 @@ module Hancock
     end
 
     def signing_url(return_url)
-      # FIXME: We need to check the status somehow
-      # fail unless status == :sent
-
       unless access_method == :embedded
         fail SigningUrlError, 'This recipient is not setup for in-person signing'
       end
