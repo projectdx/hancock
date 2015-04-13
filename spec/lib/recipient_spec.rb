@@ -88,7 +88,7 @@ describe Hancock::Recipient do
       expect(recipients.map(&:email)).
         to match_array(['darwin@example.com', 'salli@example.com'])
       expect(recipients.map(&:identifier)).
-        to match_array([12, 50])
+        to match_array(["12", "50"])
       expect(recipients.map(&:class).uniq).to eq [described_class]
     end
   end
