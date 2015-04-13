@@ -17,9 +17,6 @@ require 'hancock/document'
 require 'hancock/recipient'
 require 'hancock/anchored_tab'
 require 'hancock/tab'
-require 'hancock/envelope_status'
-require 'hancock/recipient_status'
-require 'hancock/callback'
 
 # Avoid deprecation warnings; ActiveSupport 4.1.0 loads i18n and displays a
 # deprecation warning that while this variable currently defaults to false,
