@@ -28,6 +28,18 @@ describe Hancock::Recipient do
     end
   end
 
+  describe "#status" do
+    it "can be set" do
+      subject.status = "wama"
+      expect(subject.status).to eq("wama")
+    end
+
+    it "can be initialized" do
+      subject = described_class.new(:status => "wama")
+      expect(subject.status).to eq("wama")
+    end
+  end
+
   describe '#identifier' do
     it 'returns nil by default' do
       expect(subject.identifier).to be_nil

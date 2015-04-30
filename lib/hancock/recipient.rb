@@ -13,7 +13,8 @@ module Hancock
       :identifier,
       :name,
       :recipient_type,
-      :routing_order
+      :routing_order,
+      :status
 
     attr_reader :envelope_identifier,
       :docusign_recipient,
@@ -33,6 +34,7 @@ module Hancock
       @name                = attributes[:name]
       @routing_order       = attributes.fetch(:routing_order, 1)
       @recipient_type      = attributes.fetch(:recipient_type, :signer).to_sym
+      @status              = attributes[:status]
       @embedded_start_url  = attributes.fetch(:embedded_start_url, 'SIGN_AT_DOCUSIGN')
     end
 
@@ -49,7 +51,8 @@ module Hancock
             :identifier => envelope_recipient['recipientId'],
             :name => envelope_recipient['name'],
             :routing_order => envelope_recipient['routingOrder'].to_i,
-            :recipient_type => type
+            :recipient_type => type,
+            :status => envelope_recipient['status']
           )
         end
       end.flatten
