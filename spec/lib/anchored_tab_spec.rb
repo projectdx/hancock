@@ -1,15 +1,7 @@
 describe Hancock::AnchoredTab do
   context 'validations' do
-    let(:valid_strings) { ['something', :a_symbol] }
-
-    it { is_expected.to have_valid(:type).when(*valid_strings) }
+    it { is_expected.to have_valid(:type).when(['something', :a_symbol]) }
     it { is_expected.not_to have_valid(:type).when(nil, '') }
-
-    it { is_expected.to have_valid(:coordinates).when([1,2]) }
-    it { is_expected.not_to have_valid(:coordinates).when([]) }
-
-    it { is_expected.to have_valid(:label).when(*valid_strings) }
-    it { is_expected.not_to have_valid(:label).when(nil, '') }
 
     it { is_expected.to have_valid(:page_number).when(3) }
     it { is_expected.not_to have_valid(:page_number).when(-3, 2.5, 'three', nil, '') }
@@ -45,11 +37,38 @@ describe Hancock::AnchoredTab do
     end
   end
 
-  describe "#to_h" do
-    it "generates hash suitable for DocuSign submission" do
-      allow(subject).to receive(:page_number).and_return(5)
-      allow(subject).to receive(:coordinates).and_return([45,251])
-      allow(subject).to receive(:anchor_text).and_return('smarmy vikings')
+  describe '#to_h' do
+    it 'generates hash suitable for DocuSign submission' do
+      subject = described_class.new(
+        :page_number => 5,
+        :coordinates => [45,251],
+        :anchor_text => 'smarmy vikings',
+        :validation_message => 'foodbart',
+        :validation_pattern => 'Dr. Suess',
+        :width => 27,
+        :font_size => 48
+      )
+
+      expect(subject.to_h).to eq({
+        :anchorString => 'smarmy vikings',
+        :anchorXOffset      => 45,
+        :anchorYOffset      => 251,
+        :anchorIgnoreIfNotPresent => true,
+        :pageNumber         => 5,
+        :validationPattern => 'Dr. Suess',
+        :validationMessage => 'foodbart',
+        :width => 27,
+        :fontSize => 'Size48'
+      })
+    end
+
+    it 'does not include nil values' do
+      subject = described_class.new(
+        :page_number => 5,
+        :coordinates => [45,251],
+        :anchor_text => 'smarmy vikings'
+      )
+
       expect(subject.to_h).to eq({
         :anchorString => 'smarmy vikings',
         :anchorXOffset      => 45,

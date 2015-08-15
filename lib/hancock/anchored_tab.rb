@@ -13,12 +13,16 @@ module Hancock
 
     def to_h
       {
-        :anchorString       => anchor_text,
-        :anchorXOffset      => coordinates[0],
-        :anchorYOffset      => coordinates[1],
-        :pageNumber         => page_number,
-        :anchorIgnoreIfNotPresent => true
-      }
+        :anchorString             => anchor_text,
+        :anchorXOffset            => coordinates[0],
+        :anchorYOffset            => coordinates[1],
+        :pageNumber               => page_number,
+        :anchorIgnoreIfNotPresent => true,
+        :validationPattern        => validation_pattern,
+        :validationMessage        => validation_message,
+        :width                    => width,
+        :fontSize                 => docusign_font_size(font_size)
+      }.reject{ |_, value| value.nil? }
     end
   end
 end

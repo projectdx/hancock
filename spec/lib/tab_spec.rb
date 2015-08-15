@@ -3,14 +3,36 @@ describe Hancock::Tab do
     it { is_expected.to have_valid(:type).when('something', :a_symbol) }
     it { is_expected.not_to have_valid(:type).when(nil, '') }
 
-    it { is_expected.to have_valid(:coordinates).when([1,2]) }
-    it { is_expected.not_to have_valid(:coordinates).when([]) }
-
-    it { is_expected.to have_valid(:label).when('something', :a_symbol) }
-    it { is_expected.not_to have_valid(:label).when(nil, '') }
-
     it { is_expected.to have_valid(:page_number).when(3) }
     it { is_expected.not_to have_valid(:page_number).when(-3, 2.5, 'three', nil, '') }
+  end
+
+  describe 'font_size' do
+    let(:available_sizes) {
+      [7, 8, 9, 10, 11, 12, 14, 16, 18, 20, 22, 24, 26, 28, 36, 48, 72]
+    }
+    let(:unavailable_sizes) {
+      [0, 1, 25, 99]
+    }
+
+    it 'accepts font sizes from the list' do
+      available_sizes.each do |size|
+        expect{ described_class.new(:font_size => size) }.to_not raise_error
+      end
+    end
+
+    it 'does not raise an exception if no font size is passed in' do
+      expect{ described_class.new() }.to_not raise_error
+    end
+
+    it 'raises an exception when the font_size is not supported' do
+      possibilities = "7, 8, 9, 10, 11, 12, 14, 16, 18, 20, 22, 24, 26, 28, 36, 48, 72"
+
+      unavailable_sizes.each do |size|
+        message = "Font size #{size} is not supported. Please choose from: " + possibilities
+        expect{ described_class.new(:font_size => size) }.to raise_error(ArgumentError, message)
+      end
+    end
   end
 
   describe '.new' do
@@ -40,9 +62,35 @@ describe Hancock::Tab do
 
   describe "#to_h" do
     it "generates hash suitable for DocuSign submission" do
-      allow(subject).to receive(:page_number).and_return(5)
-      allow(subject).to receive(:coordinates).and_return([45,251])
-      allow(subject).to receive(:label).and_return('smarmy vikings')
+      subject = described_class.new(
+        :page_number        => 5,
+        :coordinates        => [45,251],
+        :label              => 'smarmy vikings',
+        :validation_pattern => 'dr. suess',
+        :validation_message => 'foodbart',
+        :width              => 10,
+        :font_size          => 26
+      )
+
+      expect(subject.to_h).to eq({
+        :tabLabel          => 'smarmy vikings',
+        :xPosition         => 45,
+        :yPosition         => 251,
+        :pageNumber        => 5,
+        :validationPattern => 'dr. suess',
+        :validationMessage => 'foodbart',
+        :width             => 10,
+        :fontSize          => 'Size26'
+      })
+    end
+
+    it "does not include nil values" do
+      subject = described_class.new(
+        :page_number => 5,
+        :coordinates => [45,251],
+        :label       => 'smarmy vikings'
+      )
+
       expect(subject.to_h).to eq({
         :tabLabel       => 'smarmy vikings',
         :xPosition      => 45,
