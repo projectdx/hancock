@@ -17,7 +17,6 @@ module Hancock
       :status
 
     attr_reader :envelope_identifier,
-      :docusign_recipient,
       :embedded_start_url
 
     validates :name, :email, :presence => true
@@ -127,12 +126,17 @@ module Hancock
       }
     end
 
+    def docusign_recipient
+      @docusign_recipient ||= DocusignRecipient.new(self)
+    end
+
     #
     # format recipient_type(symbol) for DocuSign
     #
     def self.docusign_recipient_type(recipient_type)
       DocusignRecipient.docusign_recipient_type(recipient_type)
     end
+
     def docusign_recipient_type
       DocusignRecipient.docusign_recipient_type(recipient_type)
     end
@@ -145,10 +149,6 @@ module Hancock
 
     def id_check_configuration_name
       id_check ? 'ID Check $' : nil
-    end
-
-    def docusign_recipient
-      @docusign_recipient ||= DocusignRecipient.new(self)
     end
 
     def access_method

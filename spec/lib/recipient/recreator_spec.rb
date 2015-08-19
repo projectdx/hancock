@@ -23,11 +23,11 @@ describe Hancock::Recipient::Recreator do
     before(:each) do
       allow(docusign_recipient).to receive(:tabs).and_return(double(:body => '{"rainbows":"butterflies"}'))
       allow(SecureRandom).to receive(:uuid).and_return('123-placeholder-id')
-      stub_request(:any, %r{.*demo.docusign.net/.*})
-        .to_return(:status => 200, :body => "", :headers => {})
+      load(File.join(File.dirname(__FILE__), "..", "..", "fixtures", "placeholder_stub.rb"))
     end
 
     it 'creates a placeholder recipient' do
+      expect(subject.placeholder_docusign_recipient).to receive(:create).once.and_call_original
       subject.recreate_with_tabs
 
       expect(WebMock).to have_requested(:post, "https://demo.docusign.net/restapi/v2/accounts/123456/envelopes/1234-5678-9012/recipients")
@@ -37,6 +37,7 @@ describe Hancock::Recipient::Recreator do
     end
 
     it 'deletes the recipient' do
+      expect(docusign_recipient).to receive(:delete).once.and_call_original
       subject.recreate_with_tabs
 
       expect(WebMock).to have_requested(:delete, "https://demo.docusign.net/restapi/v2/accounts/123456/envelopes/1234-5678-9012/recipients")
@@ -44,6 +45,7 @@ describe Hancock::Recipient::Recreator do
     end
 
     it 'recreates the recipient' do
+      expect(docusign_recipient).to receive(:create).once.and_call_original
       subject.recreate_with_tabs
 
       expect(WebMock).to have_requested(:post, "https://demo.docusign.net/restapi/v2/accounts/123456/envelopes/1234-5678-9012/recipients")
@@ -53,6 +55,7 @@ describe Hancock::Recipient::Recreator do
     end
 
     it 'recreates tabs for the recipient if there were any' do
+      expect(docusign_recipient).to receive(:create_tabs).with(subject.tabs).once.and_call_original
       subject.recreate_with_tabs
 
       expect(WebMock).to have_requested(:post, "https://demo.docusign.net/restapi/v2/accounts/123456/envelopes/1234-5678-9012/recipients/7890/tabs")
@@ -61,6 +64,7 @@ describe Hancock::Recipient::Recreator do
 
     it 'does not recreate tabs if there were originally none' do
       allow(docusign_recipient).to receive(:tabs).and_return(double(:body => '{}'))
+      expect(docusign_recipient).not_to receive(:create_tabs)
 
       subject.recreate_with_tabs
 
@@ -73,6 +77,19 @@ describe Hancock::Recipient::Recreator do
       expect(WebMock).to have_requested(:delete, "https://demo.docusign.net/restapi/v2/accounts/123456/envelopes/1234-5678-9012/recipients")
         .with(
           :body => "{\"signers\":[{\"recipientId\":\"123-placeholder-id\"}]}")
+    end
+
+    it 'handles timeouts (somewhat) gracefully' do
+      # receive delete 4 times due to retries
+      expect(docusign_recipient).to receive(:delete).exactly(4).times.and_call_original
+
+      stub_request(:delete, %r(https://demo.docusign.net/restapi/v2/accounts/123456/envelopes/.+/recipients)).to_timeout
+      begin
+        subject.recreate_with_tabs
+      rescue Timeout::Error => e
+        load(File.join(File.dirname(__FILE__), "..", "..", "fixtures", "placeholder_stub.rb"))
+        subject.recreate_with_tabs
+      end
     end
   end
 end
