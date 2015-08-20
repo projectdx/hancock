@@ -12,8 +12,8 @@ module Hancock
           if e.message.split(' - ')[1] == 'INVALID_RECIPIENT_ID'
             Hancock.logger.error("RECIPIENT RECREATION FAILED PREVIOUSLY, TABS LOST: #{e.message}. RECIPIENT: #{docusign_recipient}")
             # We deleted the recipient without recreating it previously.
-            # Probably a connection problem occured to DocuSign.
-            # Let this slide, tabs are probably gone T_T
+            # Probably got an error response from DocuSign.
+            # Let this slide to recover, tabs are probably gone T_T
           else
             Hancock.logger.error("ERROR FETCHING RECIPIENT TABS: #{e.message}. RECIPIENT: #{docusign_recipient}")
             raise e
