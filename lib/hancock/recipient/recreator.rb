@@ -10,10 +10,11 @@ module Hancock
           @tabs = JSON.parse(docusign_recipient.tabs.body)
         rescue Hancock::Request::RequestError => e
           if e.message.split(' - ')[1] == 'INVALID_RECIPIENT_ID'
-            Hancock.logger.error("RECIPIENT RECREATION FAILED PREVIOUSLY, TABS LOST: #{e.message}. RECIPIENT: #{docusign_recipient}")
             # We deleted the recipient without recreating it previously.
             # Probably got an error response from DocuSign.
-            # Let this slide to recover, tabs are probably gone T_T
+            # Let this slide to recover.
+            Hancock.logger.error("RECIPIENT RECREATION FAILED PREVIOUSLY, TABS LOST: #{e.message}. RECIPIENT: #{docusign_recipient}")
+            @tabs = [] # tabs are gone
           else
             Hancock.logger.error("ERROR FETCHING RECIPIENT TABS: #{e.message}. RECIPIENT: #{docusign_recipient}")
             raise e
@@ -32,24 +33,24 @@ module Hancock
 
         docusign_recipient.delete
         docusign_recipient.create
-        docusign_recipient.create_tabs(tabs) unless tabs.nil? || tabs.empty?
+        docusign_recipient.create_tabs(tabs) unless tabs.empty?
 
-        # loop over any existing placeholders and delete them
+        delete_existing_placholders
+      rescue Timeout::Error => e
+        retry if (tries -= 1) > 0
+        Hancock.logger.error("TIMEOUT WHILE RECREATING RECIPIENT: #{e.message}. RECIPIENT: #{docusign_recipient}")
+        raise e
+      rescue => e
+        Hancock.logger.error("ERROR RECREATING RECIPIENT: #{e.message}. RECIPIENT: #{docusign_recipient}")
+        raise e
+      end
+
+      def delete_existing_placholders
         Recipient.fetch_for_envelope(docusign_recipient.envelope_identifier).select do |recipient|
           recipient.email == placeholder_recipient.email
         end.each do |placeholder|
           placeholder.docusign_recipient.delete
         end
-      rescue Timeout::Error => e
-        if (tries -= 1) > 0
-          retry
-        else
-          Hancock.logger.error("TIMEOUT WHILE RECREATING RECIPIENT: #{e.message}. RECIPIENT: #{docusign_recipient}")
-          raise e
-        end
-      rescue => e
-        Hancock.logger.error("ERROR RECREATING RECIPIENT: #{e.message}. RECIPIENT: #{docusign_recipient}")
-        raise e
       end
 
       def placeholder_docusign_recipient

@@ -23,18 +23,19 @@ describe Hancock::Recipient::Recreator do
 
   subject { described_class.new(docusign_recipient) }
 
-  it 'catches INVALID_CLIENT_ID response when trying to get tabs during initialization' do
-    allow(docusign_recipient).to receive(:tabs).and_raise(Hancock::Request::RequestError.new("400 - INVALID_RECIPIENT_ID - A recipient ID is missing or invalid."))
-    expect{ subject.recreate_with_tabs }.not_to raise_error
-  end
+  describe 'during initialization' do
+    it 'catches INVALID_CLIENT_ID response when fetching tabs' do
+      allow(docusign_recipient).to receive(:tabs).and_raise(Hancock::Request::RequestError.new("400 - INVALID_RECIPIENT_ID - A recipient ID is missing or invalid."))
+      expect{ subject.recreate_with_tabs }.not_to raise_error
+    end
 
-  it 'does not ignore errors other than INVALID_CLIENT_ID during initialization' do
-    allow(docusign_recipient).to receive(:tabs).and_raise(Hancock::Request::RequestError.new("500 - STUFF_WENT_WRONG - BORKED!"))
-    expect{ subject.recreate_with_tabs }.to raise_error(Hancock::Request::RequestError)
+    it 'does not ignore errors other than INVALID_CLIENT_ID' do
+      allow(docusign_recipient).to receive(:tabs).and_raise(Hancock::Request::RequestError.new("500 - STUFF_WENT_WRONG - BORKED!"))
+      expect{ subject.recreate_with_tabs }.to raise_error(Hancock::Request::RequestError)
+    end
   end
 
   describe '#recreate_with_tabs' do
-
     it 'creates a placeholder recipient' do
       expect(subject.placeholder_docusign_recipient).to receive(:create).once.and_call_original
       subject.recreate_with_tabs
@@ -74,6 +75,17 @@ describe Hancock::Recipient::Recreator do
     it 'does not recreate tabs if there were originally none' do
       allow(docusign_recipient).to receive(:tabs).and_return(double(:body => '{}'))
       expect(docusign_recipient).not_to receive(:create_tabs)
+      expect(subject.tabs).to be_empty
+
+      subject.recreate_with_tabs
+
+      expect(WebMock).not_to have_requested(:post, "https://demo.docusign.net/restapi/v2/accounts/123456/envelopes/1234-5678-9012/recipients/7890/tabs")
+    end
+
+    it "keeps tabs empty and non-nil when recovering from previous error" do
+      allow(docusign_recipient).to receive(:tabs).and_raise(Hancock::Request::RequestError.new("400 - INVALID_RECIPIENT_ID - A recipient ID is missing or invalid."))
+      expect(docusign_recipient).not_to receive(:create_tabs)
+      expect(subject.tabs).to be_empty
 
       subject.recreate_with_tabs
 
