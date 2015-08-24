@@ -3,13 +3,15 @@ module Hancock
     class Recreator
       attr_reader :docusign_recipient, :tabs
 
+      IS_INVALID_RECIPIENT_ERROR = ->(e) { e.message.split(' - ')[1] == 'INVALID_RECIPIENT_ID' }
+
       def initialize(docusign_recipient)
         @docusign_recipient = docusign_recipient
 
         begin
           @tabs = JSON.parse(docusign_recipient.tabs.body)
         rescue Hancock::Request::RequestError => e
-          if e.message.split(' - ')[1] == 'INVALID_RECIPIENT_ID'
+          if IS_INVALID_RECIPIENT_ERROR[e]
             # We deleted the recipient without recreating it previously.
             # Probably got an error response from DocuSign.
             # Let this slide to recover.

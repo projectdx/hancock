@@ -1,9 +1,13 @@
 describe Hancock::Recipient::Recreator do
+  def reload_placeholder_stub
+    load(File.join(File.dirname(__FILE__), "..", "..", "fixtures", "placeholder_stub.rb"))
+  end
+
   before(:each) do
     allow(Hancock).to receive(:account_id).and_return(123456)
     allow(SecureRandom).to receive(:uuid).and_return('123-placeholder-id')
     allow(docusign_recipient).to receive(:tabs).and_return(double(:body => '{"rainbows":"butterflies"}'))
-    load(File.join(File.dirname(__FILE__), "..", "..", "fixtures", "placeholder_stub.rb"))
+    reload_placeholder_stub
   end
 
   let(:recipient) {
@@ -107,7 +111,7 @@ describe Hancock::Recipient::Recreator do
       begin
         subject.recreate_with_tabs
       rescue Timeout::Error => e
-        load(File.join(File.dirname(__FILE__), "..", "..", "fixtures", "placeholder_stub.rb"))
+        reload_placeholder_stub
         subject.recreate_with_tabs
       end
     end
@@ -118,7 +122,6 @@ describe Hancock::Recipient::Recreator do
     end
 
     it 'sends delete for all placeholder recipients' do
-      # need to produce a unique url for webmock
       allow(Hancock).to receive(:account_id).and_return(654321)
       expect(Hancock::Recipient).to receive(:fetch_for_envelope).once.and_call_original
 
