@@ -58,7 +58,12 @@ module Hancock
       end.flatten
     end
 
+    def update(params)
+      docusign_recipient.update(params.merge(:recipientId => identifier))
+    end
+
     def resend_email
+      # NOTE: this uses `.update` as a means to resend email
       if access_method == :remote
         # The API seems to require more than just recipientId
         docusign_recipient.update(

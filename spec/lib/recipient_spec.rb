@@ -105,6 +105,27 @@ describe Hancock::Recipient do
     end
   end
 
+  describe '#update' do
+    subject {
+      described_class.new(
+        :envelope_identifier => 'yuppie-kittens',
+        :identifier => 'hey-now'
+      )
+    }
+
+    it "updates the docusign_recipient" do
+      docusign_recipient = subject.send(:docusign_recipient)
+      expect(docusign_recipient).to receive(:update)
+        .with(
+          :recipientId => "hey-now",
+          :name => "new name",
+          :email => "new email"
+        )
+
+      subject.update(:name => "new name", :email => "new email")
+    end
+  end
+
   describe '#resend_email' do
     subject {
       described_class.new(
