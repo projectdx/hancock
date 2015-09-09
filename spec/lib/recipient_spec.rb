@@ -124,6 +124,18 @@ describe Hancock::Recipient do
 
       subject.update(:name => "new name", :email => "new email")
     end
+
+    it "updates the in-memory recipient" do
+      docusign_recipient = subject.send(:docusign_recipient)
+      allow(docusign_recipient).to receive(:update)
+        .with(
+          :recipientId => "hey-now",
+          :email => "new email"
+        )
+
+      subject.update(:email => "new email")
+      expect(subject.email).to eq "new email"
+    end
   end
 
   describe '#resend_email' do

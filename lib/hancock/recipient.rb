@@ -60,6 +60,9 @@ module Hancock
 
     def update(params)
       docusign_recipient.update(params.merge(:recipientId => identifier))
+      params.each {|key, value|
+        self.send(:"#{key}=", value)
+      }
     end
 
     def resend_email
