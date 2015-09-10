@@ -59,10 +59,8 @@ module Hancock
     end
 
     def update(params)
-      # update remote docusign recipient
       docusign_recipient.update(params.merge(:recipientId => identifier))
-      # update in-memory recipient if remote succeeded (only :name and :email for now)
-      params.slice(:name, :email).each {|key, value|
+      params.each {|key, value|
         self.send(:"#{key}=", value)
       }
     end
