@@ -59,7 +59,10 @@ module Hancock
     end
 
     def update(params)
-      docusign_recipient.update(params.merge(:recipientId => identifier))
+      docusign_recipient.update(
+        params.merge(:recipientId => identifier, :resend_envelope => false)
+      )
+
       params.each {|key, value|
         self.send(:"#{key}=", value)
       }

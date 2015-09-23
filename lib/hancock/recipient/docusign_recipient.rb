@@ -52,12 +52,13 @@ module Hancock
         )
       end
 
-      def update(resend_envelope: false, **attrs)
+      def update(params={})
+        resend_envelope = params.delete(:resend_envelope) { false }
         unless [true, false].include? resend_envelope
           raise ArgumentError.new('resend_envelope must be either true or false')
         end
 
-        data_to_update = attrs.present? ? attrs : to_hash
+        data_to_update = params.present? ? params : to_hash
 
         Hancock::Request.send_put_request(
           "/envelopes/#{envelope_identifier}/recipients?resend_envelope=#{resend_envelope}",

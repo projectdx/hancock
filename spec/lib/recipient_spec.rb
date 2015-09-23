@@ -119,7 +119,8 @@ describe Hancock::Recipient do
         .with(
           :recipientId => "hey-now",
           :name => "new name",
-          :email => "new email"
+          :email => "new email",
+          :resend_envelope => false
         )
 
       subject.update(:name => "new name", :email => "new email")
@@ -130,7 +131,8 @@ describe Hancock::Recipient do
       allow(docusign_recipient).to receive(:update)
         .with(
           :recipientId => "hey-now",
-          :email => "new email"
+          :email => "new email",
+          :resend_envelope => false
         )
 
       subject.update(:email => "new email")
