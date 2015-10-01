@@ -31,6 +31,17 @@ describe Hancock::Request do
         described_class.send_get_request('/something_exciting')
       }.to raise_error(Hancock::Request::RequestError, '404 - WANNA - An error message')
     end
+
+    it "raises an error if an error code is present regardless of http status" do
+      stub_request(:get, "https://demo.docusign.net/restapi/v2/accounts/123456/something_subtly_broken")
+        .to_return(
+          :status => 200,
+          :body => { :errorCode => "Oops", :message => "I'm good, no I'm not" }.to_json,
+          :headers => { "Content-Type" => 'application/json' })
+      expect {
+        described_class.send_get_request("/something_subtly_broken")
+      }.to raise_error(Hancock::Request::RequestError, "200 - Oops - I'm good, no I'm not")
+    end
   end
 
   describe '#send_delete_request' do
@@ -60,6 +71,17 @@ describe Hancock::Request do
       expect {
         described_class.send_delete_request('/something_exciting', '{}')
       }.to raise_error(Hancock::Request::RequestError, '404 - WANNA - An error message')
+    end
+
+    it "raises an error if an error code is present regardless of http status" do
+      stub_request(:delete, "https://demo.docusign.net/restapi/v2/accounts/123456/something_subtly_broken")
+        .to_return(
+          :status => 200,
+          :body => { :errorCode => "Oops", :message => "I'm good, no I'm not" }.to_json,
+          :headers => { "Content-Type" => 'application/json' })
+      expect {
+        described_class.send_delete_request("/something_subtly_broken", "{}")
+      }.to raise_error(Hancock::Request::RequestError, "200 - Oops - I'm good, no I'm not")
     end
   end
 
@@ -91,6 +113,17 @@ describe Hancock::Request do
         described_class.send_post_request('/something_exciting', 'alien sandwiches')
       }.to raise_error(Hancock::Request::RequestError, '404 - WANNA - An error message')
     end
+
+    it "raises an error if an error code is present regardless of http status" do
+      stub_request(:post, "https://demo.docusign.net/restapi/v2/accounts/123456/something_subtly_broken")
+        .to_return(
+          :status => 200,
+          :body => { :errorCode => "Oops", :message => "I'm good, no I'm not" }.to_json,
+          :headers => { "Content-Type" => 'application/json' })
+      expect {
+        described_class.send_post_request("/something_subtly_broken", "ignorance isn't bliss")
+      }.to raise_error(Hancock::Request::RequestError, "200 - Oops - I'm good, no I'm not")
+    end
   end
 
   describe '#send_put_request' do
@@ -121,6 +154,17 @@ describe Hancock::Request do
       expect {
         described_class.send_put_request('/something_exciting', 'you will rue bidets')
       }.to raise_error(Hancock::Request::RequestError, '404 - WANNA - An error message')
+    end
+
+    it "raises an error if an error code is present regardless of http status" do
+      stub_request(:put, "https://demo.docusign.net/restapi/v2/accounts/123456/something_subtly_broken")
+        .to_return(
+          :status => 200,
+          :body => { :errorCode => "Oops", :message => "I'm good, no I'm not" }.to_json,
+          :headers => { "Content-Type" => "application/json" })
+      expect {
+        described_class.send_put_request("/something_subtly_broken", "ignorance isn't bliss")
+      }.to raise_error(Hancock::Request::RequestError, "200 - Oops - I'm good, no I'm not")
     end
   end
 
