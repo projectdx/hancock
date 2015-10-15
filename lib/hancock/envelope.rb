@@ -7,7 +7,8 @@ module Hancock
     class AlreadySentError < StandardError; end
     class NotSavedYet < StandardError; end
 
-    attr_accessor :identifier, :status, :documents, :signature_requests, :email, :recipients, :status_changed_at
+    attr_accessor :identifier, :status, :documents, :signature_requests,
+      :email, :recipients, :status_changed_at, :program_identifier
 
     validates :status, :presence => true
     validates :documents, :presence => true
@@ -34,6 +35,7 @@ module Hancock
       @email = attributes[:email] || {}
       @reminder = attributes[:reminder]
       @expiration = attributes[:expiration]
+      @program_identifier = attributes[:program_identifier]
 
       @signature_requests = []
       if attributes[:signature_requests]
@@ -223,7 +225,8 @@ module Hancock
         :status => "#{status}",
         :documents => documents_for_params,
         :recipients => signature_requests_for_params,
-        :notification => notification_for_params
+        :notification => notification_for_params,
+        :custom_fields => build_program_identifier
       }
     end
 
@@ -297,6 +300,21 @@ module Hancock
 
     def document_validity
       check_collection_validity(:documents, Document)
+    end
+
+    def build_program_identifier
+      {
+        :customFields => {
+          :textCustomFields => [
+            {
+              :name => 'program_identifier',
+              :show => 'false',
+              :required => 'true',
+              :value => program_identifier
+            }
+          ]
+        }
+      }
     end
   end
 end
