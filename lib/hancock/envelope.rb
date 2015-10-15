@@ -226,7 +226,7 @@ module Hancock
         :documents => documents_for_params,
         :recipients => signature_requests_for_params,
         :notification => notification_for_params,
-        :custom_fields => build_program_identifier
+        :custom_fields => program_identifier_for_params
       }
     end
 
@@ -302,7 +302,7 @@ module Hancock
       check_collection_validity(:documents, Document)
     end
 
-    def build_program_identifier
+    def program_identifier_for_params
       {
         :customFields => {
           :textCustomFields => [
