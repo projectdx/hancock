@@ -589,13 +589,20 @@ describe Hancock::Envelope do
       it 'assembles body for posting' do
         allow(subject).to receive(:email).and_return({ :subject => 'fubject', :blurb => 'flurb'})
         allow(subject).to receive(:status).and_return('foo')
+
         doc1 = double(Hancock::Document, :multipart_form_part => 'Oh my', :to_request => 'horse')
         doc2 = double(Hancock::Document, :multipart_form_part => 'How wondrous', :to_request => 'pony')
         subject.documents = [doc1, doc2]
+
         allow(subject).to receive(:signature_requests_for_params).
           and_return('the signature requests')
+
         allow(subject).to receive(:notification_for_params).
           and_return('the_notification')
+
+        allow(subject).to receive(:program_identifier_for_params).
+          and_return('the_program_identifier')
+
         expect(subject.send(:form_post_body)).to eq(
           "\r\n"\
           "--MYBOUNDARY\r\nContent-Type: application/json\r\n"\
@@ -603,7 +610,8 @@ describe Hancock::Envelope do
           "{\"emailBlurb\":\"flurb\",\"emailSubject\":\"fubject\","\
           "\"status\":\"foo\",\"documents\":[\"horse\",\"pony\"],"\
           "\"recipients\":\"the signature requests\","\
-          "\"notification\":\"the_notification\"}\r\n"\
+          "\"notification\":\"the_notification\","\
+          "\"custom_fields\":\"the_program_identifier\"}\r\n"\
           "--MYBOUNDARY\r\nOh my\r\n"\
           "--MYBOUNDARY\r\nHow wondrous\r\n"\
           "--MYBOUNDARY--\r\n"
