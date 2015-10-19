@@ -65,7 +65,7 @@ module Hancock
         Recipient.new(
           :client_user_id      => placeholder_identifier, # Don't send an email
           :identifier          => placeholder_identifier,
-          :email               => 'placeholder@example.com',
+          :email               => Hancock.placeholder_email,
           :name                => 'Placeholder while recreating recipient',
           :envelope_identifier => docusign_recipient.envelope_identifier,
           :recipient_type      => docusign_recipient.recipient_type,

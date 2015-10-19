@@ -46,7 +46,7 @@ describe Hancock::Recipient::Recreator do
 
       expect(WebMock).to have_requested(:post, "https://demo.docusign.net/restapi/v2/accounts/123456/envelopes/1234-5678-9012/recipients")
         .with(
-          :body => "{\"signers\":[{\"clientUserId\":\"123-placeholder-id\",\"email\":\"placeholder@example.com\",\"name\":\"Placeholder while recreating recipient\",\"recipientId\":\"123-placeholder-id\",\"routingOrder\":2000,\"requireIdLookup\":true,\"idCheckConfigurationName\":\"ID Check $\",\"embeddedRecipientStartURL\":null}]}"
+          :body => "{\"signers\":[{\"clientUserId\":\"123-placeholder-id\",\"email\":\"#{Hancock.placeholder_email}\",\"name\":\"Placeholder while recreating recipient\",\"recipientId\":\"123-placeholder-id\",\"routingOrder\":2000,\"requireIdLookup\":true,\"idCheckConfigurationName\":\"ID Check $\",\"embeddedRecipientStartURL\":null}]}"
         )
     end
 

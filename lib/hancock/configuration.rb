@@ -1,7 +1,17 @@
 module Hancock
   module Configuration
     VALID_CONNECTION_KEYS  = [:endpoint, :api_version, :user_agent, :method].freeze
-    VALID_OPTIONS_KEYS     = [:oauth_token, :account_id, :format, :ca_file, :email_template, :event_notification, :boundary, :logger].freeze
+    VALID_OPTIONS_KEYS     = [
+      :oauth_token,
+      :account_id,
+      :format,
+      :ca_file,
+      :email_template,
+      :event_notification,
+      :boundary,
+      :logger,
+      :placeholder_email
+    ].freeze
 
     VALID_CONFIG_KEYS      = VALID_CONNECTION_KEYS + VALID_OPTIONS_KEYS
 
@@ -21,6 +31,8 @@ module Hancock
       :include_documents => false
     }
 
+    DEFAULT_PLACEHOLDER_EMAIL = 'placeholder@example.com'
+
     attr_accessor *VALID_CONFIG_KEYS
 
     def self.extended(base)
@@ -38,6 +50,7 @@ module Hancock
       self.email_template     = DEFAULT_EMAIL_TEMPLATE
       self.event_notification = DEFAULT_EVENT_NOTIFICATION
       self.boundary           = DEFAULT_BOUNDARY
+      self.placeholder_email  = DEFAULT_PLACEHOLDER_EMAIL
       self.logger             = Logger.new($stdout)
     end
 
