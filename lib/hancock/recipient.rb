@@ -46,7 +46,7 @@ module Hancock
             :client_user_id => envelope_recipient['clientUserId'],
             :email => envelope_recipient['email'],
             :envelope_identifier => envelope_identifier,
-            :id_check => nil,
+            :id_check => envelope_recipient['requireIdLookup'],
             :identifier => envelope_recipient['recipientId'],
             :name => envelope_recipient['name'],
             :routing_order => envelope_recipient['routingOrder'].to_i,
