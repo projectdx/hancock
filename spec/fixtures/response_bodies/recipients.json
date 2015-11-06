@@ -48,7 +48,7 @@
       "email": "darwin@example.com",
       "recipientId": "12",
       "recipientIdGuid": "e5eb4bce-c9f5-4487-91e4-8bb8fa0d638d",
-      "requireIdLookup": "false",
+      "requireIdLookup": "true",
       "userId": "c228b39c-72fb-471a-b2d5-935d53539278",
       "routingOrder": "1",
       "status": "completed",
