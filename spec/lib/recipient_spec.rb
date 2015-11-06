@@ -91,17 +91,25 @@ describe Hancock::Recipient do
   end
 
   describe '.fetch_for_envelope' do
-    it 'reloads recipients from DocuSign envelope' do
-      envelope = Hancock::Envelope.new(:identifier => 'a-crazy-envelope-id')
+    let(:envelope) { Hancock::Envelope.new(:identifier => 'a-crazy-envelope-id') }
+    let(:recipients) { described_class.fetch_for_envelope(envelope.identifier) }
+
+    before(:each) {
       stub_request(:get, 'https://demo.docusign.net/restapi/v2/accounts/123456/envelopes/a-crazy-envelope-id/recipients').
         to_return(:status => 200, :body => response_body('recipients'), :headers => {'Content-Type' => 'application/json'})
+    }
 
-      recipients = described_class.fetch_for_envelope(envelope.identifier)
+    it 'reloads recipients from DocuSign envelope' do
       expect(recipients.map(&:email)).
         to match_array(['darwin@example.com', 'salli@example.com'])
       expect(recipients.map(&:identifier)).
         to match_array(["12", "50"])
       expect(recipients.map(&:class).uniq).to eq [described_class]
+    end
+
+    it 'sets id_check to the current value of requireIdLookup when creating recipients' do
+      expect(recipients.map(&:id_check)).
+        to match_array(['true', 'false'])
     end
   end
 
