@@ -53,6 +53,22 @@ describe Hancock::Tab do
     end
   end
 
+  describe "#required" do
+    it 'is not set by default' do
+      expect(subject.required).to be_nil
+    end
+
+    it 'can be set to true' do
+      subject = described_class.new(:required => true)
+      expect(subject.required).to eq(true)
+    end
+
+    it 'can be set to false' do
+      subject = described_class.new(:required => false)
+      expect(subject.required).to eq(false)
+    end
+  end
+
   describe '#coordinates=' do
     it 'raises ArgumentError if not given an Array' do
       expect{subject.coordinates = nil}.to raise_error ArgumentError
@@ -69,7 +85,8 @@ describe Hancock::Tab do
         :validation_pattern => 'dr. suess',
         :validation_message => 'foodbart',
         :width              => 10,
-        :font_size          => 26
+        :font_size          => 26,
+        :required           => false
       )
 
       expect(subject.to_h).to eq({
@@ -80,7 +97,8 @@ describe Hancock::Tab do
         :validationPattern => 'dr. suess',
         :validationMessage => 'foodbart',
         :width             => 10,
-        :fontSize          => 'Size26'
+        :fontSize          => 'Size26',
+        :required          => false
       })
     end
 
@@ -88,7 +106,9 @@ describe Hancock::Tab do
       subject = described_class.new(
         :page_number => 5,
         :coordinates => [45,251],
-        :label       => 'smarmy vikings'
+        :label       => 'smarmy vikings',
+        :font_size   => nil,
+        :required    => nil
       )
 
       expect(subject.to_h).to eq({
