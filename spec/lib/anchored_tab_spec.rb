@@ -46,7 +46,8 @@ describe Hancock::AnchoredTab do
         :validation_message => 'foodbart',
         :validation_pattern => 'Dr. Suess',
         :width => 27,
-        :font_size => 48
+        :font_size => 48,
+        :optional => true
       )
 
       expect(subject.to_h).to eq({
@@ -58,7 +59,8 @@ describe Hancock::AnchoredTab do
         :validationPattern => 'Dr. Suess',
         :validationMessage => 'foodbart',
         :width => 27,
-        :fontSize => 'Size48'
+        :fontSize => 'Size48',
+        :optional => "true"
       })
     end
 
@@ -66,7 +68,8 @@ describe Hancock::AnchoredTab do
       subject = described_class.new(
         :page_number => 5,
         :coordinates => [45,251],
-        :anchor_text => 'smarmy vikings'
+        :anchor_text => 'smarmy vikings',
+        :optional => nil
       )
 
       expect(subject.to_h).to eq({

@@ -53,19 +53,19 @@ describe Hancock::Tab do
     end
   end
 
-  describe "#required" do
+  describe "#optional" do
     it 'is not set by default' do
-      expect(subject.required).to be_nil
+      expect(subject.optional).to be_nil
     end
 
-    it 'can be set to true' do
-      subject = described_class.new(:required => true)
-      expect(subject.required).to eq(true)
+    it "accepts a string" do
+      subject = described_class.new(:optional => "true")
+      expect(subject.optional).to eq("true")
     end
 
-    it 'can be set to false' do
-      subject = described_class.new(:required => false)
-      expect(subject.required).to eq(false)
+    it "accepts a boolean" do
+      subject = described_class.new(:optional => false)
+      expect(subject.optional).to eq("false")
     end
   end
 
@@ -86,7 +86,7 @@ describe Hancock::Tab do
         :validation_message => 'foodbart',
         :width              => 10,
         :font_size          => 26,
-        :required           => false
+        :optional           => false
       )
 
       expect(subject.to_h).to eq({
@@ -98,7 +98,7 @@ describe Hancock::Tab do
         :validationMessage => 'foodbart',
         :width             => 10,
         :fontSize          => 'Size26',
-        :required          => false
+        :optional          => "false"
       })
     end
 
@@ -108,7 +108,7 @@ describe Hancock::Tab do
         :coordinates => [45,251],
         :label       => 'smarmy vikings',
         :font_size   => nil,
-        :required    => nil
+        :optional    => nil
       )
 
       expect(subject.to_h).to eq({
