@@ -4,6 +4,21 @@ describe Hancock::Request do
     allow(Hancock).to receive(:oauth_token).and_return('AnAmazingOAuthTokenShinyAndPink')
   end
 
+  let(:response_with_error) {
+    { "errorCode" => "WANNA", "message" => "An error message" }
+  }
+
+  let(:response_with_nested_error) {
+    {
+      "someResultsForYou" => [{
+        "nestedStuff" => {
+          "errorCode" =>"REQU3STLY_NO-BUENo",
+          "message" => "Trust not the 200"
+        }
+      }]
+    }
+  }
+
   describe '#send_get_request' do
     it 'sends a request and receives a parsed body' do
       stub_request(:get, 'https://demo.docusign.net/restapi/v2/accounts/123456/something_exciting')
@@ -25,22 +40,22 @@ describe Hancock::Request do
       stub_request(:get, 'https://demo.docusign.net/restapi/v2/accounts/123456/something_exciting')
         .to_return(
           :status => 404,
-          :body => { :errorCode => 'WANNA', :message => 'An error message' }.to_json,
+          :body => response_with_error.to_json,
           :headers => { 'Content-Type' => 'application/json' })
       expect {
         described_class.send_get_request('/something_exciting')
-      }.to raise_error(Hancock::Request::RequestError, '404 - WANNA - An error message')
+      }.to raise_error(Hancock::Request::RequestError, "404 - #{response_with_error}")
     end
 
     it "raises an error if an error code is present regardless of http status" do
       stub_request(:get, "https://demo.docusign.net/restapi/v2/accounts/123456/something_subtly_broken")
         .to_return(
           :status => 200,
-          :body => { :errorCode => "Oops", :message => "I'm good, no I'm not" }.to_json,
+          :body => response_with_nested_error.to_json,
           :headers => { "Content-Type" => 'application/json' })
       expect {
         described_class.send_get_request("/something_subtly_broken")
-      }.to raise_error(Hancock::Request::RequestError, "200 - Oops - I'm good, no I'm not")
+      }.to raise_error(Hancock::Request::RequestError, "200 - #{response_with_nested_error}")
     end
   end
 
@@ -66,22 +81,22 @@ describe Hancock::Request do
       stub_request(:delete, 'https://demo.docusign.net/restapi/v2/accounts/123456/something_exciting')
         .to_return(
           :status => 404,
-          :body => { :errorCode => 'WANNA', :message => 'An error message' }.to_json,
+          :body => response_with_error.to_json,
           :headers => { 'Content-Type' => 'application/json' })
       expect {
         described_class.send_delete_request('/something_exciting', '{}')
-      }.to raise_error(Hancock::Request::RequestError, '404 - WANNA - An error message')
+      }.to raise_error(Hancock::Request::RequestError, "404 - #{response_with_error}")
     end
 
     it "raises an error if an error code is present regardless of http status" do
       stub_request(:delete, "https://demo.docusign.net/restapi/v2/accounts/123456/something_subtly_broken")
         .to_return(
           :status => 200,
-          :body => { :errorCode => "Oops", :message => "I'm good, no I'm not" }.to_json,
+          :body => response_with_nested_error.to_json,
           :headers => { "Content-Type" => 'application/json' })
       expect {
         described_class.send_delete_request("/something_subtly_broken", "{}")
-      }.to raise_error(Hancock::Request::RequestError, "200 - Oops - I'm good, no I'm not")
+      }.to raise_error(Hancock::Request::RequestError, "200 - #{response_with_nested_error}")
     end
   end
 
@@ -107,22 +122,22 @@ describe Hancock::Request do
       stub_request(:post, 'https://demo.docusign.net/restapi/v2/accounts/123456/something_exciting')
         .to_return(
           :status => 404,
-          :body => { :errorCode => 'WANNA', :message => 'An error message' }.to_json,
+          :body => response_with_error.to_json,
           :headers => { 'Content-Type' => 'application/json' })
       expect {
         described_class.send_post_request('/something_exciting', 'alien sandwiches')
-      }.to raise_error(Hancock::Request::RequestError, '404 - WANNA - An error message')
+      }.to raise_error(Hancock::Request::RequestError, "404 - #{response_with_error}")
     end
 
     it "raises an error if an error code is present regardless of http status" do
       stub_request(:post, "https://demo.docusign.net/restapi/v2/accounts/123456/something_subtly_broken")
         .to_return(
           :status => 200,
-          :body => { :errorCode => "Oops", :message => "I'm good, no I'm not" }.to_json,
+          :body => response_with_nested_error.to_json,
           :headers => { "Content-Type" => 'application/json' })
       expect {
         described_class.send_post_request("/something_subtly_broken", "ignorance isn't bliss")
-      }.to raise_error(Hancock::Request::RequestError, "200 - Oops - I'm good, no I'm not")
+      }.to raise_error(Hancock::Request::RequestError, "200 - #{response_with_nested_error}")
     end
   end
 
@@ -149,22 +164,22 @@ describe Hancock::Request do
       stub_request(:put, 'https://demo.docusign.net/restapi/v2/accounts/123456/something_exciting')
         .to_return(
           :status => 404,
-          :body => { :errorCode => 'WANNA', :message => 'An error message' }.to_json,
+          :body => response_with_error.to_json,
           :headers => { 'Content-Type' => 'application/json' })
       expect {
         described_class.send_put_request('/something_exciting', 'you will rue bidets')
-      }.to raise_error(Hancock::Request::RequestError, '404 - WANNA - An error message')
+      }.to raise_error(Hancock::Request::RequestError, "404 - #{response_with_error}")
     end
 
     it "raises an error if an error code is present regardless of http status" do
       stub_request(:put, "https://demo.docusign.net/restapi/v2/accounts/123456/something_subtly_broken")
         .to_return(
           :status => 200,
-          :body => { :errorCode => "Oops", :message => "I'm good, no I'm not" }.to_json,
+          :body => response_with_nested_error.to_json,
           :headers => { "Content-Type" => "application/json" })
       expect {
         described_class.send_put_request("/something_subtly_broken", "ignorance isn't bliss")
-      }.to raise_error(Hancock::Request::RequestError, "200 - Oops - I'm good, no I'm not")
+      }.to raise_error(Hancock::Request::RequestError, "200 - #{response_with_nested_error}")
     end
   end
 
