@@ -12,9 +12,9 @@ module Hancock
 
       Hancock.logger.info("#{type.upcase}: #{uri}\n#{options}")
 
-      if !response.success? || response["errorCode"].present?
+      if !response.success? || response.to_s.include?("errorCode")
         Hancock.logger.error("#{response.response.code}:\n#{response}")
-        fail RequestError, "#{response.response.code} - #{response['errorCode']} - #{response['message']}"
+        fail RequestError, "#{response.response.code} - #{response}"
       end
 
       Hancock.logger.debug("#{response.response.code}: #{response}")
