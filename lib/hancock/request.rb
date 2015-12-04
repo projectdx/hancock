@@ -12,7 +12,7 @@ module Hancock
 
       Hancock.logger.info("#{type.upcase}: #{uri}\n#{options}")
 
-      if !response.success? || response.to_s.include?("errorCode")
+      if !response.success? || self.has_error?(response)
         Hancock.logger.error("#{response.response.code}:\n#{response}")
         fail RequestError, "#{response.response.code} - #{response}"
       end
@@ -72,6 +72,27 @@ module Hancock
       end
 
       default_headers
+    end
+
+    def self.has_error?(response)
+      if response.content_type == "application/json"
+        self.includes_error_code?(JSON.parse(response.body))
+      end
+    end
+
+    def self.includes_error_code?(data)
+      case data
+      when Hash
+        if data.fetch("errorCode", "SUCCESS") != "SUCCESS"
+          true
+        else
+          data.values.any? { |element| includes_error_code?(element) }
+        end
+      when Array
+        data.any?{ |element| includes_error_code?(element) }
+      else
+        false
+      end
     end
   end
 end
