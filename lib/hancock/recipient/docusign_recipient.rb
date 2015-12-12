@@ -74,6 +74,7 @@ module Hancock
           :userName => recipient.name,
           :clientUserId => recipient.client_user_id
         }.to_json
+
         Hancock::Request.send_post_request(
           "/envelopes/#{envelope_identifier}/views/recipient",
           json_body

@@ -38,7 +38,7 @@ module Hancock
     end
 
     def self.fetch_for_envelope(envelope_identifier)
-      parsed_response = DocusignRecipient.all_for(envelope_identifier).parsed_response
+      parsed_response = DocusignRecipient.all_for(envelope_identifier)
 
       TYPES.map do |type|
         parsed_response[docusign_recipient_type(type)].map do |envelope_recipient|
@@ -105,7 +105,7 @@ module Hancock
         fail SigningUrlError, 'This recipient is not setup for in-person signing'
       end
 
-      docusign_recipient.signing_url(return_url).parsed_response['url']
+      docusign_recipient.signing_url(return_url)["url"]
     end
 
     def create(envelope_identifier: )

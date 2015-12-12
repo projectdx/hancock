@@ -117,58 +117,67 @@ describe Hancock::Request do
   describe "#send_request" do
     subject {
       described_class.new(
-        :type => :the_type,
-        :url => "whatever",
+        :type => :patch,
+        :url => "a_url",
         :custom_headers => {},
-        body: "the content"
+        :body => "the content"
       )
     }
 
     before(:each) do
-      allow(subject).to receive(:uri).and_return(:the_uri)
-      allow(subject).to receive(:headers).and_return(:the_headers)
+      allow(subject).to receive(:uri).and_return("the_uri")
+      allow(subject).to receive(:headers).and_return({ :some => "headers" })
     end
 
-    context "for successful requests" do
-      let(:httparty_response) {
-        double(
-          :success? => true,
-          :content_type => "application/json",
-          :body => "{}",
-          :response => double(:code => "200")
-        )
-      }
+    context "for JSON responses" do
+      body = '{ "a": "response" }'
 
       before(:each) do
-        allow(HTTParty).to receive(:send).and_return(httparty_response)
+        stub_request(:patch, /the_uri/)
+          .with(
+            :headers => { :some => "headers" },
+            :body => "the content"
+          )
+          .to_return(
+            :headers => { :content_type => "application/json" },
+            :body => body,
+          )
       end
 
-      it "sends the request via HTTParty" do
-        expect(HTTParty).to receive(:send).with(
-          :the_type,
-          :the_uri,
-          { :headers => :the_headers, :body => "the content" }
-        ).and_return(httparty_response)
+      it "returns the parsed response" do
+        expect(subject.send_request).to eq(JSON.parse(body))
+      end
+    end
 
-        subject.send_request
+    context "for non-JSON responses" do
+      body = '{ "a": "response" }'
+
+      before(:each) do
+        stub_request(:patch, /the_uri/)
+          .with(
+            :headers => { :some => "headers" },
+            :body => "the content"
+          )
+          .to_return(
+            :body => body,
+          )
       end
 
-      it "returns the HTTParty response" do
-        expect(subject.send_request).to eq(httparty_response)
+      it "returns the body" do
+        expect(subject.send_request).to eq(body)
       end
     end
 
     context "for requests with a non-200-level HTTP status" do
-      let(:httparty_response) {
-        double(
-          :success? => false,
-          :body => "{}",
-          :response => double(:code => "whatever")
-        )
-      }
-
       before(:each) do
-        allow(HTTParty).to receive(:send).and_return(httparty_response)
+        stub_request(:patch, /the_uri/)
+          .with(
+            :headers => { :some => "headers" },
+            :body => "the content"
+          )
+          .to_return(
+            :status => 404,
+          )
       end
 
       it "raises an exception" do
@@ -177,23 +186,21 @@ describe Hancock::Request do
     end
 
     context "for requests that contain an errorCode" do
-      let(:httparty_response) {
-        double(
-          :success? => true,
-          :content_type => "application/json",
-          :body => body,
-          :response => double(:code => "whatever")
-        )
-      }
-
       before(:each) do
-        allow(HTTParty).to receive(:send).and_return(httparty_response)
+        stub_request(:patch, /the_uri/)
+          .with(
+            :headers => { :some => "headers" },
+            :body => "the content"
+          )
+          .to_return(
+            :headers => { :content_type => "application/json" },
+            :status => 200,
+            :body => body
+          )
       end
 
       context "when the errorCode is a top-level key" do
-        let(:body) {
-          { "errorCode" =>"REQU3STLY_NO-BUENo" }.to_json
-        }
+        let(:body) { '{ "errorCode": "REQU3STLY_NO-BUENo" }' }
 
         it "raises an exception" do
           expect{ subject.send_request }.to raise_error(Hancock::Request::RequestError)

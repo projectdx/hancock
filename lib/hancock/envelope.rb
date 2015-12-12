@@ -89,7 +89,7 @@ module Hancock
     def change_status!(status)
       fail NotSavedYet unless identifier
       put_body = { :status => status }.to_json
-      response = Hancock::Request.send_put_request("/envelopes/#{identifier}", put_body)
+      Hancock::Request.send_put_request("/envelopes/#{identifier}", put_body)
       reload!
     end
 
@@ -118,8 +118,7 @@ module Hancock
     end
 
     def current_routing_order
-      Recipient::DocusignRecipient.all_for(identifier)
-        .parsed_response['currentRoutingOrder'].to_i
+      Recipient::DocusignRecipient.all_for(identifier)["currentRoutingOrder"].to_i
     end
 
     def notification_for_params

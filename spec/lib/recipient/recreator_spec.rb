@@ -103,19 +103,6 @@ describe Hancock::Recipient::Recreator do
         .with(:body => "{\"signers\":[{\"recipientId\":\"123-placeholder-id\"}]}")
     end
 
-    it 'retries 3 times on timeout errors' do
-      # receive delete 4 times due to 3 retries and 1 success
-      expect(docusign_recipient).to receive(:delete).exactly(4).times.and_call_original
-
-      stub_request(:delete, %r(https://demo.docusign.net/restapi/v2/accounts/123456/envelopes/.+/recipients)).to_timeout
-      begin
-        subject.recreate_with_tabs
-      rescue Timeout::Error => e
-        reload_placeholder_stub
-        subject.recreate_with_tabs
-      end
-    end
-
     it 'does not retry errors other than Timeout' do
       allow(Hancock::Recipient).to receive(:fetch_for_envelope).and_raise(Hancock::Request::RequestError.new("500 - STUFF_WENT_WRONG - BORKED!"))
       expect{ subject.recreate_with_tabs }.to raise_error(Hancock::Request::RequestError)

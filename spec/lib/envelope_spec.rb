@@ -98,7 +98,7 @@ describe Hancock::Envelope do
         }.to raise_error(described_class::NotSavedYet)
       end
 
-      it 'raises a DocusignError with the returned message if not successful' do
+      it "raises an error with the returned message if not successful" do
         response = {"errorCode" => "UNEDUCATED_FELON_ERROR", "message" => "Umbrella smoothie is bad idea."}
         subject.identifier = 'smokey-heaven'
         stub_status_change('smokey-heaven', 'floosh', 'failed_status_change', 400)
@@ -316,12 +316,12 @@ describe Hancock::Envelope do
       end
 
       context 'unsuccessful send' do
-        let!(:request_stub) { stub_envelope_creation('send_envelope', 'failed_creation', 500) }
         let(:response) {
           {"errorCode" => "YOU_ARE_A_BANANA", "message" => "Bananas are not allowed to bank."}
         }
 
         it 'raises a DocusignError with the returned message if not successful' do
+          stub_envelope_creation('send_envelope', 'failed_creation', 500)
           expect {
             subject.send!
           }.to raise_error(Hancock::Request::RequestError, "500 - #{response}")

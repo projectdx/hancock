@@ -1,4 +1,5 @@
-require 'httparty'
+require 'faraday'
+require 'faraday_middleware'
 
 module Hancock
   class Request
@@ -50,34 +51,39 @@ module Hancock
     end
 
     def send_request
-      @response = HTTParty.send(type, uri, options)
-
-      Hancock.logger.info("#{type.upcase}: #{uri}\n#{options}")
-
-      unless success?
-        Hancock.logger.error("#{response.response.code}:\n#{response}")
-        fail RequestError, "#{response.response.code} - #{response}"
+      @response = connection.send(type) do |req|
+        req.url(uri)
+        req.headers = headers
+        req.body = body if body
       end
 
-      Hancock.logger.debug("#{response.response.code}: #{response}")
+      Hancock.logger.info("#{type.upcase}: #{uri}\n{headers:#{headers}},body:#{body}}")
 
-      response
+      unless success?
+        Hancock.logger.error("#{response_status}:\n#{parsed_response}")
+        fail RequestError, "#{response_status} - #{parsed_response}"
+      end
+
+      Hancock.logger.debug("#{response_status}: #{parsed_response}")
+
+      parsed_response || response_body
     end
 
     private
+
+    def connection
+      Faraday.new do |builder|
+        builder.use FaradayMiddleware::FollowRedirects, limit: 5
+        builder.use Faraday::Response::Logger
+        builder.adapter Faraday.default_adapter
+      end
+    end
 
     def default_headers
       {
         'Accept' => 'application/json',
         'Authorization' => "bearer #{Hancock.oauth_token}",
         'Content-Type' => 'application/json'
-      }
-    end
-
-    def options
-      {
-        :headers => headers,
-        :body => body
       }
     end
 
@@ -90,9 +96,29 @@ module Hancock
     end
 
     def has_error?
-      if response.content_type == "application/json"
-        includes_error_code?(JSON.parse(response.body))
+      includes_error_code?(parsed_response)
+    end
+
+    def parsed_response
+      if response_headers["content-type"] == "application/json"
+        JSON.parse(response_body)
       end
+    end
+
+    def response_content_type
+      response_headers["content_type"]
+    end
+
+    def response_status
+      response.env.status
+    end
+
+    def response_headers
+      response.env.response_headers
+    end
+
+    def response_body
+      response.env.body
     end
 
     def includes_error_code?(data)
