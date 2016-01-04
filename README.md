@@ -2,6 +2,8 @@ Hancock Signature Gem
 =========================
 Gem for submitting documents to DocuSign with electronic signature tabs.
 
+[![Build Status](https://travis-ci.org/renewablefunding/hancock.svg)](https://travis-ci.org/renewablefunding/hancock)
+
 ## TODO:
 
 * Allow sending of previously saved envelopes (right now `#save` followed by `#send!` just generates a new envelope)
