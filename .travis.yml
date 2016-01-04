@@ -1,0 +1,10 @@
+language: ruby
+env:
+  global:
+  - TRAVIS_ENV=true
+before_script:
+script: bundle exec rake
+rvm:
+- 2.1.7
+sudo: false
+cache: bundler
