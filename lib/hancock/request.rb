@@ -74,7 +74,7 @@ module Hancock
     def connection
       Faraday.new do |builder|
         builder.use FaradayMiddleware::FollowRedirects, limit: 5
-        builder.use Faraday::Response::Logger
+        builder.response :logger, Hancock.logger
         builder.adapter Faraday.default_adapter
       end
     end

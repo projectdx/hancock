@@ -25,6 +25,7 @@ module Hancock
     DEFAULT_CA_FILE        = nil
     DEFAULT_FORMAT         = :json
     DEFAULT_EMAIL_TEMPLATE = {}
+    DEFAULT_LOGGER         = Logger.new($stdout)
     DEFAULT_EVENT_NOTIFICATION = {
       :logging_enabled => false,
       :uri => 'http://domain.com/hancock/process_callback',
@@ -51,7 +52,7 @@ module Hancock
       self.event_notification = DEFAULT_EVENT_NOTIFICATION
       self.boundary           = DEFAULT_BOUNDARY
       self.placeholder_email  = DEFAULT_PLACEHOLDER_EMAIL
-      self.logger             = Logger.new($stdout)
+      self.logger             = DEFAULT_LOGGER
     end
 
     def configure
