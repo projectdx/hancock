@@ -139,7 +139,7 @@ describe Hancock::Request do
             :body => "the content"
           )
           .to_return(
-            :headers => { :content_type => "application/json" },
+            :headers => { :content_type => "application/json; charset=utf-8" },
             :body => body,
           )
       end

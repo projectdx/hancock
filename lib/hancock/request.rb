@@ -100,7 +100,7 @@ module Hancock
     end
 
     def parsed_response
-      if response_headers["content-type"] == "application/json"
+      if /application\/json/.match(response_headers["content-type"])
         JSON.parse(response_body)
       end
     end
