@@ -4,10 +4,17 @@ module Hancock
 
     validates :name, :extension, :presence => true
     validate :has_either_data_or_file
+    validate :data_meets_minimum_size_requirement
 
     def has_either_data_or_file
       unless file.present? ^ data.present? # XOR
         errors.add(:base, 'must have either data or file but not both')
+      end
+    end
+
+    def data_meets_minimum_size_requirement
+      unless data_size > min_document_data_size
+        errors.add(:base, 'Data size of file #{name} is: #{data_size}. Minimum size is: #{min_document_data_size}')
       end
     end
 
@@ -63,6 +70,10 @@ module Hancock
     def generate_extension
       return File.basename(@file).split('.').last if @file
       return File.basename(@name).split('.').last if @name
+    end
+
+    def data_size
+      data.bytesize
     end
   end
 end
