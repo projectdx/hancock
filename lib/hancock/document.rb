@@ -13,7 +13,7 @@ module Hancock
     end
 
     def data_meets_minimum_size_requirement
-      unless data_size > min_document_data_size || !data.present?
+      unless !data.present? || data_size > Hancock.min_document_data_size 
         errors.add(:base, 'Data size of file #{name} is: #{data_size}. Minimum size is: #{min_document_data_size}')
       end
     end
@@ -73,7 +73,7 @@ module Hancock
     end
 
     def data_size
-      data.bytesize
+      data.bytesize if data
     end
   end
 end
