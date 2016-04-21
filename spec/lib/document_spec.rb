@@ -31,6 +31,13 @@ describe Hancock::Document do
         expect(subject.errors[:base]).to be_empty
       end
 
+      it 'should be invalid if data is too small' do
+        allow(Hancock).to receive(:min_document_data_size).and_return(20)
+        subject.file = nil
+        subject.valid?
+        expect(subject.errors[:base]).not_to be_empty
+      end
+
       it 'should be invalid if file' do
         subject.file = 'squishy bits'
         subject.valid?
