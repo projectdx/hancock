@@ -4,6 +4,7 @@ require_relative 'recipient/recreator'
 module Hancock
   class Recipient < Hancock::Base
     SigningUrlError = Class.new(StandardError)
+    ResendEmailError = Class.new(StandardError)
 
     TYPES = [:agent, :carbon_copy, :certified_delivery, :editor, :in_person_signer, :intermediary, :signer]
 
@@ -68,6 +69,12 @@ module Hancock
     end
 
     def resend_email
+      # Check that envelope is in a state that allows email resending
+      # to occur.
+      raise ResendEmailError.new(
+        "Cannot resend email, envelope is in a terminal state."
+      ) if ["signed", "completed", "voided"].include?( envelope.status.downcase )
+
       # NOTE: this uses `.update` as a means to resend email
       if access_method == :remote
         # The API seems to require more than just recipientId
@@ -153,6 +160,10 @@ module Hancock
 
     def access_method
       client_user_id.nil? ? :remote : :embedded
+    end
+
+    def envelope
+      @envelope ||= Envelope.find(envelope_identifier)
     end
   end
 end
