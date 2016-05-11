@@ -18,7 +18,7 @@ describe Hancock::Envelope do
     end
 
     it { is_expected.to have_valid(:status).when('yay look a status') }
-    it { is_expected.not_to have_valid(:status).when('', nil) }
+    it { is_expected.not_to have_valid(:status).when("", nil) }
     it { is_expected.to have_valid(:recipients).when([recipient]) }
     it { is_expected.not_to have_valid(:recipients).when([], nil, [:not_a_recipient], [association(Hancock::Recipient, :validity => false)]) }
     it { is_expected.to have_valid(:documents).when([association(Hancock::Document)]) }
@@ -627,6 +627,43 @@ describe Hancock::Envelope do
         .and_return(double(:parsed_response => parsed_body))
 
       expect(subject.viewing_url).to eq('https://demo.docusign.net/linky-linky')
+    end
+  end
+
+  describe "#in_terminal_state?" do
+    context "envelope in non-terminal state" do
+      subject { described_class.new(status: "sent") }
+
+      it "returns true if status is in list" do
+        expect(subject.in_terminal_state?).to be_falsey
+      end
+    end
+
+    context "envelope in terminal state" do
+      subject { described_class.new(status: "voided") }
+
+      it "returns false if status is not in list" do
+        expect(subject.in_terminal_state?).to be_truthy
+      end
+    end
+  end
+
+
+  describe "#in_editable_state?" do
+    context "envelope in editable state" do
+      subject { described_class.new(status: "correct") }
+
+      it "returns true if status is in list" do
+        expect(subject.in_editable_state?).to be_truthy
+      end
+    end
+
+    context "envelope in non-editable state" do
+      subject { described_class.new(status: "voided") }
+
+      it "returns false if status is not in list" do
+        expect(subject.in_editable_state?).to be_falsey
+      end
     end
   end
 end

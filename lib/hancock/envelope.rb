@@ -137,6 +137,14 @@ module Hancock
       docusign_envelope.viewing_url.parsed_response['url']
     end
 
+    def in_editable_state?
+      ["created", "sent", "delivered", "correct"].include?( status.to_s.downcase )
+    end
+
+    def in_terminal_state?
+      ["completed", "signed", "voided"].include?( status.to_s.downcase )
+    end
+
     private
 
     # CarbonCopy recipients who have a clientUserId cannot be added at creation
