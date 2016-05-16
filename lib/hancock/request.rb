@@ -57,7 +57,7 @@ module Hancock
         req.body = body if body
       end
 
-      Hancock.logger.info("#{type.upcase}: #{uri}\n{headers:#{headers}},body:#{body}}")
+      Hancock.logger.info("#{type.upcase}: #{uri}\n{headers:#{headers}}")
 
       unless success?
         Hancock.logger.error("#{response_status}:\n#{parsed_response}")
