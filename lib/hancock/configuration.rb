@@ -10,7 +10,8 @@ module Hancock
       :event_notification,
       :boundary,
       :logger,
-      :placeholder_email
+      :placeholder_email,
+      :minimum_document_data_size
     ].freeze
 
     VALID_CONFIG_KEYS      = VALID_CONNECTION_KEYS + VALID_OPTIONS_KEYS
@@ -33,6 +34,7 @@ module Hancock
     }
 
     DEFAULT_PLACEHOLDER_EMAIL = 'placeholder@example.com'
+    DEFAULT_MINIMUM_DOCUMENT_DATA_SIZE = 0
 
     attr_accessor *VALID_CONFIG_KEYS
 
@@ -41,18 +43,19 @@ module Hancock
     end
 
     def reset
-      self.endpoint           = DEFAULT_ENDPOINT
-      self.api_version        = DEFAULT_API_VERSION
-      self.method             = DEFAULT_METHOD
-      self.oauth_token        = DEFAULT_OAUTH_TOKEN
-      self.account_id         = DEFAULT_ACCOUNT_ID
-      self.format             = DEFAULT_FORMAT
-      self.ca_file            = DEFAULT_CA_FILE
-      self.email_template     = DEFAULT_EMAIL_TEMPLATE
-      self.event_notification = DEFAULT_EVENT_NOTIFICATION
-      self.boundary           = DEFAULT_BOUNDARY
-      self.placeholder_email  = DEFAULT_PLACEHOLDER_EMAIL
-      self.logger             = DEFAULT_LOGGER
+      self.endpoint                   = DEFAULT_ENDPOINT
+      self.api_version                = DEFAULT_API_VERSION
+      self.method                     = DEFAULT_METHOD
+      self.oauth_token                = DEFAULT_OAUTH_TOKEN
+      self.account_id                 = DEFAULT_ACCOUNT_ID
+      self.format                     = DEFAULT_FORMAT
+      self.ca_file                    = DEFAULT_CA_FILE
+      self.email_template             = DEFAULT_EMAIL_TEMPLATE
+      self.event_notification         = DEFAULT_EVENT_NOTIFICATION
+      self.boundary                   = DEFAULT_BOUNDARY
+      self.placeholder_email          = DEFAULT_PLACEHOLDER_EMAIL
+      self.logger                     = DEFAULT_LOGGER
+      self.minimum_document_data_size = DEFAULT_MINIMUM_DOCUMENT_DATA_SIZE
     end
 
     def configure
