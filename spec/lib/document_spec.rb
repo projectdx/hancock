@@ -35,7 +35,7 @@ describe Hancock::Document do
         allow(Hancock).to receive(:min_document_data_size).and_return(20)
         subject.file = nil
         subject.valid?
-        expect(subject.errors[:base]).not_to be_empty
+        expect(subject.errors[:base].first).to eq("Data size is: 12 bytes. Minimum size is: 20.")
       end
 
       it 'should be invalid if file' do
