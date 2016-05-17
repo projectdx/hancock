@@ -9,19 +9,19 @@ describe Hancock::Configuration do
         :subject => 'subject from configuration',
         :blurb => 'blurb from configuration'
       },
-      :min_document_data_size => 10000
+      :minimum_document_data_size => 10000
     }
   end
 
 
   before do
     Hancock.configure do |config|
-      config.oauth_token            = config_hash[:oauth_token]
-      config.account_id             = config_hash[:account_id]
-      config.endpoint               = config_hash[:endpoint]
-      config.api_version            = config_hash[:api_version]
-      config.email_template         = config_hash[:email_template]
-      config.min_document_data_size = config_hash[:min_document_data_size]
+      config.oauth_token                = config_hash[:oauth_token]
+      config.account_id                 = config_hash[:account_id]
+      config.endpoint                   = config_hash[:endpoint]
+      config.api_version                = config_hash[:api_version]
+      config.email_template             = config_hash[:email_template]
+      config.minimum_document_data_size = config_hash[:minimum_document_data_size]
     end
   end
 
@@ -52,8 +52,8 @@ describe Hancock::Configuration do
       expect(Hancock.email_template[:blurb]).to eq('blurb from configuration')
     end
 
-    it 'should change default min_document_data_size' do
-      expect(Hancock.min_document_data_size).to eq(10000)
+    it 'should change default minimum_document_data_size' do
+      expect(Hancock.minimum_document_data_size).to eq(10000)
     end
   end
 end
