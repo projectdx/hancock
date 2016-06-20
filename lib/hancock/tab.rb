@@ -19,6 +19,7 @@ module Hancock
       @width              = attributes[:width]
       @font_size          = attributes[:font_size]
       @optional           = attributes[:optional].to_s unless attributes[:optional].nil? # for Signer Attachment Tag
+      @tab_id             = attributes[:tab_id]
 
       unless acceptable_font_sizes.include?(font_size)
         raise ArgumentError, "Font size #{font_size} is not supported. Please choose from: #{AVAILABLE_FONT_SIZES.join(', ')}"
@@ -35,7 +36,8 @@ module Hancock
         :validationMessage  => validation_message,
         :width              => width,
         :fontSize           => docusign_font_size(font_size),
-        :optional           => optional
+        :optional           => optional,
+        :tabId              => tab_id
       }.reject{ |_,value| value.nil? }
     end
 
