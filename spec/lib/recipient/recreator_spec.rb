@@ -167,7 +167,7 @@ describe Hancock::Recipient::Recreator do
     describe 'during initialization' do
       it 'sets tabs successfully from parsed JSON response' do
         expect { subject }.not_to raise_error
-        expect(docusign_recipient.tabs).to be_a(Hash)
+        expect(subject.tabs).to be_a(Hash)
       end
     end
   end
