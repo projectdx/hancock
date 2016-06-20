@@ -631,8 +631,14 @@ describe Hancock::Envelope do
   end
 
   describe "#in_terminal_state?" do
+    subject { described_class.new(status: status) }
+
+    before :each do
+      stub_const("#{described_class}::TERMINAL_STATUSES", ["banana"])
+    end
+
     context "envelope in non-terminal state" do
-      subject { described_class.new(status: "sent") }
+      let(:status) { "sent" }
 
       it "returns true if status is in list" do
         expect(subject.in_terminal_state?).to be_falsey
@@ -640,7 +646,7 @@ describe Hancock::Envelope do
     end
 
     context "envelope in terminal state" do
-      subject { described_class.new(status: "voided") }
+      let(:status) { "banana" }
 
       it "returns false if status is not in list" do
         expect(subject.in_terminal_state?).to be_truthy
@@ -650,8 +656,14 @@ describe Hancock::Envelope do
 
 
   describe "#in_editable_state?" do
+    subject { described_class.new(status: status) }
+
+    before :each do
+      stub_const("#{described_class}::EDITABLE_STATUSES", ["banana"])
+    end
+
     context "envelope in editable state" do
-      subject { described_class.new(status: "correct") }
+      let(:status) { "banana" }
 
       it "returns true if status is in list" do
         expect(subject.in_editable_state?).to be_truthy
@@ -659,7 +671,7 @@ describe Hancock::Envelope do
     end
 
     context "envelope in non-editable state" do
-      subject { described_class.new(status: "voided") }
+      let(:status) { "voided" }
 
       it "returns false if status is not in list" do
         expect(subject.in_editable_state?).to be_falsey

@@ -37,7 +37,7 @@ describe Hancock::Recipient::Recreator do
           Hancock::Request::RequestError.new("400 - INVALID_RECIPIENT_ID - A recipient ID is missing or invalid.")
         )
 
-        expect{ subject.recreate_with_tabs }.not_to raise_error
+        subject
       end
 
       it 'does not ignore errors other than INVALID_CLIENT_ID' do
@@ -45,7 +45,7 @@ describe Hancock::Recipient::Recreator do
           Hancock::Request::RequestError.new("500 - STUFF_WENT_WRONG - BORKED!")
         )
 
-        expect{ subject.recreate_with_tabs }.to raise_error(Hancock::Request::RequestError)
+        expect{ subject }.to raise_error(Hancock::Request::RequestError)
       end
     end
 
@@ -56,7 +56,20 @@ describe Hancock::Recipient::Recreator do
 
         expect(WebMock).to have_requested(:post, "https://demo.docusign.net/restapi/v2/accounts/123456/envelopes/1234-5678-9012/recipients")
           .with(
-            :body => "{\"signers\":[{\"clientUserId\":\"123-placeholder-id\",\"email\":\"#{Hancock.placeholder_email}\",\"name\":\"Placeholder while recreating recipient\",\"recipientId\":\"123-placeholder-id\",\"routingOrder\":2000,\"requireIdLookup\":true,\"idCheckConfigurationName\":\"ID Check $\",\"embeddedRecipientStartURL\":null}]}"
+            :body => {
+              signers: [
+                {
+                  clientUserId: "123-placeholder-id",
+                  email: Hancock.placeholder_email,
+                  name: "Placeholder while recreating recipient",
+                  recipientId: "123-placeholder-id",
+                  routingOrder: 2000,
+                  requireIdLookup: true,
+                  idCheckConfigurationName: "ID Check $",
+                  embeddedRecipientStartURL: nil
+                }
+              ]
+            }.to_json
           )
       end
 
@@ -65,7 +78,7 @@ describe Hancock::Recipient::Recreator do
         subject.recreate_with_tabs
 
         expect(WebMock).to have_requested(:delete, "https://demo.docusign.net/restapi/v2/accounts/123456/envelopes/1234-5678-9012/recipients")
-          .with(:body => "{\"signers\":[{\"recipientId\":\"7890\"}]}")
+          .with("body" => { signers: [{ recipientId: "7890" }]}.to_json)
       end
 
       it 'recreates the recipient' do
@@ -74,7 +87,20 @@ describe Hancock::Recipient::Recreator do
 
         expect(WebMock).to have_requested(:post, "https://demo.docusign.net/restapi/v2/accounts/123456/envelopes/1234-5678-9012/recipients")
           .with(
-            :body => "{\"signers\":[{\"clientUserId\":\"7890\",\"email\":\"actual_recipient@example.com\",\"name\":\"Fred Flinstone\",\"recipientId\":\"7890\",\"routingOrder\":2000,\"requireIdLookup\":true,\"idCheckConfigurationName\":\"ID Check $\",\"embeddedRecipientStartURL\":\"place to start!\"}]}"
+            :body => {
+              signers: [
+                {
+                  clientUserId: "7890",
+                  email: "actual_recipient@example.com",
+                  name: "Fred Flinstone",
+                  recipientId: "7890",
+                  routingOrder: 2000,
+                  requireIdLookup: true,
+                  idCheckConfigurationName: "ID Check $",
+                  embeddedRecipientStartURL: "place to start!"
+                }
+              ]
+            }.to_json
           )
       end
 
@@ -83,7 +109,7 @@ describe Hancock::Recipient::Recreator do
         subject.recreate_with_tabs
 
         expect(WebMock).to have_requested(:post, "https://demo.docusign.net/restapi/v2/accounts/123456/envelopes/1234-5678-9012/recipients/7890/tabs")
-          .with(:body => "{\"rainbows\":\"butterflies\"}")
+          .with(:body => { rainbows: "butterflies" })
       end
 
       it 'does not recreate tabs if there were originally none' do
@@ -110,7 +136,7 @@ describe Hancock::Recipient::Recreator do
         subject.recreate_with_tabs
 
         expect(WebMock).to have_requested(:delete, "https://demo.docusign.net/restapi/v2/accounts/123456/envelopes/1234-5678-9012/recipients")
-          .with(:body => "{\"signers\":[{\"recipientId\":\"123-placeholder-id\"}]}")
+          .with(:body => { signers: [{ recipientId: "123-placeholder-id" }] }.to_json)
       end
 
       it 'does not retry errors other than Timeout' do
@@ -124,7 +150,8 @@ describe Hancock::Recipient::Recreator do
 
         subject.recreate_with_tabs
         expect(a_request(:delete, "https://demo.docusign.net/restapi/v2/accounts/654321/envelopes/1234-5678-9012/recipients")
-          .with(:body => "{\"signers\":[{\"recipientId\":\"123-placeholder-id\"}]}")).to have_been_made.times(3)
+          .with(:body => { signers:[{ recipientId: "123-placeholder-id" }] }.to_json)
+        ).to have_been_made.times(3)
       end
     end
   end
@@ -134,7 +161,7 @@ describe Hancock::Recipient::Recreator do
       WebMock.stub_request(
         :get,
         "https://demo.docusign.net/restapi/v2/accounts/123456/envelopes/1234-5678-9012/recipients/7890/tabs"
-      ).to_return(status: 200, body: "{\"rainbows\":\"butterflies\"}", headers: { "content-type" => "application/json"})
+      ).to_return(status: 200, body: { rainbows: "butterflies" }.to_json, headers: { "content-type" => "application/json"})
     end
 
     describe 'during initialization' do

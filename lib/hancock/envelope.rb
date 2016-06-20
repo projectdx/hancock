@@ -7,6 +7,9 @@ module Hancock
     class AlreadySentError < StandardError; end
     class NotSavedYet < StandardError; end
 
+    TERMINAL_STATUSES = ["completed", "signed", "voided"]
+    EDITABLE_STATUSES = ["created", "sent", "delivered", "correct"]
+
     attr_accessor :identifier, :status, :documents, :signature_requests, :email, :recipients, :status_changed_at
 
     validates :status, :presence => true
@@ -138,11 +141,11 @@ module Hancock
     end
 
     def in_editable_state?
-      ["created", "sent", "delivered", "correct"].include?( status.to_s.downcase )
+      EDITABLE_STATUSES.include?( status.to_s.downcase )
     end
 
     def in_terminal_state?
-      ["completed", "signed", "voided"].include?( status.to_s.downcase )
+      TERMINAL_STATUSES.include?( status.to_s.downcase )
     end
 
     private
