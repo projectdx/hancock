@@ -77,29 +77,6 @@ module Hancock
       end
     end
 
-    def handle_remote_envelope
-      raise ResendEmailError.new(
-        "Cannot resend email, envelope is in a non-editable state."
-      ) unless envelope.in_editable_state?
-
-      # The API seems to require more than just recipientId
-      docusign_recipient.update(
-        :recipientId => identifier,
-        :name => name,
-        :resend_envelope => true
-      )
-    end
-
-    def handle_embedded_envelope
-      raise ResendEmailError.new(
-        "Cannot resend email, envelope is in a terminal state."
-      ) if envelope.in_terminal_state?
-
-      # DocuSign currently provides no way to resend an envelope for a
-      # recipient with embedded signing enabled. So we use a workaround.
-      recreate_recipient_and_tabs
-    end
-
     # The DocuSign API provides no way to change the access method for an
     # existing recipient, so we must delete and recreate the recipient.
     def change_access_method_to(new_access_method)
@@ -159,6 +136,29 @@ module Hancock
     end
 
     private
+
+    def handle_remote_envelope
+      raise ResendEmailError.new(
+        "Cannot resend email, envelope is in a non-editable state."
+      ) unless envelope.in_editable_state?
+
+      # The API seems to require more than just recipientId
+      docusign_recipient.update(
+        :recipientId => identifier,
+        :name => name,
+        :resend_envelope => true
+      )
+    end
+
+    def handle_embedded_envelope
+      raise ResendEmailError.new(
+        "Cannot resend email, envelope is in a terminal state."
+      ) if envelope.in_terminal_state?
+
+      # DocuSign currently provides no way to resend an envelope for a
+      # recipient with embedded signing enabled. So we use a workaround.
+      recreate_recipient_and_tabs
+    end
 
     def recreate_recipient_and_tabs
       Recipient::Recreator.new(docusign_recipient).recreate_with_tabs

@@ -37,7 +37,7 @@ describe Hancock::Recipient::Recreator do
           Hancock::Request::RequestError.new("400 - INVALID_RECIPIENT_ID - A recipient ID is missing or invalid.")
         )
 
-        subject
+        expect{ subject.recreate_with_tabs }.not_to raise_error
       end
 
       it 'does not ignore errors other than INVALID_CLIENT_ID' do
@@ -139,8 +139,17 @@ describe Hancock::Recipient::Recreator do
           .with(:body => { signers: [{ recipientId: "123-placeholder-id" }] }.to_json)
       end
 
+      it 'will retry Timeout errors' do
+        allow(Hancock::Recipient).to receive(:fetch_for_envelope).and_raise(Timeout::Error)
+
+        expect(Hancock::Recipient).to receive(:fetch_for_envelope).exactly(3).times
+        expect{ subject.recreate_with_tabs }.to raise_error(Timeout::Error)
+      end
+
       it 'does not retry errors other than Timeout' do
         allow(Hancock::Recipient).to receive(:fetch_for_envelope).and_raise(Hancock::Request::RequestError.new("500 - STUFF_WENT_WRONG - BORKED!"))
+
+        expect(Hancock::Recipient).to receive(:fetch_for_envelope).once
         expect{ subject.recreate_with_tabs }.to raise_error(Hancock::Request::RequestError)
       end
 
