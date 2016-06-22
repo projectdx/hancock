@@ -61,7 +61,7 @@ describe Hancock::AnchoredTab do
         :validationMessage => 'foodbart',
         :width => 27,
         :fontSize => 'Size48',
-        :optional => "true",
+        :optional => 'true',
         :tabLabel => 'label maker'
       })
     end
