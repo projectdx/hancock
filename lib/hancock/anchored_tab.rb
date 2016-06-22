@@ -22,7 +22,8 @@ module Hancock
         :validationMessage        => validation_message,
         :width                    => width,
         :fontSize                 => docusign_font_size(font_size),
-        :optional                 => optional
+        :optional                 => optional,
+        :tabLabel                 => label
       }.reject{ |_, value| value.nil? }
     end
   end

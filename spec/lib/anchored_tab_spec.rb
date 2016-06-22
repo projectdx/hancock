@@ -47,7 +47,8 @@ describe Hancock::AnchoredTab do
         :validation_pattern => 'Dr. Suess',
         :width => 27,
         :font_size => 48,
-        :optional => true
+        :optional => true,
+        :label => 'label maker'
       )
 
       expect(subject.to_h).to eq({
@@ -60,7 +61,8 @@ describe Hancock::AnchoredTab do
         :validationMessage => 'foodbart',
         :width => 27,
         :fontSize => 'Size48',
-        :optional => "true"
+        :optional => 'true',
+        :tabLabel => 'label maker'
       })
     end
 
