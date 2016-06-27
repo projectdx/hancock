@@ -86,7 +86,8 @@ describe Hancock::Tab do
         :validation_message => 'foodbart',
         :width              => 10,
         :font_size          => 26,
-        :optional           => false
+        :optional           => false,
+        :required           => true
       )
 
       expect(subject.to_h).to eq({
@@ -98,7 +99,8 @@ describe Hancock::Tab do
         :validationMessage => 'foodbart',
         :width             => 10,
         :fontSize          => 'Size26',
-        :optional          => "false"
+        :optional          => "false",
+        :required          => "true"
       })
     end
 
@@ -108,7 +110,8 @@ describe Hancock::Tab do
         :coordinates => [45,251],
         :label       => 'smarmy vikings',
         :font_size   => nil,
-        :optional    => nil
+        :optional    => nil,
+        :required    => nil
       )
 
       expect(subject.to_h).to eq({

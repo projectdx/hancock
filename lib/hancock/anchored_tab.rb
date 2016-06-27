@@ -23,7 +23,8 @@ module Hancock
         :width                    => width,
         :fontSize                 => docusign_font_size(font_size),
         :optional                 => optional,
-        :tabLabel                 => label
+        :tabLabel                 => label,
+        :required                 => required
       }.reject{ |_, value| value.nil? }
     end
   end

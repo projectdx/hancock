@@ -48,7 +48,8 @@ describe Hancock::AnchoredTab do
         :width => 27,
         :font_size => 48,
         :optional => true,
-        :label => 'label maker'
+        :label => 'label maker',
+        :required => 'true'
       )
 
       expect(subject.to_h).to eq({
@@ -62,7 +63,8 @@ describe Hancock::AnchoredTab do
         :width => 27,
         :fontSize => 'Size48',
         :optional => 'true',
-        :tabLabel => 'label maker'
+        :tabLabel => 'label maker',
+        :required => 'true'
       })
     end
 
@@ -71,7 +73,8 @@ describe Hancock::AnchoredTab do
         :page_number => 5,
         :coordinates => [45,251],
         :anchor_text => 'smarmy vikings',
-        :optional => nil
+        :optional => nil,
+        :required => nil
       )
 
       expect(subject.to_h).to eq({
