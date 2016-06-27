@@ -19,7 +19,7 @@ module Hancock
       @width              = attributes[:width]
       @font_size          = attributes[:font_size]
       @optional           = attributes[:optional].to_s unless attributes[:optional].nil? # for Signer Attachment Tag
-      @required           = attributes[:required].to_s unless attributes[:required].nil?
+      @required           = attributes[:required].to_s unless attributes[:required].nil? # for Text tag
 
       unless acceptable_font_sizes.include?(font_size)
         raise ArgumentError, "Font size #{font_size} is not supported. Please choose from: #{AVAILABLE_FONT_SIZES.join(', ')}"
