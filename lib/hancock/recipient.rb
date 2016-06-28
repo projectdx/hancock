@@ -4,6 +4,7 @@ require_relative 'recipient/recreator'
 module Hancock
   class Recipient < Hancock::Base
     SigningUrlError = Class.new(StandardError)
+    ResendEmailError = Class.new(StandardError)
 
     TYPES = [:agent, :carbon_copy, :certified_delivery, :editor, :in_person_signer, :intermediary, :signer]
 
@@ -70,16 +71,9 @@ module Hancock
     def resend_email
       # NOTE: this uses `.update` as a means to resend email
       if access_method == :remote
-        # The API seems to require more than just recipientId
-        docusign_recipient.update(
-          :recipientId => identifier,
-          :name => name,
-          :resend_envelope => true
-        )
+        handle_remote_envelope
       elsif access_method == :embedded
-        # DocuSign currently provides no way to resend an envelope for a
-        # recipient with embedded signing enabled. So we use a workaround.
-        recreate_recipient_and_tabs
+        handle_embedded_envelope
       end
     end
 
@@ -143,6 +137,29 @@ module Hancock
 
     private
 
+    def handle_remote_envelope
+      raise ResendEmailError.new(
+        "Cannot resend email, envelope is in a non-editable state."
+      ) unless envelope.in_editable_state?
+
+      # The API seems to require more than just recipientId
+      docusign_recipient.update(
+        :recipientId => identifier,
+        :name => name,
+        :resend_envelope => true
+      )
+    end
+
+    def handle_embedded_envelope
+      raise ResendEmailError.new(
+        "Cannot resend email, envelope is in a terminal state."
+      ) if envelope.in_terminal_state?
+
+      # DocuSign currently provides no way to resend an envelope for a
+      # recipient with embedded signing enabled. So we use a workaround.
+      recreate_recipient_and_tabs
+    end
+
     def recreate_recipient_and_tabs
       Recipient::Recreator.new(docusign_recipient).recreate_with_tabs
     end
@@ -153,6 +170,10 @@ module Hancock
 
     def access_method
       client_user_id.nil? ? :remote : :embedded
+    end
+
+    def envelope
+      @envelope ||= Envelope.find(envelope_identifier)
     end
   end
 end

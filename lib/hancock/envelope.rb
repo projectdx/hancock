@@ -7,6 +7,9 @@ module Hancock
     class AlreadySentError < StandardError; end
     class NotSavedYet < StandardError; end
 
+    TERMINAL_STATUSES = ["completed", "signed", "voided"]
+    EDITABLE_STATUSES = ["created", "sent", "delivered", "correct"]
+
     attr_accessor :identifier, :status, :documents, :signature_requests, :email, :recipients, :status_changed_at
 
     validates :status, :presence => true
@@ -135,6 +138,14 @@ module Hancock
 
     def viewing_url
       docusign_envelope.viewing_url.parsed_response['url']
+    end
+
+    def in_editable_state?
+      EDITABLE_STATUSES.include?( status.to_s.downcase )
+    end
+
+    def in_terminal_state?
+      TERMINAL_STATUSES.include?( status.to_s.downcase )
     end
 
     private

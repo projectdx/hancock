@@ -9,14 +9,14 @@ module Hancock
         @docusign_recipient = docusign_recipient
 
         begin
-          @tabs = JSON.parse(docusign_recipient.tabs.body)
+          @tabs = docusign_recipient.tabs
         rescue Hancock::Request::RequestError => e
           if IS_INVALID_RECIPIENT_ERROR[e]
             # We deleted the recipient without recreating it previously.
             # Probably got an error response from DocuSign.
             # Let this slide to recover.
             Hancock.logger.error("RECIPIENT RECREATION FAILED PREVIOUSLY, TABS LOST: #{e.message}. RECIPIENT: #{docusign_recipient}")
-            @tabs = [] # tabs are gone
+            @tabs = {} # tabs are gone
           else
             Hancock.logger.error("ERROR FETCHING RECIPIENT TABS: #{e.message}. RECIPIENT: #{docusign_recipient}")
             raise e

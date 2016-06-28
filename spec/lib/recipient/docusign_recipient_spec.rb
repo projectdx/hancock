@@ -145,7 +145,7 @@ describe Hancock::Recipient::DocusignRecipient do
     end
 
     it 'raises an Exception if "resend_envelope" is not true or false' do
-      expect{ subject.update(:resend_envelope => 'jibburrish') }.to raise_error
+      expect{ subject.update(:resend_envelope => 'jibburrish') }.to raise_error(ArgumentError)
     end
 
     it 'defaults to updating all values from `to_hash`' do
