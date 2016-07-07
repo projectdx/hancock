@@ -7,6 +7,7 @@ module Hancock
     ResendEmailError = Class.new(StandardError)
 
     TYPES = [:agent, :carbon_copy, :certified_delivery, :editor, :in_person_signer, :intermediary, :signer]
+    CORRECTABLE_STATUSES = ["created", "sent", "delivered"]
 
     attr_accessor :client_user_id,
       :email,
@@ -69,7 +70,10 @@ module Hancock
     end
 
     def resend_email
-      # NOTE: this uses `.update` as a means to resend email
+      unless in_correctable_state?
+        ResendEmailError.new("Cannot resend email, recipient has already signed or declined.")
+      end
+
       if access_method == :remote
         handle_remote_envelope
       elsif access_method == :embedded
@@ -143,6 +147,7 @@ module Hancock
       ) unless envelope.in_editable_state?
 
       # The API seems to require more than just recipientId
+      # NOTE: this uses `.update` as a means to resend email
       docusign_recipient.update(
         :recipientId => identifier,
         :name => name,
@@ -170,6 +175,10 @@ module Hancock
 
     def access_method
       client_user_id.nil? ? :remote : :embedded
+    end
+
+    def in_correctable_state?
+      CORRECTABLE_STATUSES.include?( status.to_s.downcase )
     end
 
     def envelope
