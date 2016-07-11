@@ -117,7 +117,8 @@ describe Hancock::Recipient do
     subject {
       described_class.new(
         :envelope_identifier => "yuppie-kittens",
-        :identifier => "hey-now"
+        :identifier => "hey-now",
+        :status => "delivered"
       )
     }
 

@@ -5,6 +5,7 @@ module Hancock
   class Recipient < Hancock::Base
     SigningUrlError = Class.new(StandardError)
     ResendEmailError = Class.new(StandardError)
+    CorrectionError = Class.new(StandardError)
 
     TYPES = [:agent, :carbon_copy, :certified_delivery, :editor, :in_person_signer, :intermediary, :signer]
     CORRECTABLE_STATUSES = ["created", "sent", "delivered"]
@@ -60,6 +61,12 @@ module Hancock
     end
 
     def update(params)
+      unless in_correctable_state?
+        raise CorrectionError.new(
+          "Cannot update recipient, they have already signed or declined."
+        )
+      end
+
       docusign_recipient.update(
         params.merge(:recipientId => identifier, :resend_envelope => false)
       )
