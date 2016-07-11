@@ -64,14 +64,16 @@ module Hancock
         params.merge(:recipientId => identifier, :resend_envelope => false)
       )
 
-      params.each {|key, value|
+      params.each do |key, value|
         self.send(:"#{key}=", value)
-      }
+      end
     end
 
     def resend_email
       unless in_correctable_state?
-        ResendEmailError.new("Cannot resend email, recipient has already signed or declined.")
+        raise ResendEmailError.new(
+          "Cannot resend email, recipient has already signed or declined."
+        )
       end
 
       if access_method == :remote

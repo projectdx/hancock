@@ -152,7 +152,8 @@ describe Hancock::Recipient do
     subject {
       described_class.new(
         :envelope_identifier => "yuppie-kittens",
-        :identifier => "hey-now"
+        :identifier => "hey-now",
+        :status => "delivered"
       )
     }
 
@@ -207,6 +208,16 @@ describe Hancock::Recipient do
           expect { subject.resend_email }.to raise_error(Hancock::Recipient::ResendEmailError)
         end
       end
+
+      context "when recipient status is non-correctable" do
+        before(:each) do
+          allow(subject).to receive(:status).and_return("signed")
+        end
+
+        it "raises an error" do
+          expect { subject.resend_email }.to raise_error(Hancock::Recipient::ResendEmailError)
+        end
+      end
     end
 
     context "when access method is 'embedded'" do
@@ -222,6 +233,16 @@ describe Hancock::Recipient do
             in_terminal_state?: true
           )
         }
+
+        it "raises an error" do
+          expect { subject.resend_email }.to raise_error(Hancock::Recipient::ResendEmailError)
+        end
+      end
+
+      context "when recipient status is non-correctable" do
+        before(:each) do
+          allow(subject).to receive(:status).and_return("signed")
+        end
 
         it "raises an error" do
           expect { subject.resend_email }.to raise_error(Hancock::Recipient::ResendEmailError)
