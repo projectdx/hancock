@@ -122,30 +122,42 @@ describe Hancock::Recipient do
       )
     }
 
-    it "updates the docusign_recipient" do
-      docusign_recipient = subject.send(:docusign_recipient)
-      expect(docusign_recipient).to receive(:update)
-        .with(
-          :recipientId => "hey-now",
-          :name => "new name",
-          :email => "new email",
-          :resend_envelope => false
-        )
+    context "when recipient is in a correctable state" do
+      it "updates the docusign_recipient" do
+        docusign_recipient = subject.send(:docusign_recipient)
+        expect(docusign_recipient).to receive(:update)
+          .with(
+            :recipientId => "hey-now",
+            :name => "new name",
+            :email => "new email",
+            :resend_envelope => false
+          )
 
-      subject.update(:name => "new name", :email => "new email")
+        subject.update(:name => "new name", :email => "new email")
+      end
+
+      it "updates the in-memory recipient" do
+        docusign_recipient = subject.send(:docusign_recipient)
+        allow(docusign_recipient).to receive(:update)
+          .with(
+            :recipientId => "hey-now",
+            :email => "new email",
+            :resend_envelope => false
+          )
+
+        subject.update(:email => "new email")
+        expect(subject.email).to eq "new email"
+      end
     end
 
-    it "updates the in-memory recipient" do
-      docusign_recipient = subject.send(:docusign_recipient)
-      allow(docusign_recipient).to receive(:update)
-        .with(
-          :recipientId => "hey-now",
-          :email => "new email",
-          :resend_envelope => false
-        )
+    context "when recipient is in a non-correctable state" do
+      before(:each) do
+        allow(subject).to receive(:status).and_return("Completed")
+      end
 
-      subject.update(:email => "new email")
-      expect(subject.email).to eq "new email"
+      it "raises a CorrectionError" do
+        expect { subject.update(:email => "new email") }.to raise_error(Hancock::Recipient::CorrectionError)
+      end
     end
   end
 
