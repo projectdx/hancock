@@ -208,29 +208,6 @@ describe Hancock::Recipient do
 
         subject.resend_email
       end
-
-      context "when envelope status is non-editable" do
-        let(:envelope_double) {
-          instance_double(
-            Hancock::Envelope,
-            in_editable_state?: false
-          )
-        }
-
-        it "raises an error" do
-          expect { subject.resend_email }.to raise_error(Hancock::Recipient::ResendEmailError)
-        end
-      end
-
-      context "when recipient status is non-correctable" do
-        before(:each) do
-          allow(subject).to receive(:status).and_return("signed")
-        end
-
-        it "raises an error" do
-          expect { subject.resend_email }.to raise_error(Hancock::Recipient::ResendEmailError)
-        end
-      end
     end
 
     context "when access method is 'embedded'" do
@@ -238,28 +215,42 @@ describe Hancock::Recipient do
         expect(recreator_double).to receive(:recreate_with_tabs)
         subject.resend_email
       end
+    end
 
-      context "when envelope status is terminal" do
-        let(:envelope_double) {
-          instance_double(
-            Hancock::Envelope,
-            in_terminal_state?: true
-          )
-        }
+    context "when envelope status is non-editable" do
+      let(:envelope_double) {
+        instance_double(
+          Hancock::Envelope,
+          in_editable_state?: false
+        )
+      }
 
-        it "raises an error" do
-          expect { subject.resend_email }.to raise_error(Hancock::Recipient::ResendEmailError)
-        end
+      it "raises an error" do
+        expect { subject.resend_email }.to raise_error(Hancock::Recipient::ResendEmailError)
+      end
+    end
+
+    context "when recipient status is non-correctable" do
+      before(:each) do
+        allow(subject).to receive(:status).and_return("signed")
       end
 
-      context "when recipient status is non-correctable" do
-        before(:each) do
-          allow(subject).to receive(:status).and_return("signed")
-        end
+      it "raises an error" do
+        expect { subject.resend_email }.to raise_error(Hancock::Recipient::ResendEmailError)
+      end
+    end
 
-        it "raises an error" do
-          expect { subject.resend_email }.to raise_error(Hancock::Recipient::ResendEmailError)
-        end
+    context "when envelope status is terminal" do
+      let(:envelope_double) {
+        instance_double(
+          Hancock::Envelope,
+          in_terminal_state?: true,
+          in_editable_state?: true
+        )
+      }
+
+      it "raises an error" do
+        expect { subject.resend_email }.to raise_error(Hancock::Recipient::ResendEmailError)
       end
     end
   end

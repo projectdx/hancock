@@ -77,11 +77,7 @@ module Hancock
     end
 
     def resend_email
-      unless in_correctable_state?
-        raise ResendEmailError.new(
-          "Cannot resend email, recipient has already signed or declined."
-        )
-      end
+      email_resendable?
 
       if access_method == :remote
         handle_remote_envelope
@@ -151,10 +147,6 @@ module Hancock
     private
 
     def handle_remote_envelope
-      raise ResendEmailError.new(
-        "Cannot resend email, envelope is in a non-editable state."
-      ) unless envelope.in_editable_state?
-
       # The API seems to require more than just recipientId
       # NOTE: this uses `.update` as a means to resend email
       docusign_recipient.update(
@@ -165,13 +157,23 @@ module Hancock
     end
 
     def handle_embedded_envelope
-      raise ResendEmailError.new(
-        "Cannot resend email, envelope is in a terminal state."
-      ) if envelope.in_terminal_state?
-
       # DocuSign currently provides no way to resend an envelope for a
       # recipient with embedded signing enabled. So we use a workaround.
       recreate_recipient_and_tabs
+    end
+
+    def email_resendable?
+      raise ResendEmailError.new(
+        "Cannot resend email, recipient has already signed or declined."
+      ) unless in_correctable_state?
+
+      raise ResendEmailError.new(
+        "Cannot resend email, envelope is in a non-editable state."
+      ) unless envelope.in_editable_state?
+
+      raise ResendEmailError.new(
+        "Cannot resend email, envelope is in a terminal state."
+      ) if envelope.in_terminal_state?
     end
 
     def recreate_recipient_and_tabs
