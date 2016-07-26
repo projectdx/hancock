@@ -77,7 +77,7 @@ module Hancock
     end
 
     def resend_email
-      email_resendable?
+      raise_unless_email_resendable!
 
       if access_method == :remote
         handle_remote_envelope
@@ -162,7 +162,7 @@ module Hancock
       recreate_recipient_and_tabs
     end
 
-    def email_resendable?
+    def raise_unless_email_resendable!
       raise ResendEmailError.new(
         "Cannot resend email, recipient has already signed or declined."
       ) unless in_correctable_state?
