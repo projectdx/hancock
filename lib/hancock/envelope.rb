@@ -99,7 +99,7 @@ module Hancock
     #
     # used for voiding envelopes on docusign which have been voided in our system
     # 
-    def void!(void_reason)
+    def void!(void_reason = "App withdrawn")
       fail NotSavedYet unless identifier
       put_body = { status: "voided", voidedReason: void_reason }.to_json
       Hancock::Request.send_put_request("/envelopes/#{identifier}", put_body)
