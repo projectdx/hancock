@@ -97,6 +97,16 @@ module Hancock
     end
 
     #
+    # used for voiding envelopes on docusign which have been voided in our system
+    # 
+    def void!(void_reason)
+      fail NotSavedYet unless identifier
+      put_body = { status: "voided", voidedReason: void_reason }.to_json
+      Hancock::Request.send_put_request("/envelopes/#{identifier}", put_body)
+      reload!
+    end
+
+    #
     # returns all summary (not content) documents for envelope
     #
     def summary_documents
