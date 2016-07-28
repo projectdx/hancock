@@ -108,6 +108,21 @@ describe Hancock::Envelope do
       end
     end
 
+    describe '#void!' do
+      it 'requests a status change with DocuSign for the envelope and reloads' do
+        subject.identifier = 'id'
+        stub_void_request('id', 'voided', 'enter the void', 'changed_status')
+        expect(subject).to receive(:reload!)
+        subject.void!('enter the void')
+      end
+
+      it 'raises exception if envelope has no identifier' do
+        expect {
+          subject.change_status!('foo')
+        }.to raise_error(described_class::NotSavedYet)
+      end
+    end
+
     describe '#send_envelope' do
       before do
         allow(subject).to receive(:documents_for_params).and_return('the_documents')

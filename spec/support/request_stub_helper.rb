@@ -17,6 +17,15 @@ module RequestStubHelper
       to_return(:status => response_code, :body => response_body(response_type), :headers => { 'Content-Type' => 'application/json'})
   end
 
+  def stub_void_request(identifier, new_status, void_reason, response_type, response_code = 200)
+    stub_request(:put, "https://demo.docusign.net/restapi/v2/accounts/123456/envelopes/#{identifier}").
+      with(
+        :headers => auth_headers.merge('Content-Type' => 'application/json'),
+        :body => { "status" => new_status, "voidedReason" =>  void_reason}.to_json
+      ).
+      to_return(:status => response_code, :body => response_body(response_type), :headers => { 'Content-Type' => 'application/json'})
+  end
+
   def auth_headers
     {
       'Accept' => 'application/json',
