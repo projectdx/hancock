@@ -117,34 +117,47 @@ describe Hancock::Recipient do
     subject {
       described_class.new(
         :envelope_identifier => "yuppie-kittens",
-        :identifier => "hey-now"
+        :identifier => "hey-now",
+        :status => "delivered"
       )
     }
 
-    it "updates the docusign_recipient" do
-      docusign_recipient = subject.send(:docusign_recipient)
-      expect(docusign_recipient).to receive(:update)
-        .with(
-          :recipientId => "hey-now",
-          :name => "new name",
-          :email => "new email",
-          :resend_envelope => false
-        )
+    context "when recipient is in a correctable state" do
+      it "updates the docusign_recipient" do
+        docusign_recipient = subject.send(:docusign_recipient)
+        expect(docusign_recipient).to receive(:update)
+          .with(
+            :recipientId => "hey-now",
+            :name => "new name",
+            :email => "new email",
+            :resend_envelope => false
+          )
 
-      subject.update(:name => "new name", :email => "new email")
+        subject.update(:name => "new name", :email => "new email")
+      end
+
+      it "updates the in-memory recipient" do
+        docusign_recipient = subject.send(:docusign_recipient)
+        allow(docusign_recipient).to receive(:update)
+          .with(
+            :recipientId => "hey-now",
+            :email => "new email",
+            :resend_envelope => false
+          )
+
+        subject.update(:email => "new email")
+        expect(subject.email).to eq "new email"
+      end
     end
 
-    it "updates the in-memory recipient" do
-      docusign_recipient = subject.send(:docusign_recipient)
-      allow(docusign_recipient).to receive(:update)
-        .with(
-          :recipientId => "hey-now",
-          :email => "new email",
-          :resend_envelope => false
-        )
+    context "when recipient is in a non-correctable state" do
+      before(:each) do
+        allow(subject).to receive(:status).and_return("Completed")
+      end
 
-      subject.update(:email => "new email")
-      expect(subject.email).to eq "new email"
+      it "raises a CorrectionError" do
+        expect { subject.update(:email => "new email") }.to raise_error(Hancock::Recipient::CorrectionError)
+      end
     end
   end
 
@@ -152,7 +165,8 @@ describe Hancock::Recipient do
     subject {
       described_class.new(
         :envelope_identifier => "yuppie-kittens",
-        :identifier => "hey-now"
+        :identifier => "hey-now",
+        :status => "delivered"
       )
     }
 
@@ -194,19 +208,6 @@ describe Hancock::Recipient do
 
         subject.resend_email
       end
-
-      context "when envelope status is non-editable" do
-        let(:envelope_double) {
-          instance_double(
-            Hancock::Envelope,
-            in_editable_state?: false
-          )
-        }
-
-        it "raises an error" do
-          expect { subject.resend_email }.to raise_error(Hancock::Recipient::ResendEmailError)
-        end
-      end
     end
 
     context "when access method is 'embedded'" do
@@ -214,18 +215,42 @@ describe Hancock::Recipient do
         expect(recreator_double).to receive(:recreate_with_tabs)
         subject.resend_email
       end
+    end
 
-      context "when envelope status is terminal" do
-        let(:envelope_double) {
-          instance_double(
-            Hancock::Envelope,
-            in_terminal_state?: true
-          )
-        }
+    context "when envelope status is non-editable" do
+      let(:envelope_double) {
+        instance_double(
+          Hancock::Envelope,
+          in_editable_state?: false
+        )
+      }
 
-        it "raises an error" do
-          expect { subject.resend_email }.to raise_error(Hancock::Recipient::ResendEmailError)
-        end
+      it "raises an error" do
+        expect { subject.resend_email }.to raise_error(Hancock::Recipient::ResendEmailError)
+      end
+    end
+
+    context "when recipient status is non-correctable" do
+      before(:each) do
+        allow(subject).to receive(:status).and_return("signed")
+      end
+
+      it "raises an error" do
+        expect { subject.resend_email }.to raise_error(Hancock::Recipient::ResendEmailError)
+      end
+    end
+
+    context "when envelope status is terminal" do
+      let(:envelope_double) {
+        instance_double(
+          Hancock::Envelope,
+          in_terminal_state?: true,
+          in_editable_state?: true
+        )
+      }
+
+      it "raises an error" do
+        expect { subject.resend_email }.to raise_error(Hancock::Recipient::ResendEmailError)
       end
     end
   end

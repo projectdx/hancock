@@ -5,8 +5,10 @@ module Hancock
   class Recipient < Hancock::Base
     SigningUrlError = Class.new(StandardError)
     ResendEmailError = Class.new(StandardError)
+    CorrectionError = Class.new(StandardError)
 
     TYPES = [:agent, :carbon_copy, :certified_delivery, :editor, :in_person_signer, :intermediary, :signer]
+    CORRECTABLE_STATUSES = ["created", "sent", "delivered"]
 
     attr_accessor :client_user_id,
       :email,
@@ -59,17 +61,24 @@ module Hancock
     end
 
     def update(params)
+      unless in_correctable_state?
+        raise CorrectionError.new(
+          "Cannot update recipient, they have already signed or declined."
+        )
+      end
+
       docusign_recipient.update(
         params.merge(:recipientId => identifier, :resend_envelope => false)
       )
 
-      params.each {|key, value|
+      params.each do |key, value|
         self.send(:"#{key}=", value)
-      }
+      end
     end
 
     def resend_email
-      # NOTE: this uses `.update` as a means to resend email
+      raise_unless_email_resendable!
+
       if access_method == :remote
         handle_remote_envelope
       elsif access_method == :embedded
@@ -138,11 +147,8 @@ module Hancock
     private
 
     def handle_remote_envelope
-      raise ResendEmailError.new(
-        "Cannot resend email, envelope is in a non-editable state."
-      ) unless envelope.in_editable_state?
-
       # The API seems to require more than just recipientId
+      # NOTE: this uses `.update` as a means to resend email
       docusign_recipient.update(
         :recipientId => identifier,
         :name => name,
@@ -151,13 +157,23 @@ module Hancock
     end
 
     def handle_embedded_envelope
-      raise ResendEmailError.new(
-        "Cannot resend email, envelope is in a terminal state."
-      ) if envelope.in_terminal_state?
-
       # DocuSign currently provides no way to resend an envelope for a
       # recipient with embedded signing enabled. So we use a workaround.
       recreate_recipient_and_tabs
+    end
+
+    def raise_unless_email_resendable!
+      raise ResendEmailError.new(
+        "Cannot resend email, recipient has already signed or declined."
+      ) unless in_correctable_state?
+
+      raise ResendEmailError.new(
+        "Cannot resend email, envelope is in a non-editable state."
+      ) unless envelope.in_editable_state?
+
+      raise ResendEmailError.new(
+        "Cannot resend email, envelope is in a terminal state."
+      ) if envelope.in_terminal_state?
     end
 
     def recreate_recipient_and_tabs
@@ -170,6 +186,10 @@ module Hancock
 
     def access_method
       client_user_id.nil? ? :remote : :embedded
+    end
+
+    def in_correctable_state?
+      CORRECTABLE_STATUSES.include?( status.to_s.downcase )
     end
 
     def envelope
