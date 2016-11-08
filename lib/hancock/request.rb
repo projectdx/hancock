@@ -55,7 +55,7 @@ module Hancock
         req.url(uri)
         req.headers = headers
         req.body = body if body
-        req.options.timeout = Hancock.request_timeout_limit
+        req.options.timeout = Hancock.request_timeout
       end
 
       Hancock.logger.info("#{type.upcase}: #{uri}\n{headers:#{headers}}")
