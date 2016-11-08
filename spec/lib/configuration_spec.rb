@@ -9,7 +9,8 @@ describe Hancock::Configuration do
         :subject => 'subject from configuration',
         :blurb => 'blurb from configuration'
       },
-      :minimum_document_data_size => 10000
+      :minimum_document_data_size => 10000,
+      :request_timeout => 300
     }
   end
 
@@ -22,6 +23,7 @@ describe Hancock::Configuration do
       config.api_version                = config_hash[:api_version]
       config.email_template             = config_hash[:email_template]
       config.minimum_document_data_size = config_hash[:minimum_document_data_size]
+      config.request_timeout            = config_hash[:request_timeout]
     end
   end
 
@@ -54,6 +56,10 @@ describe Hancock::Configuration do
 
     it 'should change default minimum_document_data_size' do
       expect(Hancock.minimum_document_data_size).to eq(10000)
+    end
+
+    it 'should change default request_timeout' do
+      expect(Hancock.request_timeout).to eq(300)
     end
   end
 end

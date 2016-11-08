@@ -11,7 +11,8 @@ module Hancock
       :boundary,
       :logger,
       :placeholder_email,
-      :minimum_document_data_size
+      :minimum_document_data_size,
+      :request_timeout
     ].freeze
 
     VALID_CONFIG_KEYS      = VALID_CONNECTION_KEYS + VALID_OPTIONS_KEYS
@@ -35,6 +36,7 @@ module Hancock
 
     DEFAULT_PLACEHOLDER_EMAIL = 'placeholder@example.com'
     DEFAULT_MINIMUM_DOCUMENT_DATA_SIZE = 0
+    DEFAULT_REQUEST_TIMEOUT = 120
 
     attr_accessor *VALID_CONFIG_KEYS
 
@@ -56,6 +58,7 @@ module Hancock
       self.placeholder_email          = DEFAULT_PLACEHOLDER_EMAIL
       self.logger                     = DEFAULT_LOGGER
       self.minimum_document_data_size = DEFAULT_MINIMUM_DOCUMENT_DATA_SIZE
+      self.request_timeout            = DEFAULT_REQUEST_TIMEOUT
     end
 
     def configure
