@@ -70,7 +70,8 @@ describe Hancock::Request do
       expect(subject.headers).to eq({
         "Accept" => "application/json",
         "Authorization" => "bearer a_tokeny_value",
-        "Content-Type" => "application/json"
+        "Content-Type" => "application/json",
+        "X-DocuSign-TimeTrack" => ""
       })
     end
 
@@ -89,7 +90,8 @@ describe Hancock::Request do
         "Nature" => "secret",
         "Accept" => "EvEryThinG!",
         "Authorization" => "bearer a_tokeny_value",
-        "Content-Type" => "application/json"
+        "Content-Type" => "application/json",
+        "X-DocuSign-TimeTrack" => ""
       })
     end
 
