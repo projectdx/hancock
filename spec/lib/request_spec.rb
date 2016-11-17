@@ -71,7 +71,7 @@ describe Hancock::Request do
         "Accept" => "application/json",
         "Authorization" => "bearer a_tokeny_value",
         "Content-Type" => "application/json",
-        "X-DocuSign-TimeTrack" => ""
+        "X-DocuSign-TimeTrack" => "DS-REQUEST-TIME"
       })
     end
 
@@ -91,7 +91,7 @@ describe Hancock::Request do
         "Accept" => "EvEryThinG!",
         "Authorization" => "bearer a_tokeny_value",
         "Content-Type" => "application/json",
-        "X-DocuSign-TimeTrack" => ""
+        "X-DocuSign-TimeTrack" => "DS-REQUEST-TIME"
       })
     end
 
