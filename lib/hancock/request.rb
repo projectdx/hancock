@@ -84,7 +84,8 @@ module Hancock
       {
         'Accept' => 'application/json',
         'Authorization' => "bearer #{Hancock.oauth_token}",
-        'Content-Type' => 'application/json'
+        'Content-Type' => 'application/json',
+        'X-DocuSign-TimeTrack' => 'DS-REQUEST-TIME'
       }
     end
 
