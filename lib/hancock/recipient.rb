@@ -189,7 +189,14 @@ module Hancock
     end
 
     def in_correctable_state?
+      self.status ||= fetch_status_from_docusign
       CORRECTABLE_STATUSES.include?( status.to_s.downcase )
+    end
+
+    def fetch_status_from_docusign
+      self.class.fetch_for_envelope(envelope_identifier).select do |recipient|
+        recipient.identifier == identifier
+      end.first.try(:status)
     end
 
     def envelope
