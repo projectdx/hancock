@@ -159,6 +159,19 @@ describe Hancock::Recipient do
         expect { subject.update(:email => "new email") }.to raise_error(Hancock::Recipient::CorrectionError)
       end
     end
+
+    context "when recipient state is nil" do
+      before do
+        stub_request(:get, "https://demo.docusign.net/restapi/v2/accounts/123456/envelopes//recipients").
+          to_return(:status => 200, :body => response_body("recipients"), :headers => {"Content-Type" => "application/json"})
+      end
+
+      it "fetches status value from docusign" do
+        subject = described_class.new(identifier: "12")
+        expect{subject.update(:email => "new email")}.to raise_error(Hancock::Recipient::CorrectionError)
+        expect(subject.status).to eq("completed")
+      end
+    end
   end
 
   describe "#resend_email" do
