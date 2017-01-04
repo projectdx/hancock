@@ -19,4 +19,13 @@ describe Hancock::Envelope::DocusignEnvelope do
       subject.viewing_url
     end
   end
+
+  describe '#get_lock' do
+    it 'makes a request to Docusign' do
+      expect(Hancock::Request).to receive(:send_get_request)
+        .with('/envelopes/maui/lock')
+
+      subject.get_lock
+    end
+  end
 end

@@ -654,7 +654,6 @@ describe Hancock::Envelope do
     end
   end
 
-
   describe "#in_editable_state?" do
     subject { described_class.new(status: status) }
 
@@ -676,6 +675,23 @@ describe Hancock::Envelope do
       it "returns false if status is not in list" do
         expect(subject.in_editable_state?).to be_falsey
       end
+    end
+  end
+
+  describe "#get_lock" do
+    subject { described_class.new({identifier: "fake-id"}) }
+
+    let(:docusign_envelope) {
+      instance_double(Hancock::Envelope::DocusignEnvelope, :get_lock => "like a boss")
+    }
+
+    before :each do
+      allow(Hancock::Envelope::DocusignEnvelope).to receive(:new).and_return(docusign_envelope)
+    end
+
+    it "uses the DocusignEnvelope API class to get the lock" do
+      subject.get_lock
+      expect(docusign_envelope).to have_received(:get_lock)
     end
   end
 end

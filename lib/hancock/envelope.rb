@@ -31,11 +31,11 @@ module Hancock
     #
     def initialize(attributes = {})
       @identifier = attributes[:identifier]
-      @status = attributes[:status]
-      @documents = attributes[:documents] || []
+      @status     = attributes[:status]
+      @documents  = attributes[:documents]  || []
       @recipients = attributes[:recipients] || []
-      @email = attributes[:email] || {}
-      @reminder = attributes[:reminder]
+      @email      = attributes[:email]      || {}
+      @reminder   = attributes[:reminder]
       @expiration = attributes[:expiration]
 
       @signature_requests = []
@@ -146,6 +146,10 @@ module Hancock
 
     def in_terminal_state?
       TERMINAL_STATUSES.include?( status.to_s.downcase )
+    end
+
+    def get_lock
+      docusign_envelope.get_lock
     end
 
     private
