@@ -15,6 +15,10 @@ module Hancock
       def viewing_url
         Hancock::Request.send_post_request("/envelopes/#{identifier}/views/sender", '{}')
       end
+
+      def get_lock
+        Hancock::Request.send_get_request("/envelopes/#{identifier}/lock")
+      end
     end
   end
 end
