@@ -21,7 +21,7 @@ module Hancock
       end
 
       def resend_email
-        Hancock::Request.send_put_request("/envelopes/#{identifier}/recipients?resend_email=true")
+        Hancock::Request.send_put_request("/envelopes/#{identifier}/recipients?resend_envelope=true")
       end
     end
   end
