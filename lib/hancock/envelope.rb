@@ -152,8 +152,8 @@ module Hancock
       docusign_envelope.get_lock
     end
 
-    def resend_email
-      docusign_envelope.resend_email
+    def resend_email(recipient)
+      docusign_envelope.resend_email(recipient)
     end
 
     private

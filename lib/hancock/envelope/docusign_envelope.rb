@@ -20,8 +20,21 @@ module Hancock
         Hancock::Request.send_get_request("/envelopes/#{identifier}/lock")
       end
 
-      def resend_email
-        Hancock::Request.send_put_request("/envelopes/#{identifier}/recipients?resend_envelope=true", "{}")
+      def resend_email(recipient)
+        request_body = {
+          "signers" => [
+            {
+              "recipientId" => recipient.identifier,
+              "name"        => recipient.name,
+              "email"       => recipient.email
+            }
+          ]
+        }
+
+        Hancock::Request.send_put_request(
+          "/envelopes/#{identifier}/recipients?resend_envelope=true",
+          request_body.to_json
+        )
       end
     end
   end

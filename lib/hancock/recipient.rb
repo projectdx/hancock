@@ -157,7 +157,7 @@ module Hancock
     end
 
     def handle_embedded_envelope
-      envelope.resend_email
+      envelope.resend_email(self)
     end
 
     def raise_unless_email_resendable!

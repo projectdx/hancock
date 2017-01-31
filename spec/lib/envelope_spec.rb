@@ -707,8 +707,9 @@ describe Hancock::Envelope do
     end
 
     it "uses the DocusignEnvelope API class to get the lock" do
-      subject.resend_email
-      expect(docusign_envelope).to have_received(:resend_email)
+      recipient = instance_double(Hancock::Recipient, name: "MJ", email: "mj@example.com", identifier: "6a")
+      subject.resend_email(recipient)
+      expect(docusign_envelope).to have_received(:resend_email).with(recipient)
     end
   end
 end
