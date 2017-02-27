@@ -80,6 +80,7 @@ module Hancock
 
       def recipient_params
         docusign_recipient.to_hash.merge(
+          # Envelope identifier is not in the #to_hash call as it is not sent to DocuSign
           envelopeId: docusign_recipient.envelope_identifier
         )
       end
