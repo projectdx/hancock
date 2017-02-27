@@ -15,10 +15,10 @@ module Hancock
             # We deleted the recipient without recreating it previously.
             # Probably got an error response from DocuSign.
             # Let this slide to recover.
-            Hancock.logger.error("RECIPIENT RECREATION FAILED PREVIOUSLY, TABS LOST: #{e.message}. RECIPIENT: #{docusign_recipient}")
+            Hancock.logger.error("RECIPIENT RECREATION FAILED PREVIOUSLY, TABS LOST: #{e.message}. RECIPIENT: #{recipient_params}")
             @tabs = {} # tabs are gone
           else
-            Hancock.logger.error("ERROR FETCHING RECIPIENT TABS: #{e.message}. RECIPIENT: #{docusign_recipient}")
+            Hancock.logger.error("ERROR FETCHING RECIPIENT TABS: #{e.message}. RECIPIENT: #{recipient_params}")
             raise e
           end
         end
@@ -40,10 +40,10 @@ module Hancock
         delete_existing_placholders
       rescue Timeout::Error => e
         retry if (tries -= 1) > 0
-        Hancock.logger.error("TIMEOUT WHILE RECREATING RECIPIENT: #{e.message}. RECIPIENT: #{docusign_recipient}")
+        Hancock.logger.error("TIMEOUT WHILE RECREATING RECIPIENT: #{e.message}. RECIPIENT: #{recipient_params}")
         raise e
       rescue => e
-        Hancock.logger.error("ERROR RECREATING RECIPIENT: #{e.message}. RECIPIENT: #{docusign_recipient}")
+        Hancock.logger.error("ERROR RECREATING RECIPIENT: #{e.message}. RECIPIENT: #{recipient_params}")
         raise e
       end
 
@@ -76,6 +76,12 @@ module Hancock
 
       def placeholder_identifier
         @placeholder_identifier ||= SecureRandom.uuid
+      end
+
+      def recipient_params
+        docusign_recipient.to_hash.merge(
+          envelopeId: docusign_recipient.envelope_identifier
+        )
       end
     end
   end

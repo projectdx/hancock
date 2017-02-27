@@ -37,6 +37,7 @@ describe Hancock::Recipient::Recreator do
           Hancock::Request::RequestError.new("400 - INVALID_RECIPIENT_ID - A recipient ID is missing or invalid.")
         )
 
+        expect(Hancock.logger).to receive(:error).with(/recipientId.+#{docusign_recipient.identifier}.+envelopeId.+#{docusign_recipient.envelope_identifier}/)
         expect{ subject.recreate_with_tabs }.not_to raise_error
       end
 
@@ -45,6 +46,7 @@ describe Hancock::Recipient::Recreator do
           Hancock::Request::RequestError.new("500 - STUFF_WENT_WRONG - BORKED!")
         )
 
+        expect(Hancock.logger).to receive(:error).with(/recipientId.+#{docusign_recipient.identifier}.+envelopeId.+#{docusign_recipient.envelope_identifier}/)
         expect{ subject }.to raise_error(Hancock::Request::RequestError)
       end
     end
@@ -143,6 +145,8 @@ describe Hancock::Recipient::Recreator do
         allow(Hancock::Recipient).to receive(:fetch_for_envelope).and_raise(Timeout::Error)
 
         expect(Hancock::Recipient).to receive(:fetch_for_envelope).exactly(3).times
+        expect(Hancock.logger).to receive(:error).with(/recipientId.+#{docusign_recipient.identifier}.+envelopeId.+#{docusign_recipient.envelope_identifier}/)
+
         expect{ subject.recreate_with_tabs }.to raise_error(Timeout::Error)
       end
 
@@ -150,6 +154,8 @@ describe Hancock::Recipient::Recreator do
         allow(Hancock::Recipient).to receive(:fetch_for_envelope).and_raise(Hancock::Request::RequestError.new("500 - STUFF_WENT_WRONG - BORKED!"))
 
         expect(Hancock::Recipient).to receive(:fetch_for_envelope).once
+        expect(Hancock.logger).to receive(:error).with(/recipientId.+#{docusign_recipient.identifier}.+envelopeId.+#{docusign_recipient.envelope_identifier}/)
+
         expect{ subject.recreate_with_tabs }.to raise_error(Hancock::Request::RequestError)
       end
 
