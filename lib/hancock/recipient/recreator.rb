@@ -3,7 +3,7 @@ module Hancock
     class Recreator
       attr_reader :docusign_recipient, :tabs
 
-      IS_INVALID_RECIPIENT_ERROR = ->(e) { e.message.split(' - ')[1] == 'INVALID_RECIPIENT_ID' }
+      IS_INVALID_RECIPIENT_ERROR = ->(e) { e.docusign_status == 'INVALID_RECIPIENT_ID' }
 
       def initialize(docusign_recipient)
         @docusign_recipient = docusign_recipient

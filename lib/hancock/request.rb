@@ -3,7 +3,16 @@ require 'faraday_middleware'
 
 module Hancock
   class Request
-    RequestError = Class.new(StandardError)
+    class RequestError < StandardError
+      def initialize(message, status)
+        @status = status
+        super(message)
+      end
+
+      def docusign_status
+        @status
+      end
+    end
 
     attr_reader :uri, :type, :headers, :body, :response
 
@@ -62,7 +71,7 @@ module Hancock
 
       unless success?
         Hancock.logger.error("#{response_status}:\n#{parsed_response}")
-        fail RequestError, "#{response_status} - #{parsed_response}"
+        fail RequestError.new(message, error_code)
       end
 
       Hancock.logger.debug("#{response_status}: #{parsed_response}")
@@ -123,6 +132,14 @@ module Hancock
       response.env.body
     end
 
+    def error_code
+      nested_hash_value(parsed_response, "errorCode")
+    end
+
+    def message
+      nested_hash_value(parsed_response, "message")
+    end
+
     def includes_error_code?(data)
       case data
       when Hash
@@ -135,6 +152,17 @@ module Hancock
         data.any?{ |element| includes_error_code?(element) }
       else
         false
+      end
+    end
+
+    #Begin walk me through this
+    def nested_hash_value(obj, key)
+      if obj.respond_to?(:key?) && obj.key?(key)
+        obj[key]
+      elsif obj.respond_to?(:each)
+        r = nil
+        obj.find{ |*a| r=nested_hash_value(a.last,key) }
+        r
       end
     end
   end

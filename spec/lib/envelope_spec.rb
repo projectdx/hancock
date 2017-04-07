@@ -104,7 +104,7 @@ describe Hancock::Envelope do
         stub_status_change('smokey-heaven', 'floosh', 'failed_status_change', 400)
         expect {
           subject.change_status!('floosh')
-        }.to raise_error(Hancock::Request::RequestError, "400 - #{response}")
+        }.to raise_error(Hancock::Request::RequestError, "Umbrella smoothie is bad idea.")
       end
     end
 
@@ -324,7 +324,7 @@ describe Hancock::Envelope do
           stub_envelope_creation('send_envelope', 'failed_creation', 500)
           expect {
             subject.send!
-          }.to raise_error(Hancock::Request::RequestError, "500 - #{response}")
+          }.to raise_error(Hancock::Request::RequestError, response[:message])
         end
       end
     end
