@@ -107,7 +107,7 @@ module Hancock
     end
 
     def has_error?
-      includes_error_code?(parsed_response)
+      error_code && error_code != 'SUCCESS'
     end
 
     def parsed_response
@@ -140,29 +140,11 @@ module Hancock
       nested_hash_value(parsed_response, "message")
     end
 
-    def includes_error_code?(data)
-      case data
-      when Hash
-        if data.has_key?("errorCode") && data["errorCode"] != "SUCCESS"
-          true
-        else
-          data.values.any? { |element| includes_error_code?(element) }
-        end
-      when Array
-        data.any?{ |element| includes_error_code?(element) }
-      else
-        false
-      end
-    end
-
-    #Begin walk me through this
     def nested_hash_value(obj, key)
       if obj.respond_to?(:key?) && obj.key?(key)
         obj[key]
       elsif obj.respond_to?(:each)
-        r = nil
-        obj.find{ |*a| r=nested_hash_value(a.last,key) }
-        r
+        obj.find{ |a| nested_hash_value(a, key) }
       end
     end
   end
