@@ -10,7 +10,7 @@ module Hancock
 
         begin
           @tabs = docusign_recipient.tabs
-        rescue Hancock::Request::RequestError => e
+        rescue Hancock::RequestError => e
           if IS_INVALID_RECIPIENT_ERROR[e]
             # We deleted the recipient without recreating it previously.
             # Probably got an error response from DocuSign.

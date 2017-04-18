@@ -3,17 +3,6 @@ require 'faraday_middleware'
 
 module Hancock
   class Request
-    class RequestError < StandardError
-      def initialize(message, status)
-        @status = status
-        super(message)
-      end
-
-      def docusign_status
-        @status
-      end
-    end
-
     attr_reader :uri, :type, :headers, :body, :response
 
     class << self
@@ -133,19 +122,28 @@ module Hancock
     end
 
     def error_code
-      nested_hash_value(parsed_response, "errorCode")
+      find_by_key(parsed_response, "errorCode")
     end
 
     def message
-      nested_hash_value(parsed_response, "message")
+      find_by_key(parsed_response, "message")
     end
 
-    def nested_hash_value(obj, key)
-      if obj.respond_to?(:key?) && obj.key?(key)
-        obj[key]
-      elsif obj.respond_to?(:each)
-        obj.find{ |a| nested_hash_value(a, key) }
+    def find_by_key(data, key)
+      case data
+      when Hash
+        if data.has_key?(key)
+          data[key]
+        else
+          iteratively_find_by_key(data.values, key)
+        end
+      when Array
+        iteratively_find_by_key(data, key)
       end
+    end
+
+    def iteratively_find_by_key(data, key)
+      data.find{ |item| find_by_key(item, key) }
     end
   end
 end

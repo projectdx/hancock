@@ -34,7 +34,7 @@ describe Hancock::Recipient::Recreator do
     describe 'during initialization' do
       it 'catches INVALID_CLIENT_ID response when fetching tabs' do
         allow(docusign_recipient).to receive(:tabs).and_raise(
-          Hancock::Request::RequestError.new("A recipient ID is missing or invalid.", "INVALID_RECIPIENT_ID")
+          Hancock::RequestError.new("A recipient ID is missing or invalid.", "INVALID_RECIPIENT_ID")
         )
 
         expect(Hancock.logger).to receive(:error).with(/recipientId.+#{docusign_recipient.identifier}.+envelopeId.+#{docusign_recipient.envelope_identifier}/)
@@ -43,11 +43,11 @@ describe Hancock::Recipient::Recreator do
 
       it 'does not ignore errors other than INVALID_CLIENT_ID' do
         allow(docusign_recipient).to receive(:tabs).and_raise(
-          Hancock::Request::RequestError.new("BORKED!", "STUFF_WENT_WRONG")
+          Hancock::RequestError.new("BORKED!", "STUFF_WENT_WRONG")
         )
 
         expect(Hancock.logger).to receive(:error).with(/recipientId.+#{docusign_recipient.identifier}.+envelopeId.+#{docusign_recipient.envelope_identifier}/)
-        expect{ subject }.to raise_error(Hancock::Request::RequestError)
+        expect{ subject }.to raise_error(Hancock::RequestError)
       end
     end
 
@@ -125,7 +125,7 @@ describe Hancock::Recipient::Recreator do
       end
 
       it "keeps tabs empty and non-nil when recovering from previous error" do
-        allow(docusign_recipient).to receive(:tabs).and_raise(Hancock::Request::RequestError.new("A recipient ID is missing or invalid.", "INVALID_RECIPIENT_ID"))
+        allow(docusign_recipient).to receive(:tabs).and_raise(Hancock::RequestError.new("A recipient ID is missing or invalid.", "INVALID_RECIPIENT_ID"))
         expect(docusign_recipient).not_to receive(:create_tabs)
         expect(subject.tabs).to be_empty
 
@@ -151,12 +151,12 @@ describe Hancock::Recipient::Recreator do
       end
 
       it 'does not retry errors other than Timeout' do
-        allow(Hancock::Recipient).to receive(:fetch_for_envelope).and_raise(Hancock::Request::RequestError.new("BORKED!", "STUFF_WENT_WRONG"))
+        allow(Hancock::Recipient).to receive(:fetch_for_envelope).and_raise(Hancock::RequestError.new("BORKED!", "STUFF_WENT_WRONG"))
 
         expect(Hancock::Recipient).to receive(:fetch_for_envelope).once
         expect(Hancock.logger).to receive(:error).with(/recipientId.+#{docusign_recipient.identifier}.+envelopeId.+#{docusign_recipient.envelope_identifier}/)
 
-        expect{ subject.recreate_with_tabs }.to raise_error(Hancock::Request::RequestError)
+        expect{ subject.recreate_with_tabs }.to raise_error(Hancock::RequestError)
       end
 
       it 'sends delete for all placeholder recipients' do
