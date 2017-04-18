@@ -122,28 +122,24 @@ module Hancock
     end
 
     def error_code
-      find_by_key(parsed_response, "errorCode")
+      deep_find_by_key(parsed_response, "errorCode")
     end
 
     def message
-      find_by_key(parsed_response, "message")
+      deep_find_by_key(parsed_response, "message")
     end
 
-    def find_by_key(data, key)
+    def deep_find_by_key(data, key)
       case data
       when Hash
-        if data.has_key?(key)
-          data[key]
-        else
-          iteratively_find_by_key(data.values, key)
-        end
+        data[key] || iteratively_find_by_key(data.values, key)
       when Array
         iteratively_find_by_key(data, key)
       end
     end
 
     def iteratively_find_by_key(data, key)
-      data.find{ |item| find_by_key(item, key) }
+      data.find{ |item| deep_find_by_key(item, key) }
     end
   end
 end
