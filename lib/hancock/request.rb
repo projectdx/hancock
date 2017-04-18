@@ -122,24 +122,24 @@ module Hancock
     end
 
     def error_code
-      deep_find_by_key(parsed_response, "errorCode")
+      find_nested_response_field(parsed_response, "errorCode")
     end
 
     def message
-      deep_find_by_key(parsed_response, "message")
+      find_nested_response_field(parsed_response, "message")
     end
 
-    def deep_find_by_key(data, key)
-      case data
+    def find_nested_response_field(response_data, response_field)
+      case response_data
       when Hash
-        data[key] || iteratively_find_by_key(data.values, key)
+        response_data[response_field] || iteratively_find_response_field(response_data.values, response_field)
       when Array
-        iteratively_find_by_key(data, key)
+        iteratively_find_response_field(response_data, response_field)
       end
     end
 
-    def iteratively_find_by_key(data, key)
-      data.find{ |item| deep_find_by_key(item, key) }
+    def iteratively_find_response_field(response_data, response_field)
+      response_data.find{ |item| find_nested_response_field(item, response_field) }
     end
   end
 end
