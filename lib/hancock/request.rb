@@ -122,11 +122,11 @@ module Hancock
     end
 
     def error_code
-      find_nested_response_field(parsed_response, "errorCode")
+      @error_code ||= find_nested_response_field(parsed_response, "errorCode")
     end
 
     def message
-      find_nested_response_field(parsed_response, "message")
+      @message ||= find_nested_response_field(parsed_response, "message")
     end
 
     def find_nested_response_field(response_data, response_field)
