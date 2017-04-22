@@ -28,4 +28,13 @@ describe Hancock::Envelope::DocusignEnvelope do
       subject.get_lock
     end
   end
+
+  describe '#resend_email' do
+    it 'makes a request to Docusign' do
+      expect(Hancock::Request).to receive(:send_put_request)
+        .with('/envelopes/maui/recipients?resend_email=true')
+
+      subject.resend_email
+    end
+  end
 end

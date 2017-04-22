@@ -19,6 +19,10 @@ module Hancock
       def get_lock
         Hancock::Request.send_get_request("/envelopes/#{identifier}/lock")
       end
+
+      def resend_email
+        Hancock::Request.send_put_request("/envelopes/#{identifier}/recipients?resend_email=true")
+      end
     end
   end
 end

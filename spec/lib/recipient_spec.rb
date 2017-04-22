@@ -224,8 +224,8 @@ describe Hancock::Recipient do
     end
 
     context "when access method is 'embedded'" do
-      it "entirely recreates the recipient" do
-        expect(recreator_double).to receive(:recreate_with_tabs)
+      it "resends the email" do
+        expect(recreator_double).to receive(:resend_email)
         subject.resend_email
       end
     end
