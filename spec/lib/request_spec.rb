@@ -183,7 +183,7 @@ describe Hancock::Request do
       end
 
       it "raises an exception" do
-        expect{ subject.send_request }.to raise_error(Hancock::Request::RequestError)
+        expect{ subject.send_request }.to raise_error(Hancock::RequestError)
       end
     end
 
@@ -205,7 +205,7 @@ describe Hancock::Request do
         let(:body) { '{ "errorCode": "REQU3STLY_NO-BUENo" }' }
 
         it "raises an exception" do
-          expect{ subject.send_request }.to raise_error(Hancock::Request::RequestError)
+          expect{ subject.send_request }.to raise_error(Hancock::RequestError)
         end
       end
 
@@ -225,7 +225,7 @@ describe Hancock::Request do
         }
 
         it "raises an exception" do
-          expect{ subject.send_request }.to raise_error(Hancock::Request::RequestError)
+          expect{ subject.send_request }.to raise_error(Hancock::RequestError)
         end
       end
 

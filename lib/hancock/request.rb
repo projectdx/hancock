@@ -3,8 +3,6 @@ require 'faraday_middleware'
 
 module Hancock
   class Request
-    RequestError = Class.new(StandardError)
-
     attr_reader :uri, :type, :headers, :body, :response
 
     class << self
@@ -62,7 +60,7 @@ module Hancock
 
       unless success?
         Hancock.logger.error("#{response_status}:\n#{parsed_response}")
-        fail RequestError, "#{response_status} - #{parsed_response}"
+        fail RequestError.new(message, error_code)
       end
 
       Hancock.logger.debug("#{response_status}: #{parsed_response}")
@@ -98,7 +96,7 @@ module Hancock
     end
 
     def has_error?
-      includes_error_code?(parsed_response)
+      error_code && error_code != 'SUCCESS'
     end
 
     def parsed_response
@@ -123,19 +121,25 @@ module Hancock
       response.env.body
     end
 
-    def includes_error_code?(data)
-      case data
+    def error_code
+      @error_code ||= find_nested_response_field(parsed_response, "errorCode")
+    end
+
+    def message
+      @message ||= find_nested_response_field(parsed_response, "message")
+    end
+
+    def find_nested_response_field(response_data, response_field)
+      case response_data
       when Hash
-        if data.has_key?("errorCode") && data["errorCode"] != "SUCCESS"
-          true
-        else
-          data.values.any? { |element| includes_error_code?(element) }
-        end
+        response_data[response_field] || iteratively_find_response_field(response_data.values, response_field)
       when Array
-        data.any?{ |element| includes_error_code?(element) }
-      else
-        false
+        iteratively_find_response_field(response_data, response_field)
       end
+    end
+
+    def iteratively_find_response_field(response_data, response_field)
+      response_data.find{ |item| find_nested_response_field(item, response_field) }
     end
   end
 end

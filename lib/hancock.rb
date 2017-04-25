@@ -4,6 +4,7 @@ require 'active_support/concern'
 require 'active_model'
 
 require 'hancock/request'
+require 'hancock/request_error'
 require_relative 'hancock/configuration'
 
 require 'nokogiri'
