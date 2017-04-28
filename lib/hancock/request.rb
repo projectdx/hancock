@@ -68,6 +68,14 @@ module Hancock
       parsed_response || response_body
     end
 
+    def error_code
+      @error_code ||= nested_hash_value(parsed_response, "errorCode")
+    end
+
+    def message
+      @message ||= nested_hash_value(parsed_response, "message")
+    end
+
     private
 
     def connection
@@ -121,25 +129,24 @@ module Hancock
       response.env.body
     end
 
-    def error_code
-      @error_code ||= find_nested_response_field(parsed_response, "errorCode")
-    end
+    def nested_hash_value(response_data, response_field)
+      if response_data.respond_to?(:key?) && response_data.key?(response_field)
+        response_data[response_field]
+      elsif response_data.respond_to?(:each)
+        memo = nil
 
-    def message
-      @message ||= find_nested_response_field(parsed_response, "message")
-    end
+        # The * here destructures the elements so they will always be arrays.
+        # This means the #last call will always return our desired value
+        # whether the input is an Array or a Hash.  This will start by getting
+        # to the top-level keys (ie recipientUpdateResults), and then
+        # searching inside the values of those keys one by one until it finds
+        # repsonse_field.
+        response_data.find do |*temp_array|
+          memo = nested_hash_value(temp_array.last, response_field)
+        end
 
-    def find_nested_response_field(response_data, response_field)
-      case response_data
-      when Hash
-        response_data[response_field] || iteratively_find_response_field(response_data.values, response_field)
-      when Array
-        iteratively_find_response_field(response_data, response_field)
+        memo
       end
-    end
-
-    def iteratively_find_response_field(response_data, response_field)
-      response_data.find{ |item| find_nested_response_field(item, response_field) }
     end
   end
 end

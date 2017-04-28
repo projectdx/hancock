@@ -1,4 +1,13 @@
 describe Hancock::Request do
+  subject {
+    described_class.new(
+      :type => :patch,
+      :url => "a_url",
+      :custom_headers => {},
+      :body => "the content"
+    )
+  }
+
   before(:each) do
     allow(Hancock).to receive(:oauth_token).and_return("a_tokeny_value")
   end
@@ -117,15 +126,6 @@ describe Hancock::Request do
   end
 
   describe "#send_request" do
-    subject {
-      described_class.new(
-        :type => :patch,
-        :url => "a_url",
-        :custom_headers => {},
-        :body => "the content"
-      )
-    }
-
     before(:each) do
       allow(subject).to receive(:uri).and_return("the_uri")
       allow(subject).to receive(:headers).and_return({ :some => "headers" })
@@ -238,6 +238,71 @@ describe Hancock::Request do
           expect{ subject.send_request }.not_to raise_error
         end
       end
+
+      context "when the errorCode is nested with a value of 'SUCCESS'" do
+        let(:body) {
+          {"recipientUpdateResults"=>[{"recipientId"=>"1", "errorDetails"=>{"errorCode"=>"SUCCESS", "message"=>""}}]}.to_json
+        }
+
+        it "does not raise an exception" do
+          expect{ subject.send_request }.not_to raise_error
+        end
+      end
+
+      context "when the errorCode is nested with multiple recipients with value of 'SUCCESS'" do
+        let(:body) {
+          {
+            "recipientUpdateResults" => [
+              {"recipientId"=>"1", "errorDetails"=>{"errorCode"=>"SUCCESS", "message"=>""}},
+              {"recipientId"=>"2", "errorDetails"=>{"errorCode"=>"SUCCESS", "message"=>""}}
+            ]
+          }.to_json
+        }
+
+        it "does not raise an exception" do
+          expect{ subject.send_request }.not_to raise_error
+        end
+      end
+    end
+  end
+
+  describe "#error_code" do
+    let(:body) {
+      {"recipientUpdateResults"=>[{"recipientId"=>"1", "errorDetails"=>{"errorCode"=>"SUCCESS", "message"=>""}}]}.to_json
+    }
+
+    before(:each) do
+      allow(subject).to receive(:response_headers).and_return(
+        { "content-type" => "application/json" }
+      )
+
+      allow(subject).to receive(:response_body).and_return(
+        body
+      )
+    end
+
+    it "returns value of the errorCode key" do
+      expect(subject.error_code).to eq("SUCCESS")
+    end
+  end
+
+  describe "#message" do
+    let(:body) {
+      {"recipientUpdateResults"=>[{"recipientId"=>"1", "errorDetails"=>{"errorCode"=>"SUCCESS", "message"=>"i did it!"}}]}.to_json
+    }
+
+    before(:each) do
+      allow(subject).to receive(:response_headers).and_return(
+        { "content-type" => "application/json" }
+      )
+
+      allow(subject).to receive(:response_body).and_return(
+        body
+      )
+    end
+
+    it "returns value of the message key" do
+      expect(subject.message).to eq("i did it!")
     end
   end
 end
