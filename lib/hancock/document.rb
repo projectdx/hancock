@@ -2,19 +2,27 @@ module Hancock
   class Document < Hancock::Base
     attr_accessor :file, :data, :name, :extension, :identifier
 
-    validates :name, :extension, :presence => true
-    validate :has_either_data_or_file
-    validate :data_meets_minimum_size_requirement
+    validates :name, :extension, presence: true
+    validate :has_either_data_or_file?
+    validate :data_meets_minimum_size_requirement?
 
-    def has_either_data_or_file
-      unless file.present? ^ data.present? # XOR
+    def has_either_data_or_file?
+      if file_present? ^ data_present? # XOR
+        true
+      else
         errors.add(:base, 'must have either data or file but not both')
+        false
       end
     end
 
-    def data_meets_minimum_size_requirement
-      unless !data.present? || data_size > Hancock.minimum_document_data_size 
-        errors.add(:base, "Data size is: #{data_size} bytes. Minimum size is: #{Hancock.minimum_document_data_size}.")
+    def data_meets_minimum_size_requirement?
+      if data_present?
+        if data_size > Hancock.minimum_document_data_size
+          true
+        else
+          errors.add(:base, "Data size is: #{data_size} bytes. Minimum size is: #{Hancock.minimum_document_data_size}.")
+          false
+        end
       end
     end
 
@@ -27,7 +35,7 @@ module Hancock
     end
 
     def to_request
-      { :documentId => identifier, :name => name }
+      { documentId: identifier, name: name }
     end
 
     def data_for_request
@@ -57,23 +65,34 @@ module Hancock
         identifier = document['documentId']
         document_data = connection.document(identifier)
         identifier = identifier.to_i if identifier =~ /\A[0-9]+\z/
-        new(:name => document['name'], :extension => 'pdf', :data => document_data, :identifier => identifier)
+        new(name: document['name'], extension: 'pdf', data: document_data, identifier: identifier)
       end.compact
     end
-
-    private
 
     def generate_name
       File.basename(@file) if @file
     end
+    private :generate_name
 
     def generate_extension
       return File.basename(@file).split('.').last if @file
       return File.basename(@name).split('.').last if @name
     end
+    private :generate_extension
 
     def data_size
       data.bytesize if data
     end
+    private :data_size
+
+    def file_present?
+      file.present?
+    end
+    private :file_present?
+
+    def data_present?
+      !data.nil? && data_size > 0
+    end
   end
+
 end
