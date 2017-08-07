@@ -73,9 +73,22 @@ describe Hancock::Document do
       end
 
       context 'when given neither file nor data' do
+        it 'should be invalid' do
+          subject.file = nil
+          subject.valid?
+          expect(subject.errors[:base].first).to eq("must have either data or file but not both")
+          expect(subject.has_either_data_or_file?).to be_falsey
+        end
       end
 
-      context 'when given both file nor data' do
+      context 'when given both file and data' do
+        it 'should be invalid' do
+          subject.file = file
+          subject.data = data
+          subject.valid?
+          expect(subject.errors[:base].first).to eq("must have either data or file but not both")
+          expect(subject.has_either_data_or_file?).to be_falsey
+        end
       end
     end
 
