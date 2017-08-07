@@ -1,5 +1,5 @@
 module Hancock
-  class DocuSignAdapter < Hancock::Base
+  class DocuSignAdapter
     attr_accessor :envelope_id
 
     def initialize(envelope_id)
