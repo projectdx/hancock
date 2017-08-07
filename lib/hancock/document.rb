@@ -17,10 +17,10 @@ module Hancock
 
     def data_meets_minimum_size_requirement?
       if data_present?
-        if data_size > Hancock.minimum_document_data_size
+        if data.bytesize > Hancock.minimum_document_data_size
           true
         else
-          errors.add(:base, "Data size is: #{data_size} bytes. Minimum size is: #{Hancock.minimum_document_data_size}.")
+          errors.add(:base, "Data size is: #{data.bytesize} bytes. Minimum size is: #{Hancock.minimum_document_data_size}.")
           false
         end
       end
@@ -80,18 +80,13 @@ module Hancock
     end
     private :generate_extension
 
-    def data_size
-      data.bytesize if data
-    end
-    private :data_size
-
     def file_present?
       file.present?
     end
     private :file_present?
 
     def data_present?
-      !data.nil? && data_size > 0
+      !data.nil? && data.bytesize > 0
     end
   end
 
