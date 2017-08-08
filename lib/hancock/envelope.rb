@@ -7,8 +7,10 @@ module Hancock
     class AlreadySentError < StandardError; end
     class NotSavedYet < StandardError; end
 
-    attr_accessor :identifier, :status, :documents, :signature_requests,
-      :email, :recipients, :status_changed_at, :program_identifier
+    TERMINAL_STATUSES = ["completed", "signed", "voided"]
+    EDITABLE_STATUSES = ["created", "sent", "delivered", "correct"]
+
+    attr_accessor :identifier, :status, :documents, :signature_requests, :email, :recipients, :status_changed_at, :program_identifier
 
     validates :status, :presence => true
     validates :documents, :presence => true
@@ -29,11 +31,11 @@ module Hancock
     #
     def initialize(attributes = {})
       @identifier = attributes[:identifier]
-      @status = attributes[:status]
-      @documents = attributes[:documents] || []
+      @status     = attributes[:status]
+      @documents  = attributes[:documents]  || []
       @recipients = attributes[:recipients] || []
-      @email = attributes[:email] || {}
-      @reminder = attributes[:reminder]
+      @email      = attributes[:email]      || {}
+      @reminder   = attributes[:reminder]
       @expiration = attributes[:expiration]
       @program_identifier = attributes[:program_identifier]
 
@@ -91,7 +93,7 @@ module Hancock
     def change_status!(status)
       fail NotSavedYet unless identifier
       put_body = { :status => status }.to_json
-      response = Hancock::Request.send_put_request("/envelopes/#{identifier}", put_body)
+      Hancock::Request.send_put_request("/envelopes/#{identifier}", put_body)
       reload!
     end
 
@@ -120,8 +122,7 @@ module Hancock
     end
 
     def current_routing_order
-      Recipient::DocusignRecipient.all_for(identifier)
-        .parsed_response['currentRoutingOrder'].to_i
+      Recipient::DocusignRecipient.all_for(identifier)["currentRoutingOrder"].to_i
     end
 
     def notification_for_params
@@ -138,6 +139,18 @@ module Hancock
 
     def viewing_url
       docusign_envelope.viewing_url.parsed_response['url']
+    end
+
+    def in_editable_state?
+      EDITABLE_STATUSES.include?( status.to_s.downcase )
+    end
+
+    def in_terminal_state?
+      TERMINAL_STATUSES.include?( status.to_s.downcase )
+    end
+
+    def get_lock
+      docusign_envelope.get_lock
     end
 
     private

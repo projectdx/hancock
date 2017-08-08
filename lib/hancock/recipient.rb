@@ -4,8 +4,11 @@ require_relative 'recipient/recreator'
 module Hancock
   class Recipient < Hancock::Base
     SigningUrlError = Class.new(StandardError)
+    ResendEmailError = Class.new(StandardError)
+    CorrectionError = Class.new(StandardError)
 
     TYPES = [:agent, :carbon_copy, :certified_delivery, :editor, :in_person_signer, :intermediary, :signer]
+    CORRECTABLE_STATUSES = ["created", "sent", "delivered"]
 
     attr_accessor :client_user_id,
       :email,
@@ -17,7 +20,6 @@ module Hancock
       :status
 
     attr_reader :envelope_identifier,
-      :docusign_recipient,
       :embedded_start_url
 
     validates :name, :email, :presence => true
@@ -39,7 +41,7 @@ module Hancock
     end
 
     def self.fetch_for_envelope(envelope_identifier)
-      parsed_response = DocusignRecipient.all_for(envelope_identifier).parsed_response
+      parsed_response = DocusignRecipient.all_for(envelope_identifier)
 
       TYPES.map do |type|
         parsed_response[docusign_recipient_type(type)].map do |envelope_recipient|
@@ -47,7 +49,7 @@ module Hancock
             :client_user_id => envelope_recipient['clientUserId'],
             :email => envelope_recipient['email'],
             :envelope_identifier => envelope_identifier,
-            :id_check => nil,
+            :id_check => envelope_recipient['requireIdLookup'],
             :identifier => envelope_recipient['recipientId'],
             :name => envelope_recipient['name'],
             :routing_order => envelope_recipient['routingOrder'].to_i,
@@ -59,28 +61,28 @@ module Hancock
     end
 
     def update(params)
+      unless in_correctable_state?
+        raise CorrectionError.new(
+          "Cannot update recipient, they have already signed or declined."
+        )
+      end
+
       docusign_recipient.update(
         params.merge(:recipientId => identifier, :resend_envelope => false)
       )
 
-      params.each {|key, value|
+      params.each do |key, value|
         self.send(:"#{key}=", value)
-      }
+      end
     end
 
     def resend_email
-      # NOTE: this uses `.update` as a means to resend email
+      raise_unless_email_resendable!
+
       if access_method == :remote
-        # The API seems to require more than just recipientId
-        docusign_recipient.update(
-          :recipientId => identifier,
-          :name => name,
-          :resend_envelope => true
-        )
+        handle_remote_envelope
       elsif access_method == :embedded
-        # DocuSign currently provides no way to resend an envelope for a
-        # recipient with embedded signing enabled. So we use a workaround.
-        recreate_recipient_and_tabs
+        handle_embedded_envelope
       end
     end
 
@@ -106,7 +108,7 @@ module Hancock
         fail SigningUrlError, 'This recipient is not setup for in-person signing'
       end
 
-      docusign_recipient.signing_url(return_url).parsed_response['url']
+      docusign_recipient.signing_url(return_url)["url"]
     end
 
     def create(envelope_identifier: )
@@ -127,17 +129,52 @@ module Hancock
       }
     end
 
+    def docusign_recipient
+      @docusign_recipient ||= DocusignRecipient.new(self)
+    end
+
     #
     # format recipient_type(symbol) for DocuSign
     #
     def self.docusign_recipient_type(recipient_type)
       DocusignRecipient.docusign_recipient_type(recipient_type)
     end
+
     def docusign_recipient_type
       DocusignRecipient.docusign_recipient_type(recipient_type)
     end
 
     private
+
+    def handle_remote_envelope
+      # The API seems to require more than just recipientId
+      # NOTE: this uses `.update` as a means to resend email
+      docusign_recipient.update(
+        :recipientId => identifier,
+        :name => name,
+        :resend_envelope => true
+      )
+    end
+
+    def handle_embedded_envelope
+      # DocuSign currently provides no way to resend an envelope for a
+      # recipient with embedded signing enabled. So we use a workaround.
+      recreate_recipient_and_tabs
+    end
+
+    def raise_unless_email_resendable!
+      raise ResendEmailError.new(
+        "Cannot resend email, recipient has already signed or declined."
+      ) unless in_correctable_state?
+
+      raise ResendEmailError.new(
+        "Cannot resend email, envelope is in a non-editable state."
+      ) unless envelope.in_editable_state?
+
+      raise ResendEmailError.new(
+        "Cannot resend email, envelope is in a terminal state."
+      ) if envelope.in_terminal_state?
+    end
 
     def recreate_recipient_and_tabs
       Recipient::Recreator.new(docusign_recipient).recreate_with_tabs
@@ -147,12 +184,23 @@ module Hancock
       id_check ? 'ID Check $' : nil
     end
 
-    def docusign_recipient
-      @docusign_recipient ||= DocusignRecipient.new(self)
-    end
-
     def access_method
       client_user_id.nil? ? :remote : :embedded
+    end
+
+    def in_correctable_state?
+      self.status ||= fetch_status_from_docusign
+      CORRECTABLE_STATUSES.include?( status.to_s.downcase )
+    end
+
+    def fetch_status_from_docusign
+      self.class.fetch_for_envelope(envelope_identifier).select do |recipient|
+        recipient.identifier == identifier
+      end.first.try(:status)
+    end
+
+    def envelope
+      @envelope ||= Envelope.find(envelope_identifier)
     end
   end
 end

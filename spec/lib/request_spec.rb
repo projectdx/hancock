@@ -1,191 +1,308 @@
 describe Hancock::Request do
-  before do
-    allow(Hancock).to receive(:account_id).and_return(123_456)
-    allow(Hancock).to receive(:oauth_token).and_return('AnAmazingOAuthTokenShinyAndPink')
+  subject {
+    described_class.new(
+      :type => :patch,
+      :url => "a_url",
+      :custom_headers => {},
+      :body => "the content"
+    )
+  }
+
+  before(:each) do
+    allow(Hancock).to receive(:oauth_token).and_return("a_tokeny_value")
   end
 
-  describe '#send_get_request' do
-    it 'sends a request and receives a parsed body' do
-      stub_request(:get, 'https://demo.docusign.net/restapi/v2/accounts/123456/something_exciting')
+  describe ".send_post_request" do
+    subject { instance_double(Hancock::Request) }
+
+    it "creates an instance and sends the request" do
+      expect(described_class).to receive(:new)
         .with(
-          :headers => {
-            'Accept' => 'application/json',
-            'Authorization' => 'bearer AnAmazingOAuthTokenShinyAndPink'
-          })
-        .to_return(
-          :status => 200,
-          :body => '{"message": "the body"}',
-          :headers => { 'Content-Type' => 'application/json' })
-      response = described_class.send_get_request('/something_exciting')
-      expect(response.success?).to be_truthy
-      expect(response.parsed_response).to eq({'message' => 'the body'})
-    end
-
-    it 'raises an error for any non-200 response status' do
-      stub_request(:get, 'https://demo.docusign.net/restapi/v2/accounts/123456/something_exciting')
-        .to_return(
-          :status => 404,
-          :body => { :errorCode => 'WANNA', :message => 'An error message' }.to_json,
-          :headers => { 'Content-Type' => 'application/json' })
-      expect {
-        described_class.send_get_request('/something_exciting')
-      }.to raise_error(Hancock::Request::RequestError, '404 - WANNA - An error message')
-    end
-
-    it "raises an error if an error code is present regardless of http status" do
-      stub_request(:get, "https://demo.docusign.net/restapi/v2/accounts/123456/something_subtly_broken")
-        .to_return(
-          :status => 200,
-          :body => { :errorCode => "Oops", :message => "I'm good, no I'm not" }.to_json,
-          :headers => { "Content-Type" => 'application/json' })
-      expect {
-        described_class.send_get_request("/something_subtly_broken")
-      }.to raise_error(Hancock::Request::RequestError, "200 - Oops - I'm good, no I'm not")
+          :type => :post,
+          :url => "a_url",
+          :custom_headers => {"custom" => "header"},
+          :body => "a_body"
+        ).and_return(subject)
+      expect(subject).to receive(:send_request)
+      described_class.send_post_request("a_url", "a_body", "custom" => "header")
     end
   end
 
-  describe '#send_delete_request' do
-    it 'sends a delete request to DocuSign and returns response' do
-      stub_request(:delete, 'https://demo.docusign.net/restapi/v2/accounts/123456/something_exciting')
+  describe ".send_put_request" do
+    subject { instance_double(Hancock::Request) }
+
+    it "creates an instance and sends the request" do
+      expect(described_class).to receive(:new)
         .with(
-          :headers => {
-            'Accept' => 'application/json',
-            'Authorization' => 'bearer AnAmazingOAuthTokenShinyAndPink',
-            'Content-Type' => 'application/json'
-          })
-        .to_return(
-          :status => 200,
-          :body => '{"message": "the body"}',
-          :headers => { 'Content-Type' => 'application/json' })
-      response = described_class.send_delete_request('/something_exciting', '{}')
-      expect(response.success?).to be_truthy
-      expect(response.parsed_response).to eq({'message' => 'the body'})
-    end
-
-    it 'raises an error for any non-200 response status' do
-      stub_request(:delete, 'https://demo.docusign.net/restapi/v2/accounts/123456/something_exciting')
-        .to_return(
-          :status => 404,
-          :body => { :errorCode => 'WANNA', :message => 'An error message' }.to_json,
-          :headers => { 'Content-Type' => 'application/json' })
-      expect {
-        described_class.send_delete_request('/something_exciting', '{}')
-      }.to raise_error(Hancock::Request::RequestError, '404 - WANNA - An error message')
-    end
-
-    it "raises an error if an error code is present regardless of http status" do
-      stub_request(:delete, "https://demo.docusign.net/restapi/v2/accounts/123456/something_subtly_broken")
-        .to_return(
-          :status => 200,
-          :body => { :errorCode => "Oops", :message => "I'm good, no I'm not" }.to_json,
-          :headers => { "Content-Type" => 'application/json' })
-      expect {
-        described_class.send_delete_request("/something_subtly_broken", "{}")
-      }.to raise_error(Hancock::Request::RequestError, "200 - Oops - I'm good, no I'm not")
+          :type => :put,
+          :url => "a_url",
+          :custom_headers => {"custom" => "header"},
+          :body => "a_body"
+        ).and_return(subject)
+      expect(subject).to receive(:send_request)
+      described_class.send_put_request("a_url", "a_body", "custom" => "header")
     end
   end
 
-  describe '#send_post_request' do
-    it 'sends a post request to DocuSign and returns response' do
-      stub_request(:post, 'https://demo.docusign.net/restapi/v2/accounts/123456/whatever')
+  describe ".send_get_request" do
+    subject { instance_double(Hancock::Request) }
+
+    it "creates an instance and sends the request" do
+      expect(described_class).to receive(:new)
+        .with(:type => :get, :url => "a_url")
+        .and_return(subject)
+      expect(subject).to receive(:send_request)
+      described_class.send_get_request("a_url")
+    end
+  end
+
+  describe ".send_delete_request" do
+    subject { instance_double(Hancock::Request) }
+
+    it "creates an instance and sends the request" do
+      expect(described_class).to receive(:new)
         .with(
-          :headers => {
-            'Accept' => 'Yourself',
-            'Authorization' => 'bearer AnAmazingOAuthTokenShinyAndPink',
-          },
-          :body => 'alien sandwiches')
-        .to_return(
-          :status => 201,
-          :body => '{"message": "bodylicious"}',
-          :headers => { 'Content-Type' => 'application/json' })
-      response = described_class.send_post_request('/whatever', 'alien sandwiches', 'Accept' => 'Yourself')
-      expect(response.success?).to be true
-      expect(response.parsed_response).to eq({ 'message' => 'bodylicious' })
-    end
-
-    it 'raises an error for any non-200 response status' do
-      stub_request(:post, 'https://demo.docusign.net/restapi/v2/accounts/123456/something_exciting')
-        .to_return(
-          :status => 404,
-          :body => { :errorCode => 'WANNA', :message => 'An error message' }.to_json,
-          :headers => { 'Content-Type' => 'application/json' })
-      expect {
-        described_class.send_post_request('/something_exciting', 'alien sandwiches')
-      }.to raise_error(Hancock::Request::RequestError, '404 - WANNA - An error message')
-    end
-
-    it "raises an error if an error code is present regardless of http status" do
-      stub_request(:post, "https://demo.docusign.net/restapi/v2/accounts/123456/something_subtly_broken")
-        .to_return(
-          :status => 200,
-          :body => { :errorCode => "Oops", :message => "I'm good, no I'm not" }.to_json,
-          :headers => { "Content-Type" => 'application/json' })
-      expect {
-        described_class.send_post_request("/something_subtly_broken", "ignorance isn't bliss")
-      }.to raise_error(Hancock::Request::RequestError, "200 - Oops - I'm good, no I'm not")
+          :type => :delete,
+          :url => "a_url",
+          :custom_headers => {"custom" => "header"},
+          :body => "a_body"
+        ).and_return(subject)
+      expect(subject).to receive(:send_request)
+      described_class.send_delete_request("a_url", "a_body", "custom" => "header")
     end
   end
 
-  describe '#send_put_request' do
-    it 'sends a put request to DocuSign and returns response' do
-      stub_request(:put, 'https://demo.docusign.net/restapi/v2/accounts/123456/ghost_racquetball')
-        .with(
-          :headers => {
-            'Accept' => 'application/json',
-            'Authorization' => 'bearer AnAmazingOAuthTokenShinyAndPink',
-            'Content-Type' => 'application/json'
-          },
-          :body => 'you will rue bidets')
-        .to_return(
-          :status => 200,
-          :body => '{ "message": "grassy knolls" }',
-          :headers => { 'Content-Type' => 'application/json' })
-      response = described_class.send_put_request('/ghost_racquetball', 'you will rue bidets')
-      expect(response.success?).to be_truthy
-      expect(response.parsed_response).to eq('message' => 'grassy knolls')
+  describe "#initialize" do
+    it "uses default headers" do
+      subject = described_class.new(:type => :foo, :url => :bar)
+
+      expect(subject.headers).to eq({
+        "Accept" => "application/json",
+        "Authorization" => "bearer a_tokeny_value",
+        "Content-Type" => "application/json",
+        "X-DocuSign-TimeTrack" => "DS-REQUEST-TIME"
+      })
     end
 
-    it 'raises an error for any non-200 response status' do
-      stub_request(:put, 'https://demo.docusign.net/restapi/v2/accounts/123456/something_exciting')
-        .to_return(
-          :status => 404,
-          :body => { :errorCode => 'WANNA', :message => 'An error message' }.to_json,
-          :headers => { 'Content-Type' => 'application/json' })
-      expect {
-        described_class.send_put_request('/something_exciting', 'you will rue bidets')
-      }.to raise_error(Hancock::Request::RequestError, '404 - WANNA - An error message')
-    end
-
-    it "raises an error if an error code is present regardless of http status" do
-      stub_request(:put, "https://demo.docusign.net/restapi/v2/accounts/123456/something_subtly_broken")
-        .to_return(
-          :status => 200,
-          :body => { :errorCode => "Oops", :message => "I'm good, no I'm not" }.to_json,
-          :headers => { "Content-Type" => "application/json" })
-      expect {
-        described_class.send_put_request("/something_subtly_broken", "ignorance isn't bliss")
-      }.to raise_error(Hancock::Request::RequestError, "200 - Oops - I'm good, no I'm not")
-    end
-  end
-
-  describe '#merge_headers' do
-    let(:default_headers) {
-      {
-        'Accept' => 'application/json',
-        'Authorization' => 'bearer AnAmazingOAuthTokenShinyAndPink',
-        'Content-Type' => 'application/json'
+    it "allows custom headers to override default headers" do
+      custom_headers = {
+        "Nature" => "secret",
+        "Accept" => "EvEryThinG!"
       }
+      subject = described_class.new(
+        :type => :foo,
+        :url => :bar,
+        :custom_headers => custom_headers
+      )
+
+      expect(subject.headers).to eq({
+        "Nature" => "secret",
+        "Accept" => "EvEryThinG!",
+        "Authorization" => "bearer a_tokeny_value",
+        "Content-Type" => "application/json",
+        "X-DocuSign-TimeTrack" => "DS-REQUEST-TIME"
+      })
+    end
+
+    it "allows a body to be specified" do
+      subject = described_class.new(
+        :type => :foo,
+        :url => :bar,
+        :custom_headers => {},
+        :body => "the body"
+      )
+      expect(subject.body).to eq("the body")
+    end
+
+    it "generates the uri" do
+      allow(Hancock).to receive(:endpoint).and_return("3ndp0int")
+      allow(Hancock).to receive(:api_version).and_return("l@test")
+      allow(Hancock).to receive(:account_id).and_return("acc0unt")
+
+      subject = described_class.new(:type => :foo, :url => "/awesome_path")
+
+      expect(subject.uri).to eq("3ndp0int/l@test/accounts/acc0unt/awesome_path")
+    end
+  end
+
+  describe "#send_request" do
+    before(:each) do
+      allow(subject).to receive(:uri).and_return("the_uri")
+      allow(subject).to receive(:headers).and_return({ :some => "headers" })
+    end
+
+    context "for JSON responses" do
+      body = '{ "a": "response" }'
+
+      before(:each) do
+        stub_request(:patch, /the_uri/)
+          .with(
+            :headers => { :some => "headers" },
+            :body => "the content"
+          )
+          .to_return(
+            :headers => { :content_type => "application/json; charset=utf-8" },
+            :body => body,
+          )
+      end
+
+      it "returns the parsed response" do
+        expect(subject.send_request).to eq(JSON.parse(body))
+      end
+    end
+
+    context "for non-JSON responses" do
+      body = '{ "a": "response" }'
+
+      before(:each) do
+        stub_request(:patch, /the_uri/)
+          .with(
+            :headers => { :some => "headers" },
+            :body => "the content"
+          )
+          .to_return(
+            :body => body,
+          )
+      end
+
+      it "returns the body" do
+        expect(subject.send_request).to eq(body)
+      end
+    end
+
+    context "for requests with a non-200-level HTTP status" do
+      before(:each) do
+        stub_request(:patch, /the_uri/)
+          .with(
+            :headers => { :some => "headers" },
+            :body => "the content"
+          )
+          .to_return(
+            :status => 404,
+          )
+      end
+
+      it "raises an exception" do
+        expect{ subject.send_request }.to raise_error(Hancock::RequestError)
+      end
+    end
+
+    context "for requests that contain an errorCode" do
+      before(:each) do
+        stub_request(:patch, /the_uri/)
+          .with(
+            :headers => { :some => "headers" },
+            :body => "the content"
+          )
+          .to_return(
+            :headers => { :content_type => "application/json" },
+            :status => 200,
+            :body => body
+          )
+      end
+
+      context "when the errorCode is a top-level key" do
+        let(:body) { '{ "errorCode": "REQU3STLY_NO-BUENo" }' }
+
+        it "raises an exception" do
+          expect{ subject.send_request }.to raise_error(Hancock::RequestError)
+        end
+      end
+
+      context "when the errorCode is nested" do
+        let(:body) {
+          {
+            "someResultsForYou" => [
+              { "foo" => "bar" },
+              {
+                "nestedStuff" => {
+                  "errorCode" =>"REQU3STLY_NO-BUENo",
+                  "message" => "Trust not the 200"
+                }
+              }
+            ]
+          }.to_json
+        }
+
+        it "raises an exception" do
+          expect{ subject.send_request }.to raise_error(Hancock::RequestError)
+        end
+      end
+
+      context "when the errorCode is 'SUCCESS'" do
+        let(:body) {
+          { "errorCode" =>"SUCCESS" }.to_json
+        }
+
+        it "does not raise an exception" do
+          expect{ subject.send_request }.not_to raise_error
+        end
+      end
+
+      context "when the errorCode is nested with a value of 'SUCCESS'" do
+        let(:body) {
+          {"recipientUpdateResults"=>[{"recipientId"=>"1", "errorDetails"=>{"errorCode"=>"SUCCESS", "message"=>""}}]}.to_json
+        }
+
+        it "does not raise an exception" do
+          expect{ subject.send_request }.not_to raise_error
+        end
+      end
+
+      context "when the errorCode is nested with multiple recipients with value of 'SUCCESS'" do
+        let(:body) {
+          {
+            "recipientUpdateResults" => [
+              {"recipientId"=>"1", "errorDetails"=>{"errorCode"=>"SUCCESS", "message"=>""}},
+              {"recipientId"=>"2", "errorDetails"=>{"errorCode"=>"SUCCESS", "message"=>""}}
+            ]
+          }.to_json
+        }
+
+        it "does not raise an exception" do
+          expect{ subject.send_request }.not_to raise_error
+        end
+      end
+    end
+  end
+
+  describe "#error_code" do
+    let(:body) {
+      {"recipientUpdateResults"=>[{"recipientId"=>"1", "errorDetails"=>{"errorCode"=>"SUCCESS", "message"=>""}}]}.to_json
     }
 
-    it "returns Accept and Authorization headers" do
-      expect(described_class.merge_headers).to eq default_headers
+    before(:each) do
+      allow(subject).to receive(:response_headers).and_return(
+        { "content-type" => "application/json" }
+      )
+
+      allow(subject).to receive(:response_body).and_return(
+        body
+      )
     end
 
-    it 'merges given headers with default headers' do
-      content_headers = { 'Content-Type' => "multipart/form-data, boundary='AAA'"}
+    it "returns value of the errorCode key" do
+      expect(subject.error_code).to eq("SUCCESS")
+    end
+  end
 
-      expect(described_class.merge_headers(content_headers)).
-        to eq default_headers.merge!(content_headers)
+  describe "#message" do
+    let(:body) {
+      {"recipientUpdateResults"=>[{"recipientId"=>"1", "errorDetails"=>{"errorCode"=>"SUCCESS", "message"=>"i did it!"}}]}.to_json
+    }
+
+    before(:each) do
+      allow(subject).to receive(:response_headers).and_return(
+        { "content-type" => "application/json" }
+      )
+
+      allow(subject).to receive(:response_body).and_return(
+        body
+      )
+    end
+
+    it "returns value of the message key" do
+      expect(subject.message).to eq("i did it!")
     end
   end
 end

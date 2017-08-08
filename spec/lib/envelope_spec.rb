@@ -18,7 +18,7 @@ describe Hancock::Envelope do
     end
 
     it { is_expected.to have_valid(:status).when('yay look a status') }
-    it { is_expected.not_to have_valid(:status).when('', nil) }
+    it { is_expected.not_to have_valid(:status).when("", nil) }
     it { is_expected.to have_valid(:recipients).when([recipient]) }
     it { is_expected.not_to have_valid(:recipients).when([], nil, [:not_a_recipient], [association(Hancock::Recipient, :validity => false)]) }
     it { is_expected.to have_valid(:documents).when([association(Hancock::Document)]) }
@@ -98,12 +98,13 @@ describe Hancock::Envelope do
         }.to raise_error(described_class::NotSavedYet)
       end
 
-      it 'raises a DocusignError with the returned message if not successful' do
+      it "raises an error with the returned message if not successful" do
+        response = {"errorCode" => "UNEDUCATED_FELON_ERROR", "message" => "Umbrella smoothie is bad idea."}
         subject.identifier = 'smokey-heaven'
         stub_status_change('smokey-heaven', 'floosh', 'failed_status_change', 400)
         expect {
           subject.change_status!('floosh')
-        }.to raise_error(Hancock::Request::RequestError, '400 - UNEDUCATED_FELON_ERROR - Umbrella smoothie is bad idea.')
+        }.to raise_error(Hancock::RequestError, "Umbrella smoothie is bad idea.")
       end
     end
 
@@ -315,12 +316,15 @@ describe Hancock::Envelope do
       end
 
       context 'unsuccessful send' do
-        let!(:request_stub) { stub_envelope_creation('send_envelope', 'failed_creation', 500) }
+        let(:response) {
+          {"errorCode" => "YOU_ARE_A_BANANA", "message" => "Bananas are not allowed to bank."}
+        }
 
         it 'raises a DocusignError with the returned message if not successful' do
+          stub_envelope_creation('send_envelope', 'failed_creation', 500)
           expect {
             subject.send!
-          }.to raise_error(Hancock::Request::RequestError, '500 - YOU_ARE_A_BANANA - Bananas are not allowed to bank.')
+          }.to raise_error(Hancock::RequestError, response[:message])
         end
       end
     end
@@ -631,6 +635,71 @@ describe Hancock::Envelope do
         .and_return(double(:parsed_response => parsed_body))
 
       expect(subject.viewing_url).to eq('https://demo.docusign.net/linky-linky')
+    end
+  end
+
+  describe "#in_terminal_state?" do
+    subject { described_class.new(status: status) }
+
+    before :each do
+      stub_const("#{described_class}::TERMINAL_STATUSES", ["banana"])
+    end
+
+    context "envelope in non-terminal state" do
+      let(:status) { "sent" }
+
+      it "returns true if status is in list" do
+        expect(subject.in_terminal_state?).to be_falsey
+      end
+    end
+
+    context "envelope in terminal state" do
+      let(:status) { "banana" }
+
+      it "returns false if status is not in list" do
+        expect(subject.in_terminal_state?).to be_truthy
+      end
+    end
+  end
+
+  describe "#in_editable_state?" do
+    subject { described_class.new(status: status) }
+
+    before :each do
+      stub_const("#{described_class}::EDITABLE_STATUSES", ["banana"])
+    end
+
+    context "envelope in editable state" do
+      let(:status) { "banana" }
+
+      it "returns true if status is in list" do
+        expect(subject.in_editable_state?).to be_truthy
+      end
+    end
+
+    context "envelope in non-editable state" do
+      let(:status) { "voided" }
+
+      it "returns false if status is not in list" do
+        expect(subject.in_editable_state?).to be_falsey
+      end
+    end
+  end
+
+  describe "#get_lock" do
+    subject { described_class.new({identifier: "fake-id"}) }
+
+    let(:docusign_envelope) {
+      instance_double(Hancock::Envelope::DocusignEnvelope, :get_lock => "like a boss")
+    }
+
+    before :each do
+      allow(Hancock::Envelope::DocusignEnvelope).to receive(:new).and_return(docusign_envelope)
+    end
+
+    it "uses the DocusignEnvelope API class to get the lock" do
+      subject.get_lock
+      expect(docusign_envelope).to have_received(:get_lock)
     end
   end
 end

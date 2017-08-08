@@ -24,7 +24,7 @@ module Hancock
     # This retrieves the specified document from the envelope
     #
     def document(document_id)
-      Hancock::Request.send_get_request("/envelopes/#{envelope_id}/documents/#{document_id}").body
+      Hancock::Request.send_get_request("/envelopes/#{envelope_id}/documents/#{document_id}")
     end
 
     #
