@@ -1,8 +1,8 @@
 #!/usr/bin/env ruby
-require 'bundler/setup'
-require 'hancock'
+require "bundler/setup"
+require "hancock"
 
-data = IO.read(File.open(File.expand_path('DocuSign API.docx', File.dirname(__FILE__))))
+data = IO.read(File.open(File.expand_path("DocuSign API.docx", File.dirname(__FILE__))))
 
 puts "\nThis is a bit of the data that is clearly present and not blank:"
 p data[0, 100]

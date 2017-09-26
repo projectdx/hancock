@@ -17,7 +17,7 @@ module Hancock
     # This returns a list of documents associated with the specified envelope
     #
     def documents
-      Hancock::Request.send_get_request("/envelopes/#{envelope_id}/documents")['envelopeDocuments']
+      Hancock::Request.send_get_request("/envelopes/#{envelope_id}/documents")["envelopeDocuments"]
     end
 
     #

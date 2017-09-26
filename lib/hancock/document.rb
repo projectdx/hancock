@@ -10,7 +10,7 @@ module Hancock
       if file_present? ^ data_present? # XOR
         true
       else
-        errors.add(:base, 'must have either data or file but not both')
+        errors.add(:base, "must have either data or file but not both")
         false
       end
     end
@@ -44,10 +44,10 @@ module Hancock
 
     def content_type_and_disposition
       case extension
-      when 'pdf'
+      when "pdf"
         "Content-Type: application/pdf\r\n"\
         "Content-Disposition: file; filename=#{name}; documentid=#{identifier}\r\n\r\n"
-      when 'docx'
+      when "docx"
         "Content-Type: application/vnd.openxmlformats-officedocument.wordprocessingml.document\r\n"\
         "Content-Disposition: file; filename=#{name}; documentid=#{identifier}\r\n\r\n"
       end
@@ -58,14 +58,14 @@ module Hancock
     end
 
     def self.fetch_all_for_envelope(envelope, options = {})
-      options[:types] ||= ['content']
+      options[:types] ||= ["content"]
       connection = Hancock::DocuSignAdapter.new(envelope.identifier)
       connection.documents.map do |document|
-        next unless options[:types].include?(document['type'])
-        identifier = document['documentId']
+        next unless options[:types].include?(document["type"])
+        identifier = document["documentId"]
         document_data = connection.document(identifier)
         identifier = identifier.to_i if identifier =~ /\A[0-9]+\z/
-        new(name: document['name'], extension: 'pdf', data: document_data, identifier: identifier)
+        new(name: document["name"], extension: "pdf", data: document_data, identifier: identifier)
       end.compact
     end
 
@@ -75,8 +75,8 @@ module Hancock
     private :generate_name
 
     def generate_extension
-      return File.basename(@file).split('.').last if @file
-      return File.basename(@name).split('.').last if @name
+      return File.basename(@file).split(".").last if @file
+      return File.basename(@name).split(".").last if @name
     end
     private :generate_extension
 
