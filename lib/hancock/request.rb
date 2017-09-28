@@ -1,5 +1,5 @@
-require 'faraday'
-require 'faraday_middleware'
+require "faraday"
+require "faraday_middleware"
 
 module Hancock
   class Request
@@ -8,35 +8,35 @@ module Hancock
     class << self
       def send_post_request(url, body, custom_headers = {})
         new(
-          :type => :post,
-          :url => url,
-          :custom_headers => custom_headers,
-          :body => body
+          type: :post,
+          url: url,
+          custom_headers: custom_headers,
+          body: body
         ).send_request
       end
 
       def send_put_request(url, body, custom_headers = {})
         new(
-          :type => :put,
-          :url => url,
-          :custom_headers => custom_headers,
-          :body => body
+          type: :put,
+          url: url,
+          custom_headers: custom_headers,
+          body: body
         ).send_request
       end
 
       def send_get_request(url)
         new(
-          :type => :get,
-          :url => url
+          type: :get,
+          url: url
         ).send_request
       end
 
       def send_delete_request(url, body, custom_headers = {})
         new(
-          :type => :delete,
-          :url => url,
-          :custom_headers => custom_headers,
-          :body => body
+          type: :delete,
+          url: url,
+          custom_headers: custom_headers,
+          body: body
         ).send_request
       end
     end
@@ -88,10 +88,10 @@ module Hancock
 
     def default_headers
       {
-        'Accept' => 'application/json',
-        'Authorization' => "bearer #{Hancock.oauth_token}",
-        'Content-Type' => 'application/json',
-        'X-DocuSign-TimeTrack' => 'DS-REQUEST-TIME'
+        "Accept" => "application/json",
+        "Authorization" => "bearer #{Hancock.oauth_token}",
+        "Content-Type" => "application/json",
+        "X-DocuSign-TimeTrack" => "DS-REQUEST-TIME"
       }
     end
 
@@ -104,7 +104,7 @@ module Hancock
     end
 
     def has_error?
-      error_code && error_code != 'SUCCESS'
+      error_code && error_code != "SUCCESS"
     end
 
     def parsed_response
