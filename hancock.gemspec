@@ -24,7 +24,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "valid_attribute"
   spec.add_development_dependency "webmock", "1.24.2"
   spec.add_development_dependency "simplecov"
-  spec.add_development_dependency "pry-byebug"
+  spec.add_development_dependency "pry"
   spec.add_development_dependency "rspec-autotest"
   spec.add_development_dependency "ZenTest"
   spec.add_development_dependency "autotest-growl"

@@ -2,6 +2,14 @@
 require "bundler/setup"
 require "hancock"
 
+# This file explains the problem with ActiveSupport's implementation of blank?
+# activesupport/lib/active_support/core_ext/object/blank.rb
+# and my investigation of the issue.
+# I've decided to implement the suggested fix
+#  `!data.nil? && data.length > 0`
+# over using the previous data present check in this gem.
+#  `data.present?`
+
 data = IO.read(File.open(File.expand_path("DocuSign API.docx", File.dirname(__FILE__))))
 
 puts "\nThis is a bit of the data that is clearly present and not blank:"
