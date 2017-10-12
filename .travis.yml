@@ -1,10 +1,18 @@
 language: ruby
 env:
   global:
-  - TRAVIS_ENV=true
+    - TRAVIS_ENV=true
 before_script:
 script: bundle exec rake
 rvm:
-- 2.2.3
+  - 2.2.3
 sudo: false
 cache: bundler
+
+env:
+  # $GEMFURY_API_KEY (itstaff+readwrite@renewfinancial.com)
+  -  secure: "NTqk9vSdoMLMaL34Sgz/R6H3dZ/U3ygc8M/YziqRnkhqpJkIUDNaXBA7hEKgH8hNVVPu6Hhth+uDCA8fu8DX7otPEy2g+4eBJ2PUBJcEbs51tiTWIE4TMY84UFTWAWmhoNSn2E3Wi1CGyQCwkbQwDUHEzC4RwLAWr8catbVHMDw="
+
+after_success:
+  - gem install -q renew_tools --source https://sXqaiTdHem9AuWU4o8oH@gem.fury.io/renewfinancial/
+  - renew gem release
