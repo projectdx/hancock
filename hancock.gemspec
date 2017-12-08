@@ -32,6 +32,6 @@ Gem::Specification.new do |spec|
   spec.add_dependency "nokogiri"
   spec.add_dependency "faraday"            # http library
   spec.add_dependency "faraday_middleware" # allows redirects
-  spec.add_dependency "activesupport", "~> 5"
-  spec.add_dependency "activemodel", "~> 5"
+  spec.add_dependency "activesupport", "~> 4"
+  spec.add_dependency "activemodel", "~> 4"
 end
