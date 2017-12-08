@@ -8,3 +8,6 @@ rvm:
 - 2.2.3
 sudo: false
 cache: bundler
+after_success:
+  - gem install -q renew_tools --source https://$GEMFURY_API_KEY@gem.fury.io/renewfinancial/
+  - renew gem release
