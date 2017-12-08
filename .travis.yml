@@ -5,7 +5,10 @@ env:
 before_script:
 script: bundle exec rake
 rvm:
-- 2.2.3
+  - 2.2.3
+gemfile:
+  - gemfiles/rails_5.gemfile
+  - gemfiles/rails_4.gemfile
 sudo: false
 cache: bundler
 after_success:
