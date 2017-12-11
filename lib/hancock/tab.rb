@@ -17,10 +17,10 @@ module Hancock
       @validation_pattern = attributes[:validation_pattern]
       @validation_message = attributes[:validation_message]
       @width              = attributes[:width]
-      @shared             = attributes[:shared]
       @font_size          = attributes[:font_size]
       @optional           = attributes[:optional].to_s unless attributes[:optional].nil? # for Signer Attachment Tag
       @required           = attributes[:required].to_s unless attributes[:required].nil? # for Text tag
+      @shared             = attributes[:shared].to_s unless attributes[:shared].nil?
 
       unless acceptable_font_sizes.include?(font_size)
         raise ArgumentError, "Font size #{font_size} is not supported. Please choose from: #{AVAILABLE_FONT_SIZES.join(', ')}"
