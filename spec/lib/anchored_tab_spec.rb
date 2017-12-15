@@ -49,7 +49,9 @@ describe Hancock::AnchoredTab do
         :font_size => 48,
         :optional => true,
         :label => 'label maker',
-        :required => 'true'
+        :required => 'true',
+        :shared => 'true',
+        :require_all => 'false',
       )
 
       expect(subject.to_h).to eq({
@@ -64,7 +66,9 @@ describe Hancock::AnchoredTab do
         :fontSize => 'Size48',
         :optional => 'true',
         :tabLabel => 'label maker',
-        :required => 'true'
+        :required => 'true',
+        :shared   => 'true',
+        :requireAll => 'false'
       })
     end
 

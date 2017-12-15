@@ -1,7 +1,7 @@
 module Hancock
   class Tab < Hancock::Base
     attr_accessor :type, :label, :page_number, :coordinates, :optional, :required
-    attr_reader :width, :font_size, :validation_pattern, :validation_message, :shared
+    attr_reader :width, :font_size, :validation_pattern, :validation_message, :shared, :require_all
 
     AVAILABLE_FONT_SIZES = [7, 8, 9, 10, 11, 12, 14, 16, 18, 20, 22, 24, 26, 28, 36, 48, 72]
 
@@ -21,6 +21,7 @@ module Hancock
       @optional           = attributes[:optional].to_s unless attributes[:optional].nil? # for Signer Attachment Tag
       @required           = attributes[:required].to_s unless attributes[:required].nil? # for Text tag
       @shared             = attributes[:shared].to_s unless attributes[:shared].nil?
+      @require_all        = attributes[:require_all].to_s unless attributes[:require_all].nil?
 
       unless acceptable_font_sizes.include?(font_size)
         raise ArgumentError, "Font size #{font_size} is not supported. Please choose from: #{AVAILABLE_FONT_SIZES.join(', ')}"
@@ -39,7 +40,8 @@ module Hancock
         fontSize:           docusign_font_size(font_size),
         optional:           optional,
         required:           required,
-        shared:             shared
+        shared:             shared,
+        requireAll:         require_all
       }.reject{ |_,value| value.nil? }
     end
 
