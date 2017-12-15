@@ -25,7 +25,8 @@ module Hancock
         optional:                 optional,
         tabLabel:                 label,
         required:                 required,
-        shared:                   shared
+        shared:                   shared,
+        requireAll:               require_all
       }.reject{ |_, value| value.nil? }
     end
   end
