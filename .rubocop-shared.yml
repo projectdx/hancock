@@ -1,0 +1,5 @@
+# placeholder for CC to import the shared config on top of.
+# Shared rubocop config is here: https://github.com/projectdx/shared_rubocop
+# Instructions here: https://docs.codeclimate.com/v1.0/docs/configuring-the-prepare-step
+inherit_from:
+  - https://raw.githubusercontent.com/projectdx/shared_rubocop/master/.rubocop.yml
