@@ -1,0 +1,31 @@
+---
+engines:
+  duplication:
+    enabled: true
+    config:
+      languages:
+      - ruby
+      - javascript
+      - python
+      - php
+  fixme:
+    enabled: true
+  rubocop:
+    enabled: true
+
+prepare:
+  fetch:
+  - url: "https://raw.githubusercontent.com/projectdx/shared_rubocop/master/.rubocop.yml"
+    path: ".rubocop-shared.yml"
+
+ratings:
+  paths:
+  - "**.inc"
+  - "**.js"
+  - "**.jsx"
+  - "**.module"
+  - "**.php"
+  - "**.py"
+  - "**.rb"
+exclude_paths:
+- spec/
