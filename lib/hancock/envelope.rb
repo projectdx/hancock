@@ -97,6 +97,12 @@ module Hancock
       reload!
     end
 
+    def change_expiration!
+      put_body = { notification: notification_for_params }.to_json
+      Hancock::Request.send_put_request("/envelopes/#{identifier}?advanced_update=true", put_body)
+      reload!
+    end
+
     #
     # returns all summary (not content) documents for envelope
     #
