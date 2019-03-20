@@ -46,10 +46,10 @@ module Hancock
       case extension
       when "pdf"
         "Content-Type: application/pdf\r\n"\
-        "Content-Disposition: file; filename=#{name}; documentid=#{identifier}\r\n\r\n"
+        "Content-Disposition: form-data; name=#{name}; file; filename=#{name}; documentid=#{identifier}\r\n\r\n"
       when "docx"
         "Content-Type: application/vnd.openxmlformats-officedocument.wordprocessingml.document\r\n"\
-        "Content-Disposition: file; filename=#{name}; documentid=#{identifier}\r\n\r\n"
+        "Content-Disposition: form-data; name=#{name}; file; filename=#{name}; documentid=#{identifier}\r\n\r\n"
       end
     end
 

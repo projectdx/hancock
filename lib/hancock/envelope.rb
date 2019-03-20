@@ -230,7 +230,7 @@ module Hancock
     def form_post_body
       post_body =  "\r\n--#{Hancock.boundary}\r\n"
       post_body << "Content-Type: application/json\r\n"
-      post_body << "Content-Disposition: form-data\r\n\r\n"
+      post_body << "Content-Disposition: form-data; name=\"test\"\r\n\r\n"
       post_body << get_post_params(status).to_json
       post_body << "\r\n--#{Hancock.boundary}\r\n"
       post_body << documents_for_body.join("\r\n--#{Hancock.boundary}\r\n")
