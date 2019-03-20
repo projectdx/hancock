@@ -129,7 +129,7 @@ describe Hancock::Document do
       subject = described_class.new(extension: "pdf", name: "booger.pdf", identifier: 4)
       expect(subject.content_type_and_disposition).to eq(
         "Content-Type: application/pdf\r\n"\
-        "Content-Disposition: file; filename=booger.pdf; documentid=4\r\n\r\n"
+        "Content-Disposition: form-data; name=booger.pdf; file; filename=booger.pdf; documentid=4\r\n\r\n"
       )
     end
 
@@ -137,7 +137,7 @@ describe Hancock::Document do
       subject = described_class.new(extension: "docx", name: "booger.docx", identifier: 5)
       expect(subject.content_type_and_disposition).to eq(
         "Content-Type: application/vnd.openxmlformats-officedocument.wordprocessingml.document\r\n"\
-        "Content-Disposition: file; filename=booger.docx; documentid=5\r\n\r\n"
+        "Content-Disposition: form-data; name=booger.docx; file; filename=booger.docx; documentid=5\r\n\r\n"
       )
     end
   end

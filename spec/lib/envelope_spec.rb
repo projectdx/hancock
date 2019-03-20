@@ -610,7 +610,7 @@ describe Hancock::Envelope do
         expect(subject.send(:form_post_body)).to eq(
           "\r\n"\
           "--MYBOUNDARY\r\nContent-Type: application/json\r\n"\
-          "Content-Disposition: form-data\r\n\r\n"\
+          "Content-Disposition: form-data; name=\"test\"\r\n\r\n"\
           "{\"emailBlurb\":\"flurb\",\"emailSubject\":\"fubject\","\
           "\"status\":\"foo\",\"documents\":[\"horse\",\"pony\"],"\
           "\"recipients\":\"the signature requests\","\
