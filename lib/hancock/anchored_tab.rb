@@ -26,7 +26,9 @@ module Hancock
         tabLabel:                 label,
         required:                 required,
         shared:                   shared,
-        requireAll:               require_all
+        requireAll:               require_all,
+        groupName:                group_name,
+        radios:                   radios
       }.reject{ |_, value| value.nil? }
     end
   end
