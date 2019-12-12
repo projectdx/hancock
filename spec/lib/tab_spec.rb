@@ -42,6 +42,20 @@ describe Hancock::Tab do
     end
   end
 
+  describe "#group_name" do
+    it 'can be set via params' do
+      subject = described_class.new(group_name: 'group_name')
+      expect(subject.group_name).to eq 'group_name'
+    end
+  end
+
+  describe "#radios" do
+    it 'can be set via params' do
+      subject = described_class.new(radios: 'radios')
+      expect(subject.radios).to eq 'radios'
+    end
+  end
+
   describe "#page_number" do
     it 'defaults to 1' do
       expect(subject.page_number).to eq 1

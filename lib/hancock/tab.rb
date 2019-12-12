@@ -1,6 +1,6 @@
 module Hancock
   class Tab < Hancock::Base
-    attr_accessor :type, :label, :page_number, :coordinates, :optional, :required
+    attr_accessor :type, :label, :page_number, :coordinates, :optional, :required, :group_name, :radios
     attr_reader :width, :font_size, :validation_pattern, :validation_message, :shared, :require_all
 
     AVAILABLE_FONT_SIZES = [7, 8, 9, 10, 11, 12, 14, 16, 18, 20, 22, 24, 26, 28, 36, 48, 72]
@@ -18,6 +18,8 @@ module Hancock
       @validation_message = attributes[:validation_message]
       @width              = attributes[:width]
       @font_size          = attributes[:font_size]
+      @group_name         = attributes[:group_name]
+      @radios             = attributes[:radios]
       @optional           = attributes[:optional].to_s unless attributes[:optional].nil? # for Signer Attachment Tag
       @required           = attributes[:required].to_s unless attributes[:required].nil? # for Text tag
       @shared             = attributes[:shared].to_s unless attributes[:shared].nil?
