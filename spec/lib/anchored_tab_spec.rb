@@ -52,7 +52,7 @@ describe Hancock::AnchoredTab do
         :required => 'true',
         :shared => 'true',
         :require_all => 'false',
-        :group_name => 'group_name',
+        :group_name => 'groupname',
         :radios    => 'radios'
       )
 
@@ -71,7 +71,7 @@ describe Hancock::AnchoredTab do
         :required => 'true',
         :shared   => 'true',
         :requireAll => 'false',
-        :groupName => 'group_name',
+        :groupName => 'groupname',
         :radios    => 'radios'
       })
     end
