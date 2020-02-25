@@ -52,6 +52,8 @@ describe Hancock::AnchoredTab do
         :required => 'true',
         :shared => 'true',
         :require_all => 'false',
+        :group_name => 'groupname',
+        :radios    => 'radios'
       )
 
       expect(subject.to_h).to eq({
@@ -68,7 +70,9 @@ describe Hancock::AnchoredTab do
         :tabLabel => 'label maker',
         :required => 'true',
         :shared   => 'true',
-        :requireAll => 'false'
+        :requireAll => 'false',
+        :groupName => 'groupname',
+        :radios    => 'radios'
       })
     end
 
