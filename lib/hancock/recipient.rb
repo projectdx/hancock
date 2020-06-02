@@ -157,9 +157,7 @@ module Hancock
     end
 
     def handle_embedded_envelope
-      # DocuSign currently provides no way to resend an envelope for a
-      # recipient with embedded signing enabled. So we use a workaround.
-      recreate_recipient_and_tabs
+      envelope.resend_email(self)
     end
 
     def raise_unless_email_resendable!

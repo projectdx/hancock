@@ -702,4 +702,22 @@ describe Hancock::Envelope do
       expect(docusign_envelope).to have_received(:get_lock)
     end
   end
+
+  describe "#resend_email" do
+    subject { described_class.new({identifier: "fake-id"}) }
+
+    let(:docusign_envelope) {
+      instance_double(Hancock::Envelope::DocusignEnvelope, :resend_email => "like a boss")
+    }
+
+    before :each do
+      allow(Hancock::Envelope::DocusignEnvelope).to receive(:new).and_return(docusign_envelope)
+    end
+
+    it "uses the DocusignEnvelope API class to get the lock" do
+      recipient = instance_double(Hancock::Recipient, name: "MJ", email: "mj@example.com", identifier: "6a")
+      subject.resend_email(recipient)
+      expect(docusign_envelope).to have_received(:resend_email).with(recipient)
+    end
+  end
 end

@@ -159,6 +159,10 @@ module Hancock
       docusign_envelope.get_lock
     end
 
+    def resend_email(recipient)
+      docusign_envelope.resend_email(recipient)
+    end
+
     private
 
     # CarbonCopy recipients who have a clientUserId cannot be added at creation

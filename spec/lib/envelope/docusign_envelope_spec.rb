@@ -28,4 +28,17 @@ describe Hancock::Envelope::DocusignEnvelope do
       subject.get_lock
     end
   end
+
+  describe '#resend_email' do
+    it 'makes a request to Docusign' do
+      recipient = instance_double(Hancock::Recipient, name: "MJ", email: "mj@example.com", identifier: "6a")
+      expect(Hancock::Request).to receive(:send_put_request)
+        .with(
+          '/envelopes/maui/recipients?resend_envelope=true',
+          "{\"signers\":[{\"recipientId\":\"6a\",\"name\":\"MJ\",\"email\":\"mj@example.com\"}]}"
+        )
+
+      subject.resend_email(recipient)
+    end
+  end
 end
