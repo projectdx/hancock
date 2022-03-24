@@ -28,7 +28,10 @@ module Hancock
         shared:                   shared,
         requireAll:               require_all,
         groupName:                group_name,
-        radios:                   radios
+        radios:                   radios,
+        Value: value,
+        conditionalParentLabel: conditional_parent_label,
+        conditionalParentValue: conditional_parent_value
       }.reject{ |_, value| value.nil? }
     end
   end
